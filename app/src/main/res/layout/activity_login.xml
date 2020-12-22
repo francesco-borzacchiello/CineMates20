@@ -174,10 +174,7 @@
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/socialLogin"
-        app:layout_constraintVertical_bias="0.0" >
-
-
-    </LinearLayout>
+        app:layout_constraintVertical_bias="0.0" />
 
     <ImageView
         android:id="@+id/googleLogo"
@@ -195,7 +192,7 @@
         android:id="@+id/facebookLogo"
         android:layout_width="90dp"
         android:layout_height="90dp"
-        android:layout_marginEnd="70dp"
+        android:layout_marginEnd="75dp"
         app:layout_constraintBottom_toBottomOf="@+id/rettangoloSocial"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/rettangoloSocial"
@@ -214,6 +211,8 @@
         app:layout_constraintTop_toTopOf="@+id/rettangoloSocial"
         app:srcCompat="@mipmap/twitter_logo_foreground"
         android:contentDescription="@string/twitterLogoDescr"/>
+
+
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
