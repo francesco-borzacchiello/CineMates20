@@ -1,12 +1,19 @@
 <resources>
     <string name="app_name">My Application</string>
     <!-- Strings related to login -->
-    <string name="prompt_email">Email</string>
+    <string name="prompt_email">Indirizzo e-mail o username</string>
     <string name="prompt_password">Password</string>
-    <string name="action_sign_in">Sign in or register</string>
-    <string name="action_sign_in_short">Sign in</string>
-    <string name="welcome">"Welcome !"</string>
-    <string name="invalid_username">Not a valid username</string>
-    <string name="invalid_password">Password must be >5 characters</string>
-    <string name="login_failed">"Login failed"</string>
+    <string name="action_sign_in">LOGIN</string>
+    <string name="action_sign_in_short">LOGIN</string>
+    <string name="welcome">"Benvenuto"</string>
+    <string name="invalid_username">E-mail o username non valido</string>
+    <string name="invalid_password">La password deve essere lunga almeno 8 caratteri</string>
+    <string name="login_failed">"Login fallito"</string>
+    <string name="effettuaLoginLabel">Effettua Login</string>
+    <string name="pswDimenticataLabel">Password dimenticata?</string>
+    <string name="nuovoAccountLabel">Crea un nuovo account</string>
+    <string name="loginSocialLabel">Oppure effettua login/registrazione con</string>
+    <string name="googleLogoDescr">Logo di Google</string>
+    <string name="facebookLogoDescr">Logo di Facebook</string>
+    <string name="twitterLogoDescr">Logo di Twitter</string>
 </resources>
