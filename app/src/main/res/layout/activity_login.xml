@@ -166,15 +166,15 @@
         android:id="@+id/rettangoloSocial"
         android:layout_width="230dp"
         android:layout_height="68dp"
+        android:layout_marginTop="20dp"
         android:background="@drawable/round_rect_shape2"
         android:orientation="vertical"
-        android:layout_marginTop="20dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/socialLogin"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintVertical_bias="0.033" />
 
     <ImageView
         android:id="@+id/googleLogo"
@@ -202,15 +202,15 @@
 
     <ImageView
         android:id="@+id/twitterLogo"
-        android:layout_width="90dp"
+        android:layout_width="89dp"
         android:layout_height="90dp"
         android:layout_marginStart="150dp"
+        android:contentDescription="@string/twitterLogoDescr"
         app:layout_constraintBottom_toBottomOf="@+id/rettangoloSocial"
         app:layout_constraintEnd_toEndOf="@+id/rettangoloSocial"
         app:layout_constraintStart_toStartOf="@+id/rettangoloSocial"
         app:layout_constraintTop_toTopOf="@+id/rettangoloSocial"
-        app:srcCompat="@mipmap/twitter_logo_foreground"
-        android:contentDescription="@string/twitterLogoDescr"/>
+        app:srcCompat="@mipmap/twitter_logo_foreground" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
