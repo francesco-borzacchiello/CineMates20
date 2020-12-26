@@ -1,4 +1,4 @@
-package it.unina.ingSw.cineMates20.ui.login;
+package it.unina.ingSw.cineMates20.view.login;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -6,9 +6,9 @@ import androidx.lifecycle.ViewModel;
 
 import android.util.Patterns;
 
-import it.unina.ingSw.cineMates20.data.LoginRepository;
-import it.unina.ingSw.cineMates20.data.Result;
-import it.unina.ingSw.cineMates20.data.model.LoggedInUser;
+import it.unina.ingSw.cineMates20.model.data.LoginRepository;
+import it.unina.ingSw.cineMates20.model.data.Result;
+import it.unina.ingSw.cineMates20.model.LoggedInUser;
 import it.unina.ingSw.cineMates20.R;
 
 public class LoginViewModel extends ViewModel {

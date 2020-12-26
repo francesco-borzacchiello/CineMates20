@@ -1,6 +1,6 @@
-package it.unina.ingSw.cineMates20.data;
+package it.unina.ingSw.cineMates20.model.data;
 
-import it.unina.ingSw.cineMates20.data.model.LoggedInUser;
+import it.unina.ingSw.cineMates20.model.LoggedInUser;
 
 /**
  * Class that requests authentication and user information from the remote data source and

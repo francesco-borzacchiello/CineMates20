@@ -1,11 +1,11 @@
-package it.unina.ingSw.cineMates20.ui.login;
+package it.unina.ingSw.cineMates20.view.login;
 
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.annotation.NonNull;
 
-import it.unina.ingSw.cineMates20.data.LoginDataSource;
-import it.unina.ingSw.cineMates20.data.LoginRepository;
+import it.unina.ingSw.cineMates20.model.data.LoginDataSource;
+import it.unina.ingSw.cineMates20.model.data.LoginRepository;
 
 /**
  * ViewModel provider factory to instantiate LoginViewModel.

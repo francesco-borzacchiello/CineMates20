@@ -1,4 +1,4 @@
-package it.unina.ingSw.cineMates20.data.model;
+package it.unina.ingSw.cineMates20.model;
 
 /**
  * Data class that captures user information for logged in users retrieved from LoginRepository

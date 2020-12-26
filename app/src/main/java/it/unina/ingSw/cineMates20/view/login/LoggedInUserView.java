@@ -1,4 +1,4 @@
-package it.unina.ingSw.cineMates20.ui.login;
+package it.unina.ingSw.cineMates20.view.login;
 
 /**
  * Class exposing authenticated user details to the UI.

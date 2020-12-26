@@ -1,8 +1,8 @@
-package it.unina.ingSw.cineMates20.data;
-
-import it.unina.ingSw.cineMates20.data.model.LoggedInUser;
+package it.unina.ingSw.cineMates20.model.data;
 
 import java.io.IOException;
+
+import it.unina.ingSw.cineMates20.model.LoggedInUser;
 
 /**
  * Class that handles authentication w/ login credentials and retrieves user information.

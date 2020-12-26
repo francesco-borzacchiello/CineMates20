@@ -1,4 +1,4 @@
-package it.unina.ingSw.cineMates20.ui.login;
+package it.unina.ingSw.cineMates20.view.login;
 
 import android.app.Activity;
 import android.content.Context;

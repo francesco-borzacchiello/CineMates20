@@ -1,4 +1,4 @@
-package it.unina.ingSw.cineMates20.data;
+package it.unina.ingSw.cineMates20.model.data;
 
 /**
  * A generic class that holds a result success w/ data or an error exception.
