@@ -22,7 +22,7 @@ public class InternetStatus {
     boolean connected = false;
 
     public static InternetStatus getInstance(Context ctx) {
-        if(context != null) {
+        if(ctx != null) {
             context = ctx.getApplicationContext();
             return instance;
         }

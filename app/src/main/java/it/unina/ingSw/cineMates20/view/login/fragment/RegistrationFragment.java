@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.fragment.app.Fragment;
 
 import org.jetbrains.annotations.NotNull;
@@ -19,8 +20,8 @@ import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.view.login.util.InternetStatus;
 import it.unina.ingSw.cineMates20.view.login.util.Utilities;
 
-/** Fragment che si occupa di mostrare le TextBox necessarie all'inserimento dei dati
-  * di un utente che si registra internamente al sistema. */
+/** Fragment che si occupa di mostrare le TextBox necessarie all'inserimento
+  * dei dati di un utente che si registra internamente al sistema. */
 public class RegistrationFragment extends Fragment {
 
     private EditText nome;
@@ -40,23 +41,57 @@ public class RegistrationFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //Alla pressione del tasto indietro, distruggi Activity padre RegistrationActivity
+        OnBackPressedCallback callback = new OnBackPressedCallback(true ) {
+            @Override
+            public void handleOnBackPressed() {
+                if(isAdded())
+                    getActivity().finish();
+            }
+        };
+        requireActivity().getOnBackPressedDispatcher().addCallback(this, callback);
     }
 
     //Questo metodo viene chiamato dopo onCreate()
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+        return inflater.inflate(R.layout.fragment_registration, container, false);
+    }
 
-        final View view = inflater.inflate(R.layout.fragment_registration, container, false);
-
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
         setEditText(view);
-        addTextChangedListenerToEditTexts();
 
         if(isAdded()) {
-            registerButton = getActivity().findViewById(R.id.registratiButton);
+            registerButton = (Button) getView().findViewById(R.id.registratiButton);
             context = getActivity().getApplicationContext();
         }
-        else return null;
+        else return;
+
+        //Questo listener dipende dal fragment, e per tale ragione non può essere spostato nell'activity contenitrice
+        registerButton.setOnClickListener(listener -> {
+            if(context != null && !InternetStatus.getInstance(context).isOnline()) {
+                stampaToast("Connessione ad internet non disponibile!");
+                return;
+            }
+
+            /* Nome e cognome sono per forza validi in quanto è soltanto richiesto che siano non vuoti,
+             * e il tasto registrati viene disabilitato non appena una EditText diventa vuota. */
+
+            if (Utilities.isUserNameValid(username.getText().toString())) {
+                if (Utilities.isEmailValid(email.getText().toString())) {
+                    if (Utilities.isPasswordValid(password.getText().toString())) {
+                        if (Utilities.isConfirmPasswordValid(password.getText().toString(), confermaPassword.getText().toString())) {
+                            /*TODO: Se non è stata modificata foto, passare url foto default a Cognito.
+                             *      Procedere con la registrazione (mostrare prima ConfirmRegistrationCodeFragment) */
+
+                        } else stampaToast("Le password non coincidono!");
+                    } else stampaToast("La password deve contenere almeno un numero, un carattere speciale, una lettera minuscola e una maiuscola.");
+                } else stampaToast("L'email inserita non è valida oppure è già in uso.");
+            } else stampaToast("L'username inserito non è valido oppure è già in uso.");
+        });
 
         afterTextChangedListener = new TextWatcher() {
             @Override
@@ -75,29 +110,7 @@ public class RegistrationFragment extends Fragment {
             }
         };
 
-        //Questo listener dipende dal fragment, e per tale ragione non può essere spostato nell'activity contenitrice
-        registerButton.setOnClickListener(listener -> {
-            if(context != null && !InternetStatus.getInstance(context).isOnline()) {
-                stampaToast("Connessione ad internet non disponibile!");
-                return;
-            }
-
-            /* Nome e cognome sono per forza validi in quanto è soltanto richiesto che siano non vuoti,
-             * e il tasto registrati viene disabilitato non appena una EditText diventa vuota. */
-
-            if (Utilities.isUserNameValid(username.getText().toString())) {
-                if (Utilities.isEmailValid(email.getText().toString())) {
-                    if (Utilities.isPasswordValid(password.getText().toString())) {
-                        if (Utilities.isConfirmPasswordValid(password.getText().toString(), confermaPassword.getText().toString())) {
-                            //TODO: Procedere con la registrazione (mostrare prima ConfirmRegistrationCodeFragment)
-
-                        } else stampaToast("Le password non coincidono!");
-                    } else stampaToast("La password deve contenere almeno un numero, un carattere speciale, una lettera minuscola e una maiuscola.");
-                } else stampaToast("L'email inserita non è valida oppure è già in uso.");
-            } else stampaToast("L'username inserito non è valido oppure è già in uso.");
-        });
-
-        return view;
+        addTextChangedListenerToEditTexts();
     }
 
     //Restituisce true se tutte le EditText sono non vuote al momento dell'invocazione
