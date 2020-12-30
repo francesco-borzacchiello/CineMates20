@@ -1,4 +1,4 @@
-package it.unina.ingSw.cineMates20.view.login;
+package it.unina.ingSw.cineMates20.view.login.activity;
 
 import androidx.annotation.Nullable;
 

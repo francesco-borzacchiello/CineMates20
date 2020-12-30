@@ -1,0 +1,13 @@
+{
+  "projectName": "CineMates20",
+  "version": "3.0",
+  "frontend": "android",
+  "android": {
+    "config": {
+      "ResDir": "C:\\Users\\Carmine\\Università di Napoli Federico II\\FRANCESCO BORZACCHIELLO - CineMates20\\Implementazione\\Android\\app\\src\\main\\res"
+    }
+  },
+  "providers": [
+    "awscloudformation"
+  ]
+}

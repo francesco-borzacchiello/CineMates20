@@ -1,13 +1,13 @@
-package it.unina.ingSw.cineMates20.view.login;
+package it.unina.ingSw.cineMates20.view.login.activity;
 
 /**
  * Class exposing authenticated user details to the UI.
  */
-class LoggedInUserView {
+public class LoggedInUserView {
     private String displayName;
     //... other data fields that may be accessible to the UI
 
-    LoggedInUserView(String displayName) {
+    public LoggedInUserView(String displayName) {
         this.displayName = displayName;
     }
 

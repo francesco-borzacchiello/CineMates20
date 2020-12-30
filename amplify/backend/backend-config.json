@@ -1,0 +1,11 @@
+{
+  "auth": {
+    "cinemates207b6f262d": {
+      "service": "Cognito",
+      "serviceType": "imported",
+      "providerPlugin": "awscloudformation",
+      "dependsOn": [],
+      "customAuth": false
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-cinemates20-dev-170138-authRole",
+      "UnauthRoleArn": "arn:aws:iam::155193434482:role/amplify-cinemates20-dev-170138-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::155193434482:role/amplify-cinemates20-dev-170138-authRole",
+      "Region": "eu-west-3",
+      "DeploymentBucketName": "amplify-cinemates20-dev-170138-deployment",
+      "UnauthRoleName": "amplify-cinemates20-dev-170138-unauthRole",
+      "StackName": "amplify-cinemates20-dev-170138",
+      "StackId": "arn:aws:cloudformation:eu-west-3:155193434482:stack/amplify-cinemates20-dev-170138/cd98b3e0-485c-11eb-bd21-068e88f5e14c"
+    }
+  }
+}

@@ -1,19 +1,31 @@
 <resources>
-    <string name="app_name">My Application</string>
+    <string name="app_name">CineMates20</string>
     <!-- Strings related to login -->
-    <string name="prompt_email">Indirizzo e-mail o username</string>
+    <string name="prompt_email_or_username">Indirizzo e-mail o username</string>
     <string name="prompt_password">Password</string>
+    <string name="prompt_conferma_password">Conferma password</string>
+    <string name="prompt_nome">Nome</string>
+    <string name="prompt_cognome">Cognome</string>
+    <string name="prompt_username">Username</string>
+    <string name="prompt_email">Indirizzo e-mail</string>
     <string name="action_sign_in">LOGIN</string>
+    <string name="action_sign_up">REGISTRATI</string>
     <string name="action_sign_in_short">LOGIN</string>
     <string name="welcome">"Benvenuto"</string>
     <string name="invalid_username">E-mail o username non valido</string>
     <string name="invalid_password">La password deve essere lunga almeno 8 caratteri</string>
     <string name="login_failed">"Login fallito"</string>
     <string name="effettuaLoginLabel">Effettua Login</string>
+    <string name="effettuaRegistrazioneLabel">Registrazione</string>
     <string name="pswDimenticataLabel">Password dimenticata?</string>
     <string name="nuovoAccountLabel">Crea un nuovo account</string>
     <string name="loginSocialLabel">Oppure effettua login/registrazione con</string>
     <string name="googleLogoDescr">Logo di Google</string>
     <string name="facebookLogoDescr">Logo di Facebook</string>
     <string name="twitterLogoDescr">Logo di Twitter</string>
+    <string name="avatarDescr">Immagine di profilo scelta durante la registrazione</string>
+    <string name="pencilDescr">Matita che simboleggia la possibilità di modificare l\'immagine del profilo</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

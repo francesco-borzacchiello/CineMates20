@@ -1,0 +1,24 @@
+{
+  "ingsw": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-cinemates20-ingsw-171609-authRole",
+      "UnauthRoleArn": "arn:aws:iam::155193434482:role/amplify-cinemates20-ingsw-171609-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::155193434482:role/amplify-cinemates20-ingsw-171609-authRole",
+      "Region": "eu-west-3",
+      "DeploymentBucketName": "amplify-cinemates20-ingsw-171609-deployment",
+      "UnauthRoleName": "amplify-cinemates20-ingsw-171609-unauthRole",
+      "StackName": "amplify-cinemates20-ingsw-171609",
+      "StackId": "arn:aws:cloudformation:eu-west-3:155193434482:stack/amplify-cinemates20-ingsw-171609/d4fb8071-485e-11eb-812c-0a22b537aae6"
+    },
+    "categories": {
+      "auth": {
+        "cinemates207b6f262d": {
+          "userPoolId": "eu-west-3_VN56xO6X5",
+          "userPoolName": "UtentiCineMates20",
+          "webClientId": "h1r0u4ikhbe7b5u96igvadmi3",
+          "nativeClientId": "7v2b936dq8hv246iiqpktr965t"
+        }
+      }
+    }
+  }
+}
