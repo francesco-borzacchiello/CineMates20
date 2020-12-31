@@ -1,4 +1,4 @@
-package it.unina.ingSw.cineMates20.view.login.util;
+package it.unina.ingSw.cineMates20.view.util;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -10,7 +10,6 @@ import android.util.Log;
  * Mobile o WIFI, prima di inviare qualunque richiesta internet al server.
  * La classe utilizza due permessi - INTERNET e ACCESS NETWORK STATE, per determinare lo
  * stato di connessione dell'utente.
- * Esempio di utilizzo all'interno di un'activity: InternetStatus.getInstance(getApplicationContext()).isOnline()
  */
 
 public class InternetStatus {
@@ -20,13 +19,15 @@ public class InternetStatus {
     ConnectivityManager connectivityManager;
     boolean connected = false;
 
-    public static InternetStatus getInstance(Context ctx) {
-        if(ctx != null) {
+    private InternetStatus() {}
+
+    public static void initializeInstance(Context ctx) {
+        if(ctx != null)
             context = ctx.getApplicationContext();
-            return instance;
-        }
-        else
-            return null;
+    }
+
+    public static InternetStatus getInstance() {
+        return instance;
     }
 
     public boolean isOnline() {

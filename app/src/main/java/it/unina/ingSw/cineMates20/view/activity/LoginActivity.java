@@ -1,4 +1,4 @@
-package it.unina.ingSw.cineMates20.view.login.activity;
+package it.unina.ingSw.cineMates20.view.activity;
 
 import android.app.Activity;
 import android.app.FragmentManager;
@@ -27,7 +27,7 @@ import com.amplifyframework.core.Amplify;
 import java.util.Objects;
 
 import it.unina.ingSw.cineMates20.R;
-import it.unina.ingSw.cineMates20.view.login.util.InternetStatus;
+import it.unina.ingSw.cineMates20.view.util.InternetStatus;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -105,7 +105,7 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         loginButton.setOnClickListener(v -> {
-            if(!InternetStatus.getInstance(getApplicationContext()).isOnline()) {
+            if(!InternetStatus.getInstance().isOnline()) {
                 Toast.makeText(getApplicationContext(), "Connessione ad internet non disponibile!", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -125,7 +125,7 @@ public class LoginActivity extends AppCompatActivity {
 
             loadingProgressBar.setVisibility(View.VISIBLE);
             loginViewModel.login(usernameEditText.getText().toString(),
-                   passwordEditText.getText().toString());
+                    passwordEditText.getText().toString());
         });
 
         creaNuovoAccount.setOnClickListener(v -> {
@@ -228,7 +228,7 @@ public class LoginActivity extends AppCompatActivity {
                         error -> Log.e("AmplifyQuickstart", "login: " + error.toString())
                 );*/
 
-                //Codice per fare login con username e password:
+//Codice per fare login con username e password:
                 /*Amplify.Auth.signIn(
                         "carmineG",
                         "Carmine_97",

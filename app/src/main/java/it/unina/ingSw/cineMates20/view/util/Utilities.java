@@ -1,11 +1,12 @@
-package it.unina.ingSw.cineMates20.view.login.util;
+package it.unina.ingSw.cineMates20.view.util;
 
 import android.util.Patterns;
 
 public class Utilities {
 
     public static boolean isUserNameValid(String username) {
-        return username != null && !username.trim().isEmpty();
+        return username != null && !username.trim().isEmpty()
+                && username.trim().length() > 3;
         //TODO: aggiungere && !username.isUsed() tramite un metodo di Amplify
     }
 
@@ -25,6 +26,6 @@ public class Utilities {
 
     public static boolean isEmailValid(String email) {
         return email != null && Patterns.EMAIL_ADDRESS.matcher(email).matches();
-        //TODO: aggiungere && !email.isUsed() tramite un metodo di Amplify
+        //TODO: aggiungere && !email.isUsed() tramite un metodo di Amplify OR email.isUsed() && email.isPending()
     }
 }

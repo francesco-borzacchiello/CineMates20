@@ -8,7 +8,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:background="@color/lightBlue"
-    tools:context=".view.login.activity.LoginActivity" >
+    tools:context=".view.activity.LoginActivity" >
 
     <TextView
         android:id="@+id/registrazioneLabel"

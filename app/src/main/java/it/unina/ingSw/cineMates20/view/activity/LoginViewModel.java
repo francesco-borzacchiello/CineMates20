@@ -1,4 +1,4 @@
-package it.unina.ingSw.cineMates20.view.login.activity;
+package it.unina.ingSw.cineMates20.view.activity;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;

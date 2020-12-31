@@ -1,4 +1,4 @@
-package it.unina.ingSw.cineMates20.view.login.fragment;
+package it.unina.ingSw.cineMates20.view.fragment;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -17,8 +17,8 @@ import androidx.fragment.app.Fragment;
 import org.jetbrains.annotations.NotNull;
 
 import it.unina.ingSw.cineMates20.R;
-import it.unina.ingSw.cineMates20.view.login.util.InternetStatus;
-import it.unina.ingSw.cineMates20.view.login.util.Utilities;
+import it.unina.ingSw.cineMates20.view.util.InternetStatus;
+import it.unina.ingSw.cineMates20.view.util.Utilities;
 
 /** Fragment che si occupa di mostrare le TextBox necessarie all'inserimento
   * dei dati di un utente che si registra internamente al sistema. */
@@ -64,16 +64,15 @@ public class RegistrationFragment extends Fragment {
     public void onViewCreated(@NotNull View view, Bundle savedInstanceState) {
         setEditText(view);
 
-        if(isAdded()) {
-            registerButton = (Button) view.findViewById(R.id.registratiButton);
-            if(getActivity() != null)
-                context = getActivity().getApplicationContext();
-        }
+        registerButton = (Button) view.findViewById(R.id.registratiButton);
+
+        if(isAdded() && getActivity() != null)
+            context = getActivity().getApplicationContext();
         else return;
 
         //Questo listener dipende dal fragment, e per tale ragione non può essere spostato nell'activity contenitrice
         registerButton.setOnClickListener(listener -> {
-            if(context != null && !InternetStatus.getInstance(context).isOnline()) {
+            if(context != null && !InternetStatus.getInstance().isOnline()) {
                 stampaToast("Connessione ad internet non disponibile!");
                 return;
             }
@@ -81,17 +80,25 @@ public class RegistrationFragment extends Fragment {
             /* Nome e cognome sono per forza validi in quanto è soltanto richiesto che siano non vuoti,
              * e il tasto registrati viene disabilitato non appena una EditText diventa vuota. */
 
-            if (Utilities.isUserNameValid(username.getText().toString())) {
-                if (Utilities.isEmailValid(email.getText().toString())) {
-                    if (Utilities.isPasswordValid(password.getText().toString())) {
-                        if (Utilities.isConfirmPasswordValid(password.getText().toString(), confermaPassword.getText().toString())) {
-                            /*TODO: Se non è stata modificata foto, passare url foto default a Cognito.
-                             *      Procedere con la registrazione (mostrare prima ConfirmRegistrationCodeFragment) */
+            if (!Utilities.isUserNameValid(username.getText().toString())) {
+                stampaToast("L'username inserito non è valido oppure è già in uso.");
+                return;
+            }
+            if (!Utilities.isEmailValid(email.getText().toString())) {
+                stampaToast("L'email inserita non è valida oppure è già in uso.");
+                return;
+            }
+            if (!Utilities.isPasswordValid(password.getText().toString())) {
+                stampaToast("La password deve contenere almeno un numero, un carattere speciale, una lettera minuscola e una maiuscola.");
+                return;
+            }
+            if (!Utilities.isConfirmPasswordValid(password.getText().toString(), confermaPassword.getText().toString())) {
+                stampaToast("Le password non coincidono!");
+                return;
+            }
+            /*TODO: Se non è stata modificata foto, passare url foto default a Cognito.
+             *      Procedere con la registrazione (mostrare prima ConfirmRegistrationCodeFragment) */
 
-                        } else stampaToast("Le password non coincidono!");
-                    } else stampaToast("La password deve contenere almeno un numero, un carattere speciale, una lettera minuscola e una maiuscola.");
-                } else stampaToast("L'email inserita non è valida oppure è già in uso.");
-            } else stampaToast("L'username inserito non è valido oppure è già in uso.");
         });
 
         afterTextChangedListener = new TextWatcher() {

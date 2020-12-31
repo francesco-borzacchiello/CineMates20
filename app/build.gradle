@@ -16,6 +16,15 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+
+    /*preBuild {
+        doFirst {
+            JavaCompile jc = android.applicationVariants.find { it.name == 'debug' }.javaCompile
+            jc.options.compilerArgs = ["-Xlint:deprecation"]
+        }
+    }*/
+
+
     buildTypes {
         release {
             minifyEnabled false
@@ -43,7 +52,7 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.1'
 
-    testImplementation 'junit:junit:4.+'
+    testImplementation 'junit:junit:4.13.1'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 }

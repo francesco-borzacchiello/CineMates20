@@ -5,15 +5,15 @@ import android.content.Intent;
 import it.unina.ingSw.cineMates20.EntryPoint;
 import it.unina.ingSw.cineMates20.view.activity.LoginActivity;
 
-public class ControllerLogin {
+public class LoginController {
 
     LoginActivity loginActivity;
 
-    public ControllerLogin() {
+    public LoginController() {
         this.loginActivity = new LoginActivity();
     }
 
-    public void startControllerLogin(EntryPoint e) {
+    public void start(EntryPoint e) {
         Intent intent;
         intent = new Intent(e, LoginActivity.class);
         e.startActivity(intent);

@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".view.login.fragment.RegistrationFragment">
+    tools:context=".view.fragment.RegistrationFragment">
 
     <EditText
         android:id="@+id/nomeRegistrazione"
@@ -16,7 +16,6 @@
         android:background="@drawable/round_rect_shape"
         android:ems="10"
         android:hint="@string/prompt_nome"
-        android:imeActionLabel="@string/action_sign_in_short"
         android:imeOptions="actionDone"
         android:inputType="textPersonName"
         android:maxLength="15"
@@ -36,6 +35,7 @@
         android:layout_marginEnd="24dp"
         android:autofillHints=""
         android:hint="@string/prompt_cognome"
+        android:imeOptions="actionDone"
         android:inputType="textPersonName"
         android:selectAllOnFocus="true"
         android:textColor="@color/black"
@@ -54,6 +54,7 @@
         android:layout_marginEnd="24dp"
         android:autofillHints=""
         android:hint="@string/prompt_username"
+        android:imeOptions="actionDone"
         android:inputType="text"
         android:selectAllOnFocus="true"
         android:textColor="@color/black"
@@ -72,6 +73,7 @@
         android:layout_marginEnd="24dp"
         android:autofillHints=""
         android:hint="@string/prompt_email"
+        android:imeOptions="actionDone"
         android:inputType="textEmailAddress"
         android:selectAllOnFocus="true"
         android:textColor="@color/black"
@@ -89,6 +91,7 @@
         android:layout_marginTop="240dp"
         android:layout_marginEnd="24dp"
         android:autofillHints=""
+        android:imeOptions="actionDone"
         android:hint="@string/prompt_password"
         android:inputType="textPassword"
         android:selectAllOnFocus="true"
@@ -107,6 +110,7 @@
         android:layout_marginTop="300dp"
         android:layout_marginEnd="24dp"
         android:autofillHints=""
+        android:imeOptions="actionDone"
         android:hint="@string/prompt_conferma_password"
         android:inputType="textPassword"
         android:selectAllOnFocus="true"
