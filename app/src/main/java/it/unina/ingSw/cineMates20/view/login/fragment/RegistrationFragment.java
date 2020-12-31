@@ -46,7 +46,7 @@ public class RegistrationFragment extends Fragment {
         OnBackPressedCallback callback = new OnBackPressedCallback(true ) {
             @Override
             public void handleOnBackPressed() {
-                if(isAdded())
+                if(isAdded() && getActivity() != null)
                     getActivity().finish();
             }
         };
@@ -61,12 +61,13 @@ public class RegistrationFragment extends Fragment {
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
+    public void onViewCreated(@NotNull View view, Bundle savedInstanceState) {
         setEditText(view);
 
         if(isAdded()) {
-            registerButton = (Button) getView().findViewById(R.id.registratiButton);
-            context = getActivity().getApplicationContext();
+            registerButton = (Button) view.findViewById(R.id.registratiButton);
+            if(getActivity() != null)
+                context = getActivity().getApplicationContext();
         }
         else return;
 
@@ -102,11 +103,8 @@ public class RegistrationFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable s) {
-                //Controlla se abilitare tasto Registrati
-                if(allTextBoxesAreNotEmpty())
-                    registerButton.setEnabled(true);
-                else
-                    registerButton.setEnabled(false);
+                //Se tutte le EditText sono non vuote, abilita il tasto Registrati
+                registerButton.setEnabled(allEditTextAreNotEmpty());
             }
         };
 
@@ -114,7 +112,7 @@ public class RegistrationFragment extends Fragment {
     }
 
     //Restituisce true se tutte le EditText sono non vuote al momento dell'invocazione
-    public boolean allTextBoxesAreNotEmpty() {
+    public boolean allEditTextAreNotEmpty() {
         return nome.getText().toString().trim().length() > 0 && cognome.getText().toString().trim().length() > 0
                && username.getText().toString().trim().length() > 0 && email.getText().toString().trim().length() > 0
                && password.getText().toString().trim().length() > 0 && confermaPassword.getText().toString().trim().length() > 0;

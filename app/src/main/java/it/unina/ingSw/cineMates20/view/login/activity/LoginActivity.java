@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -19,12 +18,13 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.RequiresApi;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.amplifyframework.core.Amplify;
+
+import java.util.Objects;
 
 import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.view.login.util.InternetStatus;
@@ -33,12 +33,11 @@ public class LoginActivity extends AppCompatActivity {
 
     private LoginViewModel loginViewModel;
     private Runnable eventForLoginClick;
-    private boolean isLoggedIn;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getSupportActionBar().hide(); //Nasconde la barra del titolo - chiamare questo metodo prima di setContentView
+        Objects.requireNonNull(getSupportActionBar()).hide(); //Nasconde la barra del titolo - chiamare questo metodo prima di setContentView
 
         setContentView(R.layout.activity_login);
 
@@ -82,14 +81,10 @@ public class LoginActivity extends AppCompatActivity {
 
         TextWatcher afterTextChangedListener = new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                // ignore
-            }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                // ignore
-            }
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
 
             @Override
             public void afterTextChanged(Editable s) {
@@ -117,7 +112,7 @@ public class LoginActivity extends AppCompatActivity {
 
             try {
                 //TODO: Aggiungere logica login in setNextStep(), se il login va a buon fine (result.isSignInComplete() == true), reindirizzare alla Home, altrimenti mostrare errore a schermo
-                //Nota: in caso di wifi spento, il login fallisce semplicemente.
+                //Nota: in caso di wifi spento, non possiamo trovarci qui.
                 Amplify.Auth.signIn(
                         "carmineG", //TODO: sostituire con credenziali date in input
                         "Carmine_97",
@@ -149,14 +144,24 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     //Nasconde la tastiera alla pressione di un elemento che non sia essa stessa o una text box
-    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
-    public boolean dispatchTouchEvent(MotionEvent ev) {
-        if (getCurrentFocus() != null) {
-            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+    public boolean dispatchTouchEvent(MotionEvent event) {
+        View view = getCurrentFocus();
+        boolean ret = super.dispatchTouchEvent(event);
+
+        if (view instanceof EditText) {
+            View w = getCurrentFocus();
+            int[] screenCords = new int[2];
+            w.getLocationOnScreen(screenCords);
+            float x = event.getRawX() + w.getLeft() - screenCords[0];
+            float y = event.getRawY() + w.getTop() - screenCords[1];
+
+            if (event.getAction() == MotionEvent.ACTION_UP && (x < w.getLeft() || x >= w.getRight() || y < w.getTop() || y > w.getBottom())) {
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(getWindow().getCurrentFocus().getWindowToken(), 0);
+            }
         }
-        return super.dispatchTouchEvent(ev);
+        return ret;
     }
 
     private void updateUiWithUser(LoggedInUserView model) {

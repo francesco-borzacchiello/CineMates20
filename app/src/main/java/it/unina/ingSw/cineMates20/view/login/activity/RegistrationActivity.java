@@ -3,28 +3,27 @@ package it.unina.ingSw.cineMates20.view.login.activity;
 import it.unina.ingSw.cineMates20.view.login.fragment.RegistrationFragment;
 
 import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.MotionEvent;
+import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import java.util.Objects;
+
 import it.unina.ingSw.cineMates20.R;
 
 public class RegistrationActivity extends AppCompatActivity {
 
-    private FragmentManager manager;
-    private FragmentTransaction transaction;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getSupportActionBar().hide(); //Nasconde la barra del titolo - chiamare questo metodo prima di setContentView
+        Objects.requireNonNull(getSupportActionBar()).hide(); //Nasconde la barra del titolo - chiamare questo metodo prima di setContentView
         setContentView(R.layout.activity_registration);
 
         boolean isLoginRegistration = false;
@@ -48,21 +47,32 @@ public class RegistrationActivity extends AppCompatActivity {
     }
 
     public void createNewFragment(Fragment fragment) {
-        manager = getSupportFragmentManager();
-        transaction = manager.beginTransaction();
+        FragmentManager manager = getSupportFragmentManager();
+        FragmentTransaction transaction = manager.beginTransaction();
         transaction.add(R.id.FrameLayoutFragment, fragment);
         transaction.addToBackStack(null);
         transaction.commit();
     }
 
     //Nasconde la tastiera alla pressione di un elemento che non sia essa stessa o una text box
-    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
-    public boolean dispatchTouchEvent(MotionEvent ev) {
-        if (getCurrentFocus() != null) {
-            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+    public boolean dispatchTouchEvent(MotionEvent event) {
+        View view = getCurrentFocus();
+        boolean ret = super.dispatchTouchEvent(event);
+
+        if (view instanceof EditText) {
+            View w = getCurrentFocus();
+            int[] screenCords = new int[2];
+            w.getLocationOnScreen(screenCords);
+            float x = event.getRawX() + w.getLeft() - screenCords[0];
+            float y = event.getRawY() + w.getTop() - screenCords[1];
+
+            if (event.getAction() == MotionEvent.ACTION_UP && (x < w.getLeft() || x >= w.getRight() || y < w.getTop() || y > w.getBottom())) {
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(getWindow().getCurrentFocus().getWindowToken(), 0);
+            }
         }
-        return super.dispatchTouchEvent(ev);
+        return ret;
     }
+
 }

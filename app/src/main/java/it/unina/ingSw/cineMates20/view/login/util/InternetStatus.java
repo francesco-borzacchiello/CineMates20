@@ -18,7 +18,6 @@ public class InternetStatus {
     static Context context;
     private static InternetStatus instance = new InternetStatus();
     ConnectivityManager connectivityManager;
-    NetworkInfo wifiInfo, mobileInfo;
     boolean connected = false;
 
     public static InternetStatus getInstance(Context ctx) {
