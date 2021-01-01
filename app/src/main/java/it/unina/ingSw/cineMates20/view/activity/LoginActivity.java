@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -22,17 +21,22 @@ import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.amplifyframework.core.Amplify;
-
 import java.util.Objects;
 
 import it.unina.ingSw.cineMates20.R;
-import it.unina.ingSw.cineMates20.view.util.InternetStatus;
+import it.unina.ingSw.cineMates20.controller.LoginController;
+import it.unina.ingSw.cineMates20.view.util.Utilities;
 
 public class LoginActivity extends AppCompatActivity {
 
     private LoginViewModel loginViewModel;
     private Runnable eventForLoginClick;
+
+    private EditText usernameEditText;
+    private EditText passwordEditText;
+    private Button loginButton;
+    private ProgressBar loadingProgressBar;
+    private TextView creaNuovoAccount;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -41,13 +45,13 @@ public class LoginActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_login);
 
+        //Estraggo Runnable per il listener del pulsante login
+        Utilities.Srunnable s = (Utilities.Srunnable) getIntent().getSerializableExtra("Srunnable");
+        this.eventForLoginClick = s.getRunnable();
+
         loginViewModel = new ViewModelProvider(this, new LoginViewModelFactory()).get(LoginViewModel.class);
 
-        final EditText usernameEditText = findViewById(R.id.usernameLogin);
-        final EditText passwordEditText = findViewById(R.id.passwordLogin);
-        final Button loginButton = findViewById(R.id.loginButton);
-        final ProgressBar loadingProgressBar = findViewById(R.id.loading);
-        final TextView creaNuovoAccount = findViewById(R.id.nuovoAccount);
+        initializeGraphicsComponents();
 
         loginViewModel.getLoginFormState().observe(this, loginFormState -> {
             if (loginFormState == null) {
@@ -68,7 +72,7 @@ public class LoginActivity extends AppCompatActivity {
             }
             loadingProgressBar.setVisibility(View.GONE);
             if (loginResult.getError() != null) {
-                showLoginFailed(loginResult.getError());
+                LoginController.stampaMessaggioToast(getApplicationContext(), loginResult.getError().toString());
             }
             if (loginResult.getSuccess() != null) {
                 updateUiWithUser(loginResult.getSuccess());
@@ -105,23 +109,12 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         loginButton.setOnClickListener(v -> {
-            if(!InternetStatus.getInstance().isOnline()) {
-                Toast.makeText(getApplicationContext(), "Connessione ad internet non disponibile!", Toast.LENGTH_SHORT).show();
+            if(!LoginController.isConnectedToInternet(getApplicationContext())) {
+                LoginController.stampaMessaggioToast(getApplicationContext(), "Connessione ad internet non disponibile!");
                 return;
             }
 
-            try {
-                //TODO: Aggiungere logica login in setNextStep(), se il login va a buon fine (result.isSignInComplete() == true), reindirizzare alla Home, altrimenti mostrare errore a schermo
-                //Nota: in caso di wifi spento, non possiamo trovarci qui.
-                Amplify.Auth.signIn(
-                        "carmineG", //TODO: sostituire con credenziali date in input
-                        "Carmine_97",
-                        result -> setNextStep(result.isSignInComplete()),
-                        error -> Log.e("AuthQuickstart", error.toString())
-                );
-            } catch (Exception error) {
-                Log.e("AuthQuickstart", "Could not initialize Amplify", error);
-            }
+            eventForLoginClick.run();
 
             loadingProgressBar.setVisibility(View.VISIBLE);
             loginViewModel.login(usernameEditText.getText().toString(),
@@ -129,6 +122,11 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         creaNuovoAccount.setOnClickListener(v -> {
+            if(!LoginController.isConnectedToInternet(getApplicationContext())) {
+                LoginController.stampaMessaggioToast(getApplicationContext(), "Connessione ad internet non disponibile!");
+                return;
+            }
+
             Intent myIntent = new Intent(LoginActivity.this, RegistrationActivity.class);
             myIntent.putExtra("loginType", false);
             LoginActivity.this.startActivity(myIntent);
@@ -137,10 +135,14 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
-    //TODO: Se il login è fallito allora mostra errori a schermo, altrimenti passa alla prossima activity, chiama clearBackStack() e infine finish()
-    //Nota: questo metodo sembra venga chiamato soltanto dopo il termine del corpo di loginButton.setOnClickListener()
-    private void setNextStep(boolean signIn) {
-        //...
+    private void initializeGraphicsComponents(){
+        Objects.requireNonNull(getSupportActionBar()).hide(); //Nasconde la barra del titolo - chiamare questo metodo prima di setContentView
+        setContentView(R.layout.activity_login);
+        usernameEditText = findViewById(R.id.usernameLogin);
+        passwordEditText = findViewById(R.id.passwordLogin);
+        loginButton = findViewById(R.id.loginButton);
+        loadingProgressBar = findViewById(R.id.loading);
+        creaNuovoAccount = findViewById(R.id.nuovoAccount);
     }
 
     //Nasconde la tastiera alla pressione di un elemento che non sia essa stessa o una text box

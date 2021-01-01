@@ -1,6 +1,7 @@
 package it.unina.ingSw.cineMates20;
 
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -33,10 +34,13 @@ public class EntryPoint extends AppCompatActivity {
         //TODO: testare se su uno smartphone vero viene mostrato a schermo questo colore
         this.getWindow().getDecorView().setBackgroundColor(getResources().getColor(R.color.lightBlue));
 
-        InternetStatus.initializeInstance(getApplicationContext());
+        //Inizializziamo l'istanza singleton di InternetStatus (non necessitiamo del riferimento)
+        InternetStatus.getInstance();
 
         try {
             configureAmplify();
-        }catch (Exception e){}
+        }catch (Exception e){
+            Log.e("initActivityException", "Errore configurazione Amplify");
+        }
     }
 }

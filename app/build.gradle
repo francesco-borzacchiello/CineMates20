@@ -16,7 +16,6 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
-
     /*preBuild {
         doFirst {
             JavaCompile jc = android.applicationVariants.find { it.name == 'debug' }.javaCompile
