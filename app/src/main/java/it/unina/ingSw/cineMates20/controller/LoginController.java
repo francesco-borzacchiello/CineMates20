@@ -10,43 +10,26 @@ import com.amplifyframework.core.Amplify;
 import java.io.Serializable;
 
 import it.unina.ingSw.cineMates20.view.activity.LoginActivity;
-import it.unina.ingSw.cineMates20.view.util.InternetStatus;
+import it.unina.ingSw.cineMates20.view.util.IdentifiedForEventHandlers;
 import it.unina.ingSw.cineMates20.view.util.Utilities;
 
+/**
+ * Effettua il login comunicando con cognito, se esso ha successo si viene reindirizzati alla home
+ */
 public class LoginController {
 
+    Activity activityParent;
     public LoginController() {}
 
-    public void start(Activity activityParent) {
-        startLoginActivity(activityParent);
-    }
+    public void start(Activity activityParent) { startLoginActivity(activityParent); }
 
     private void startLoginActivity(Activity activityParent){
-
         //Runnable per il listener sulla pressione del pulsante Login
-        Runnable r = (Runnable & Serializable)() -> {
-            //Credenziali di prova:
-            //username: carmineG
-            //password: Carmine_97
-            //if(Utilities.internetIsAvaiable())
-            try {
-                //TODO: Aggiungere logica login in setNextStep(), se il login va a buon fine (result.isSignInComplete() == true), reindirizzare alla Home, altrimenti mostrare errore a schermo
-                //Nota: in caso di wifi spento, non possiamo trovarci qui.
-                Amplify.Auth.signIn(
-                        "carmineG", //TODO: sostituire con credenziali date in input
-                        "Carmine_97",
-                        result -> Log.i("login", "sto provando a loggarmi"),  //setNextStep(result.isSignInComplete())
-                        error -> Log.e("AuthQuickstart", error.toString())
-                );
-            } catch (Exception error) {
-                Log.e("AuthQuickstart", "Could not initialize Amplify", error);
-            }
-        };
-
         Intent intent;
         intent = new Intent(activityParent, LoginActivity.class);
-        intent.putExtra("Srunnable", new Utilities.Srunnable(r));
+        initializesEventHandlersForTheLoginActivity(intent);
         activityParent.startActivity(intent);
+        activityParent.overridePendingTransition(0,0);
     }
 
     //TODO: Se il login è fallito allora mostra errori a schermo, altrimenti passa alla prossima activity, chiama clearBackStack() e infine finish()
@@ -55,8 +38,39 @@ public class LoginController {
         //...
     }
 
-    public static boolean isConnectedToInternet(Context context) {
-        return InternetStatus.getInstance().isOnline(context);
+    private void initializesEventHandlersForTheLoginActivity(Intent intent){
+        Runnable eventHandlerForOnClickLogin = eventHandlerForOnClickLogin(),
+                 eventHandlerForOnClickRegistration = eventHandlerForOnClickRegistration();
+
+        intent.putExtra(IdentifiedForEventHandlers.ON_CLICK_LOGIN, new Utilities.Srunnable(eventHandlerForOnClickLogin));
+        intent.putExtra(IdentifiedForEventHandlers.ON_CLICK_REGISTRATION, new Utilities.Srunnable(eventHandlerForOnClickRegistration));
+    }
+
+    private Runnable eventHandlerForOnClickLogin(){
+        return (Runnable & Serializable)() -> {
+            try {
+                //TODO: Aggiungere logica login in setNextStep(), se il login va a buon fine (result.isSignInComplete() == true), reindirizzare alla Home, altrimenti mostrare errore a schermo
+                //Nota: in caso di wifi spento, non possiamo trovarci qui.
+                Amplify.Auth.signIn(
+                        "carmineG", //TODO: sostituire con credenziali date in input
+                        "Carmine_97",
+                        result -> Log.i("login", "risultato del login:" + result.isSignInComplete()),  //setNextStep(result.isSignInComplete())
+                        error -> Log.e("login", error.toString())
+                );
+            } catch (Exception error) {
+                Log.e("AuthQuickstart", "Could not initialize Amplify", error);
+            }
+        };
+    }
+
+    private Runnable eventHandlerForOnClickRegistration() {
+        return (Runnable & Serializable)() -> {
+            //TODO: muore perchè non possiamo recuperare l'activity
+            /*Intent myIntent = new Intent(activity, RegistrationActivity.class);
+            myIntent.putExtra("loginType", false);
+            activity.startActivity(myIntent);*/
+            //Non lanciare finish() in quanto in caso di pressione di tasto indietro si verrà reindirizzati qui
+        };
     }
 
     public static void stampaMessaggioToast(Context c, String msg) {

@@ -3,4 +3,9 @@
     <style name="MaterialButtonStyle" parent="Widget.MaterialComponents.Button.UnelevatedButton">
         <item name="backgroundTint">@color/color_states_materialbutton</item>
     </style>
+
+    <style name="LauncherTheme">
+        <item name="android:windowDisablePreview">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+    </style>
 </resources>

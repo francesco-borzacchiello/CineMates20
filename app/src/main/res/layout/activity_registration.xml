@@ -14,25 +14,27 @@
         android:id="@+id/registrazioneLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="150dp"
+        android:layout_marginBottom="60dp"
         android:text="@string/effettuaRegistrazioneLabel"
         android:textColor="@color/white"
         android:textSize="30sp"
         app:layout_constraintBottom_toTopOf="@+id/FrameLayoutFragment"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"/>
 
     <ImageView
         android:id="@+id/profileAvatarRegistration"
         android:layout_width="180dp"
         android:layout_height="177dp"
-        android:layout_marginBottom="0dp"
+        android:layout_marginTop="120dp"
         android:contentDescription="@string/avatarDescr"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.502"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/FrameLayoutFragment"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintHorizontal_bias="0.502"
         app:srcCompat="@mipmap/avatar_foreground" />
 
     <ImageView
@@ -50,14 +52,14 @@
     <FrameLayout
         android:id="@+id/FrameLayoutFragment"
         android:layout_width="376dp"
-        android:layout_height="474dp"
+        android:layout_height="454dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.485"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/profileAvatarRegistration"
         app:layout_constraintTop_toTopOf="@+id/profileAvatarRegistration"
-        app:layout_constraintVertical_bias="0.825" />
+        app:layout_constraintVertical_bias="1.000" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

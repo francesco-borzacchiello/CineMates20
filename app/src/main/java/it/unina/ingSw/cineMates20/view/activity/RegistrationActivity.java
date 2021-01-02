@@ -27,18 +27,22 @@ public class RegistrationActivity extends AppCompatActivity {
         setContentView(R.layout.activity_registration);
 
         boolean isSocialRegistration = false;
+        String socialProviderRegistration;
+
         Bundle loginBundle = getIntent().getExtras();
         if(loginBundle != null) {
-            isSocialRegistration = loginBundle.getBoolean("loginType");
+            isSocialRegistration = loginBundle.getBoolean("isSocialLogin");
+            socialProviderRegistration = loginBundle.getString("socialProvider");
         }
         else //in caso di loginType null si verrà reindirizzati alla pagina precedente
             finish();
 
         if(isSocialRegistration) {
             //TODO: aggiungere reindirizzamento pagina social, estrarre tutti i dati, inserirli, ritornare alla app
+            //... if(socialProviderRegistration == "google") ...
             //Si mostra il fragment per la registrazione social con i campi "Nome" e "Cognome" già inizializzati
-            //....
-            //createNewFragment(new SocialRegistrationFragment());
+            //....nome = getSocialUserName(); cognome = getSocialUserSurname();
+            createNewFragment(new RegistrationFragment("Carmine","Grimaldi"));
         }
         else { //Si mostra il fragment per la registrazione interna
             createNewFragment(new RegistrationFragment());

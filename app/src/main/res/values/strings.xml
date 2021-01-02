@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">CineMates20</string>
+
+    <string name="networkNotAvailable">Connessione ad internet non disponibile!</string>
     <!-- Strings related to login -->
 
     <string name="effettuaLoginLabel">Effettua Login</string>

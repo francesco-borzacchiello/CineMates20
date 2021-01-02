@@ -9,9 +9,17 @@ import com.amplifyframework.AmplifyException;
 import com.amplifyframework.auth.cognito.AWSCognitoAuthPlugin;
 import com.amplifyframework.core.Amplify;
 
-import it.unina.ingSw.cineMates20.controller.MainController;
-import it.unina.ingSw.cineMates20.view.util.InternetStatus;
+import java.util.Objects;
 
+import it.unina.ingSw.cineMates20.controller.MainController;
+import it.unina.ingSw.cineMates20.view.util.Utilities;
+
+/**
+ * Fa da punto d'ingresso all'applicativo.
+ * Inizializza dei componenti che saranno utilizzati nell'applicativo.
+ * Chiama il controller principale che deciderà quale activity mostrare tra la login e la home.
+ * Si utilizza un activity come punto d'ingresso poichè android come primo componente avvia un'activity
+ */
 public class EntryPoint extends AppCompatActivity {
 
     @Override
@@ -19,28 +27,31 @@ public class EntryPoint extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         initActivity();
 
-        MainController x = new MainController(this);
-        x.start();
+        MainController mainController = new MainController(this);
+        if(Utilities.isOnline(getApplicationContext()))
+            mainController.start();
+        else {
+            Utilities.stampaToast(getApplicationContext(),
+                    getApplicationContext().getResources().getString(R.string.networkNotAvailable));
+            finish();
+        }
+    }
 
-        finish();
+    private void initActivity() {
+        //TODO: testare se su uno smartphone vero se viene mostrato a schermo questo colore
+        //this.getWindow().getDecorView().setBackgroundColor(getResources().getColor(R.color.lightBlue));
+        Objects.requireNonNull(getSupportActionBar()).hide(); //Nasconde la barra del titolo - chiamare questo metodo prima di setContentView
+        setContentView(R.layout.activity_tmp);
+
+        try {
+            configureAmplify();
+        }catch (AmplifyException e){
+            Log.e("initActivityException", "Errore configurazione Amplify");
+        }
     }
 
     private void configureAmplify() throws AmplifyException {
         Amplify.addPlugin(new AWSCognitoAuthPlugin());
         Amplify.configure(getApplicationContext());
-    }
-
-    private void initActivity() {
-        //TODO: testare se su uno smartphone vero viene mostrato a schermo questo colore
-        this.getWindow().getDecorView().setBackgroundColor(getResources().getColor(R.color.lightBlue));
-
-        //Inizializziamo l'istanza singleton di InternetStatus (non necessitiamo del riferimento)
-        InternetStatus.getInstance();
-
-        try {
-            configureAmplify();
-        }catch (Exception e){
-            Log.e("initActivityException", "Errore configurazione Amplify");
-        }
     }
 }

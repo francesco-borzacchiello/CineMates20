@@ -13,41 +13,38 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import java.util.Objects;
 
 import it.unina.ingSw.cineMates20.R;
-import it.unina.ingSw.cineMates20.controller.LoginController;
+import it.unina.ingSw.cineMates20.view.util.IdentifiedForEventHandlers;
 import it.unina.ingSw.cineMates20.view.util.Utilities;
 
 public class LoginActivity extends AppCompatActivity {
 
     private LoginViewModel loginViewModel;
-    private Runnable eventForLoginClick;
+    private Runnable eventForLoginClick,
+                     eventForCreateNewUser;
 
     private EditText usernameEditText;
     private EditText passwordEditText;
     private Button loginButton;
     private ProgressBar loadingProgressBar;
     private TextView creaNuovoAccount;
+    private ImageView googleLogo;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Objects.requireNonNull(getSupportActionBar()).hide(); //Nasconde la barra del titolo - chiamare questo metodo prima di setContentView
+        //Objects.requireNonNull(getSupportActionBar()).hide(); //Nasconde la barra del titolo - chiamare questo metodo prima di setContentView
 
         setContentView(R.layout.activity_login);
-
-        //Estraggo Runnable per il listener del pulsante login
-        Utilities.Srunnable s = (Utilities.Srunnable) getIntent().getSerializableExtra("Srunnable");
-        this.eventForLoginClick = s.getRunnable();
 
         loginViewModel = new ViewModelProvider(this, new LoginViewModelFactory()).get(LoginViewModel.class);
 
@@ -72,7 +69,7 @@ public class LoginActivity extends AppCompatActivity {
             }
             loadingProgressBar.setVisibility(View.GONE);
             if (loginResult.getError() != null) {
-                LoginController.stampaMessaggioToast(getApplicationContext(), loginResult.getError().toString());
+                Utilities.stampaToast(getApplicationContext(), loginResult.getError().toString());
             }
             if (loginResult.getSuccess() != null) {
                 updateUiWithUser(loginResult.getSuccess());
@@ -109,30 +106,47 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         loginButton.setOnClickListener(v -> {
-            if(!LoginController.isConnectedToInternet(getApplicationContext())) {
-                LoginController.stampaMessaggioToast(getApplicationContext(), "Connessione ad internet non disponibile!");
+            if(!Utilities.isOnline(getApplicationContext())) {
+                Utilities.stampaToast(getApplicationContext(),
+                        getApplicationContext().getResources().getString(R.string.networkNotAvailable));
                 return;
             }
 
-            eventForLoginClick.run();
+            try {
+                //Estraggo Runnable per il listener del pulsante login
+                Utilities.Srunnable s = (Utilities.Srunnable) getIntent().getSerializableExtra(IdentifiedForEventHandlers.ON_CLICK_LOGIN);
+                this.eventForLoginClick = s.getRunnable();
+                eventForLoginClick.run();
+            } catch(NullPointerException e) {
+                Utilities.stampaToast(getApplicationContext(), "Al momento non è possibile effettuare il login.\nRiprova tra qualche minuto");
+                return;
+            }
 
             loadingProgressBar.setVisibility(View.VISIBLE);
             loginViewModel.login(usernameEditText.getText().toString(),
                     passwordEditText.getText().toString());
         });
 
-        creaNuovoAccount.setOnClickListener(v -> {
-            if(!LoginController.isConnectedToInternet(getApplicationContext())) {
-                LoginController.stampaMessaggioToast(getApplicationContext(), "Connessione ad internet non disponibile!");
+        creaNuovoAccount.setOnClickListener(registrationOnClickListener(false, null));
+        googleLogo.setOnClickListener(registrationOnClickListener(true, "google"));
+    }
+
+    private View.OnClickListener registrationOnClickListener(boolean isSocialLogin, String socialProvider) {
+        return v -> {
+            if (!Utilities.isOnline(getApplicationContext())) {
+                Utilities.stampaToast(getApplicationContext(),
+                        getApplicationContext().getResources().getString(R.string.networkNotAvailable));
                 return;
             }
 
             Intent myIntent = new Intent(LoginActivity.this, RegistrationActivity.class);
-            myIntent.putExtra("loginType", false);
-            LoginActivity.this.startActivity(myIntent);
-            //Non lanciare finish() in quanto in caso di pressione di tasto indietro si verrà reindirizzati qui
-        });
 
+            myIntent.putExtra("isSocialLogin", isSocialLogin);
+            myIntent.putExtra("socialProvider", socialProvider);
+
+            LoginActivity.this.startActivity(myIntent);
+            //Non lanciare finish() in quanto in caso di pressione di tasto indietro si verrà reindirizzati qui*/
+        };
     }
 
     private void initializeGraphicsComponents(){
@@ -143,6 +157,7 @@ public class LoginActivity extends AppCompatActivity {
         loginButton = findViewById(R.id.loginButton);
         loadingProgressBar = findViewById(R.id.loading);
         creaNuovoAccount = findViewById(R.id.nuovoAccount);
+        googleLogo = findViewById(R.id.googleLogo);
     }
 
     //Nasconde la tastiera alla pressione di un elemento che non sia essa stessa o una text box
@@ -169,11 +184,7 @@ public class LoginActivity extends AppCompatActivity {
     private void updateUiWithUser(LoggedInUserView model) {
         String welcome = getString(R.string.welcome) + " " + model.getDisplayName();
         // TODO : initiate successful logged in experience
-        Toast.makeText(getApplicationContext(), welcome, Toast.LENGTH_LONG).show();
-    }
-
-    private void showLoginFailed(@StringRes Integer errorString) {
-        Toast.makeText(getApplicationContext(), errorString, Toast.LENGTH_SHORT).show();
+        Utilities.stampaToast(getApplicationContext(), welcome);
     }
 
     //Metodo che viene chiamato al termine del login (quando ha successo), consente di svuotare il backStack

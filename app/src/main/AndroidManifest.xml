@@ -15,9 +15,13 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MyApplication">
 
-        <activity android:name=".view.activity.LoginActivity" />
+        <activity
+            android:name=".view.activity.LoginActivity"
+            android:screenOrientation="portrait" />
 
-        <activity android:name=".EntryPoint">
+        <activity
+            android:name=".EntryPoint">
+            <!--android:theme="@style/LauncherTheme"-->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -29,7 +33,7 @@
 
         <activity
             android:name=".view.activity.RegistrationActivity"
-            android:label="@string/app_name" />
+            android:screenOrientation="portrait"/>
     </application>
 
 </manifest>

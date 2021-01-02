@@ -17,24 +17,31 @@ import org.jetbrains.annotations.NotNull;
 
 import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.controller.LoginController;
-import it.unina.ingSw.cineMates20.view.util.InternetStatus;
 import it.unina.ingSw.cineMates20.view.util.Utilities;
 
-/** Fragment che si occupa di mostrare le TextBox necessarie all'inserimento
-  * dei dati di un utente che si registra internamente al sistema. */
+/** Fragment che si occupa di mostrare le TextBox necessarie
+  * all'inserimento dei dati di un utente che si registra. */
+
 public class RegistrationFragment extends Fragment {
 
-    private EditText nome;
-    private EditText cognome;
-    private EditText username;
-    private EditText email;
-    private EditText password;
-    private EditText confermaPassword;
-    private Button registerButton;
+    private final String nome, cognome;
+    private EditText nomeEditText;
+    private EditText cognomeEditText;
+    private EditText usernameEditText;
+    private EditText emailEditText;
+    private EditText passwordEditText;
+    private EditText confermaPasswordEditText;
+    private Button registrationButton;
     private TextWatcher afterTextChangedListener;
     private Context context;
 
     public RegistrationFragment() {
+        nome = null; cognome = null;
+    }
+
+    public RegistrationFragment(String nome, String cognome) {
+        this.nome = nome;
+        this.cognome = cognome;
     }
 
     @Override
@@ -61,50 +68,49 @@ public class RegistrationFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NotNull View view, Bundle savedInstanceState) {
-        setEditText(view);
-
-        registerButton = view.findViewById(R.id.registratiButton);
 
         if(isAdded() && getActivity() != null)
             context = getActivity().getApplicationContext();
         else return;
 
+        setGraphicsComponents(view);
+
         //Questo listener dipende dal fragment, e per tale ragione non può essere spostato nell'activity contenitrice
-        registerButton.setOnClickListener(listener -> {
+        registrationButton.setOnClickListener(listener -> {
             //TODO: confermare che chiamare LoginController da qui vada bene (serve un RegistrationController?)
-            if(context != null && !InternetStatus.getInstance().isOnline(context)) {
-                LoginController.stampaMessaggioToast(context,"Connessione ad internet non disponibile!");
+            if(context != null && !Utilities.isOnline(context)) {
+                LoginController.stampaMessaggioToast(context, "Connessione ad internet non disponibile!");
                 return;
             }
 
             /* Nome e cognome sono per forza validi in quanto è soltanto richiesto che siano non vuoti,
              * e il tasto registrati viene disabilitato non appena una EditText diventa vuota. */
 
-            if (!Utilities.isUserNameValid(username.getText().toString())) {
+            if (!Utilities.isUserNameValid(usernameEditText.getText().toString())) {
                 LoginController.stampaMessaggioToast(context, "L'username inserito non è valido oppure è già in uso.");
                 return;
             }
-            if (!Utilities.isEmailValid(email.getText().toString())) {
-                LoginController.stampaMessaggioToast(context, "L'email inserita non è valida oppure è già in uso.");
-                return;
-            }
-            if (!Utilities.isPasswordValid(password.getText().toString())) {
-                LoginController.stampaMessaggioToast(context, "La password deve contenere almeno un numero, un carattere speciale, una lettera minuscola e una maiuscola.");
-                return;
-            }
-            if (!Utilities.isConfirmPasswordValid(password.getText().toString(), confermaPassword.getText().toString())) {
-                LoginController.stampaMessaggioToast(context, "Le password non coincidono!");
-                return;
-            }
 
-            if(!LoginController.isConnectedToInternet(context)) {
-                LoginController.stampaMessaggioToast(context, "Connessione ad internet non disponibile!");
-                return;
+            if(nome==null || cognome == null) {
+                if (!Utilities.isEmailValid(emailEditText.getText().toString())) {
+                    LoginController.stampaMessaggioToast(context, "L'email inserita non è valida oppure è già in uso.");
+                    return;
+                }
+                if (!Utilities.isPasswordValid(passwordEditText.getText().toString())) {
+                    LoginController.stampaMessaggioToast(context, "La password deve contenere almeno un numero, un carattere speciale, una lettera minuscola e una maiuscola.");
+                    return;
+                }
+                if (!Utilities.isConfirmPasswordValid(passwordEditText.getText().toString(), confermaPasswordEditText.getText().toString())) {
+                    LoginController.stampaMessaggioToast(context, "Le password non coincidono!");
+                    return;
+                }
             }
 
             /*TODO: Se non è stata modificata foto, passare url foto default a Cognito.
-             *      Procedere con la registrazione (mostrare prima ConfirmRegistrationCodeFragment) */
+             *      Procedere con la registrazione (dire a RegistrationActivity di mostrare
+             *      ConfirmRegistrationCodeFragment se questo è login non social, nome==null || cognome==null) */
             //...
+            LoginController.stampaMessaggioToast(context, "Funzionalità in sviluppo!");
         });
 
         afterTextChangedListener = new TextWatcher() {
@@ -117,7 +123,7 @@ public class RegistrationFragment extends Fragment {
             @Override
             public void afterTextChanged(Editable s) {
                 //Se tutte le EditText sono non vuote, abilita il tasto Registrati
-                registerButton.setEnabled(allEditTextAreNotEmpty());
+                registrationButton.setEnabled(allEditTextAreNotEmpty());
             }
         };
 
@@ -126,26 +132,40 @@ public class RegistrationFragment extends Fragment {
 
     //Restituisce true se tutte le EditText sono non vuote al momento dell'invocazione
     public boolean allEditTextAreNotEmpty() {
-        return nome.getText().toString().trim().length() > 0 && cognome.getText().toString().trim().length() > 0
-               && username.getText().toString().trim().length() > 0 && email.getText().toString().trim().length() > 0
-               && password.getText().toString().trim().length() > 0 && confermaPassword.getText().toString().trim().length() > 0;
+        if(nome == null || cognome == null)
+            return nomeEditText.getText().toString().trim().length() > 0 && cognomeEditText.getText().toString().trim().length() > 0
+                && usernameEditText.getText().toString().trim().length() > 0 && emailEditText.getText().toString().trim().length() > 0
+                && passwordEditText.getText().toString().trim().length() > 0 && confermaPasswordEditText.getText().toString().trim().length() > 0;
+        else
+            return nomeEditText.getText().toString().trim().length() > 0 && cognomeEditText.getText().toString().trim().length() > 0
+                    && usernameEditText.getText().toString().trim().length() > 0;
     }
 
-    private void setEditText(@NotNull View v) {
-        nome = v.findViewById(R.id.nomeRegistrazione);
-        cognome = v.findViewById(R.id.cognomeRegistrazione);
-        password = v.findViewById(R.id.passwordRegistrazione);
-        confermaPassword = v.findViewById(R.id.confermaPasswordRegistrazione);
-        email = v.findViewById(R.id.emailRegistrazione);
-        username = v.findViewById(R.id.usernameRegistrazione);
+    private void setGraphicsComponents(@NotNull View v) {
+        nomeEditText = v.findViewById(R.id.nomeRegistrazione);
+        cognomeEditText = v.findViewById(R.id.cognomeRegistrazione);
+        usernameEditText = v.findViewById(R.id.usernameRegistrazione);
+        passwordEditText = v.findViewById(R.id.passwordRegistrazione);
+        confermaPasswordEditText = v.findViewById(R.id.confermaPasswordRegistrazione);
+        emailEditText = v.findViewById(R.id.emailRegistrazione);
+        registrationButton = v.findViewById(R.id.registratiButton);
+
+        if(nome != null || cognome != null) { //Si nascondono le EditText non necessarie
+            passwordEditText.setVisibility(View.GONE);
+            confermaPasswordEditText.setVisibility(View.GONE);
+            emailEditText.setVisibility(View.GONE);
+        }
     }
 
     private void addTextChangedListenerToEditTexts() {
-        nome.addTextChangedListener(afterTextChangedListener);
-        cognome.addTextChangedListener(afterTextChangedListener);
-        email.addTextChangedListener(afterTextChangedListener);
-        password.addTextChangedListener(afterTextChangedListener);
-        confermaPassword.addTextChangedListener(afterTextChangedListener);
-        username.addTextChangedListener(afterTextChangedListener);
+        nomeEditText.addTextChangedListener(afterTextChangedListener);
+        cognomeEditText.addTextChangedListener(afterTextChangedListener);
+        usernameEditText.addTextChangedListener(afterTextChangedListener);
+
+        if(nome == null || cognome == null) {
+            emailEditText.addTextChangedListener(afterTextChangedListener);
+            passwordEditText.addTextChangedListener(afterTextChangedListener);
+            confermaPasswordEditText.addTextChangedListener(afterTextChangedListener);
+        }
     }
 }
