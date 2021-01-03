@@ -34,6 +34,8 @@ public class MainController {
     }
 
     private void ifIsLoggedInOpenHomeElseOpenLogin(boolean isSignedIn) {
+        activity.overridePendingTransition(0, 0);
+
         //TODO: togliere ! alla fine del test sul login
         if (isSignedIn) openHomeActivity();
         else openLoginActivity();

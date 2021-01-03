@@ -4,8 +4,14 @@
         <item name="backgroundTint">@color/color_states_materialbutton</item>
     </style>
 
-    <style name="LauncherTheme">
-        <item name="android:windowDisablePreview">true</item>
+    <style name="LauncherTheme2" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowDisablePreview">true</item>
+    </style>
+
+    <style name="LauncherTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:windowBackground">@drawable/launcher_logo</item>
     </style>
 </resources>

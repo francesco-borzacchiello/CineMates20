@@ -8,8 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.amplifyframework.AmplifyException;
 import com.amplifyframework.auth.cognito.AWSCognitoAuthPlugin;
 import com.amplifyframework.core.Amplify;
-
-import java.util.Objects;
+import com.amplifyframework.core.AmplifyConfiguration;
 
 import it.unina.ingSw.cineMates20.controller.MainController;
 import it.unina.ingSw.cineMates20.view.util.Utilities;
@@ -31,8 +30,7 @@ public class EntryPoint extends AppCompatActivity {
         if(Utilities.isOnline(getApplicationContext()))
             mainController.start();
         else {
-            Utilities.stampaToast(getApplicationContext(),
-                    getApplicationContext().getResources().getString(R.string.networkNotAvailable));
+            Utilities.stampaToast(this, getApplicationContext().getResources().getString(R.string.networkNotAvailable));
             finish();
         }
     }
@@ -40,7 +38,7 @@ public class EntryPoint extends AppCompatActivity {
     private void initActivity() {
         //TODO: testare se su uno smartphone vero se viene mostrato a schermo questo colore
         //this.getWindow().getDecorView().setBackgroundColor(getResources().getColor(R.color.lightBlue));
-        Objects.requireNonNull(getSupportActionBar()).hide(); //Nasconde la barra del titolo - chiamare questo metodo prima di setContentView
+        //Objects.requireNonNull(getSupportActionBar()).hide(); //Nasconde la barra del titolo - chiamare questo metodo prima di setContentView
         setContentView(R.layout.activity_tmp);
 
         try {
@@ -52,6 +50,8 @@ public class EntryPoint extends AppCompatActivity {
 
     private void configureAmplify() throws AmplifyException {
         Amplify.addPlugin(new AWSCognitoAuthPlugin());
-        Amplify.configure(getApplicationContext());
+        //Amplify.configure(getApplicationContext());
+        AmplifyConfiguration config = AmplifyConfiguration.builder(getApplicationContext()).devMenuEnabled(false).build();
+        Amplify.configure(config, getApplicationContext());
     }
 }

@@ -72,10 +72,6 @@ public class LoginController {
             //Non lanciare finish() in quanto in caso di pressione di tasto indietro si verrà reindirizzati qui
         };
     }
-
-    public static void stampaMessaggioToast(Context c, String msg) {
-        Utilities.stampaToast(c, msg);
-    }
 }
 
 /* VECCHIO CODICE TEMPORANEO

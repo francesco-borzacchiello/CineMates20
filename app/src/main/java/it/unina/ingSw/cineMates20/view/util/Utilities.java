@@ -1,10 +1,15 @@
 package it.unina.ingSw.cineMates20.view.util;
 
+import android.app.Activity;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.StrictMode;
 import android.util.Patterns;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import java.io.Serializable;
@@ -50,8 +55,8 @@ public class Utilities {
         public Runnable getRunnable() { return runnable; }
     }
 
-    public static void stampaToast(Context context, String msg) {
-        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
+    public static void stampaToast(Activity activity, String msg) {
+        Toast.makeText(activity.getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
     }
 
     /* Metodo per determinare se l'applicazione dispone di una connessione
@@ -79,5 +84,21 @@ public class Utilities {
             } catch (Exception ignored) {}
         }
         return false;
+    }
+
+    public static void hideKeyboard(Activity activity, MotionEvent event) {
+        View view = activity.getCurrentFocus();
+        if (view instanceof EditText) {
+            View w = activity.getCurrentFocus();
+            int[] screenCords = new int[2];
+            w.getLocationOnScreen(screenCords);
+            float x = event.getRawX() + w.getLeft() - screenCords[0];
+            float y = event.getRawY() + w.getTop() - screenCords[1];
+
+            if (event.getAction() == MotionEvent.ACTION_UP && (x < w.getLeft() || x >= w.getRight() || y < w.getTop() || y > w.getBottom())) {
+                InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(activity.getWindow().getCurrentFocus().getWindowToken(), 0);
+            }
+        }
     }
 }

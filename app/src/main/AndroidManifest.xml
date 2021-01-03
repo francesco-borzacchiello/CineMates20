@@ -8,9 +8,9 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/app_logo_launcher"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@mipmap/app_logo_launcher"
         android:screenOrientation="portrait"
         android:supportsRtl="true"
         android:theme="@style/Theme.MyApplication">
@@ -20,8 +20,9 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name=".EntryPoint">
-            <!--android:theme="@style/LauncherTheme"-->
+            android:name=".EntryPoint"
+            android:screenOrientation="portrait"
+            android:theme="@style/LauncherTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

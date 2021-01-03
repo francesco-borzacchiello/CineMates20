@@ -17,6 +17,7 @@ import androidx.fragment.app.FragmentTransaction;
 import java.util.Objects;
 
 import it.unina.ingSw.cineMates20.R;
+import it.unina.ingSw.cineMates20.view.util.Utilities;
 
 public class RegistrationActivity extends AppCompatActivity {
 
@@ -58,25 +59,10 @@ public class RegistrationActivity extends AppCompatActivity {
         transaction.commit();
     }
 
-    //Nasconde la tastiera alla pressione di un elemento che non sia essa stessa o una text box
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
-        View view = getCurrentFocus();
         boolean ret = super.dispatchTouchEvent(event);
-
-        if (view instanceof EditText) {
-            View w = getCurrentFocus();
-            int[] screenCords = new int[2];
-            w.getLocationOnScreen(screenCords);
-            float x = event.getRawX() + w.getLeft() - screenCords[0];
-            float y = event.getRawY() + w.getTop() - screenCords[1];
-
-            if (event.getAction() == MotionEvent.ACTION_UP && (x < w.getLeft() || x >= w.getRight() || y < w.getTop() || y > w.getBottom())) {
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(getWindow().getCurrentFocus().getWindowToken(), 0);
-            }
-        }
+        Utilities.hideKeyboard(this, event);
         return ret;
     }
-
 }

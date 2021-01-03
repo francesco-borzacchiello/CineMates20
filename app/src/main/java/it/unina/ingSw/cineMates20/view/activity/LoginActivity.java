@@ -2,7 +2,6 @@ package it.unina.ingSw.cineMates20.view.activity;
 
 import android.app.Activity;
 import android.app.FragmentManager;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -10,7 +9,6 @@ import android.text.TextWatcher;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -37,6 +35,7 @@ public class LoginActivity extends AppCompatActivity {
     private Button loginButton;
     private ProgressBar loadingProgressBar;
     private TextView creaNuovoAccount;
+    private TextView passwordDimenticata;
     private ImageView googleLogo;
 
     @Override
@@ -69,7 +68,7 @@ public class LoginActivity extends AppCompatActivity {
             }
             loadingProgressBar.setVisibility(View.GONE);
             if (loginResult.getError() != null) {
-                Utilities.stampaToast(getApplicationContext(), loginResult.getError().toString());
+                Utilities.stampaToast(this, loginResult.getError().toString());
             }
             if (loginResult.getSuccess() != null) {
                 updateUiWithUser(loginResult.getSuccess());
@@ -107,8 +106,7 @@ public class LoginActivity extends AppCompatActivity {
 
         loginButton.setOnClickListener(v -> {
             if(!Utilities.isOnline(getApplicationContext())) {
-                Utilities.stampaToast(getApplicationContext(),
-                        getApplicationContext().getResources().getString(R.string.networkNotAvailable));
+                Utilities.stampaToast(this, getApplicationContext().getResources().getString(R.string.networkNotAvailable));
                 return;
             }
 
@@ -118,7 +116,7 @@ public class LoginActivity extends AppCompatActivity {
                 this.eventForLoginClick = s.getRunnable();
                 eventForLoginClick.run();
             } catch(NullPointerException e) {
-                Utilities.stampaToast(getApplicationContext(), "Al momento non è possibile effettuare il login.\nRiprova tra qualche minuto");
+                Utilities.stampaToast(this, "Al momento non è possibile effettuare il login.\nRiprova tra qualche minuto");
                 return;
             }
 
@@ -129,13 +127,30 @@ public class LoginActivity extends AppCompatActivity {
 
         creaNuovoAccount.setOnClickListener(registrationOnClickListener(false, null));
         googleLogo.setOnClickListener(registrationOnClickListener(true, "google"));
+
+        passwordDimenticata.setOnClickListener(passwordDimenticataOnClickListener());
+    }
+
+    private View.OnClickListener passwordDimenticataOnClickListener() {
+        return v -> {
+            if (!Utilities.isOnline(getApplicationContext())) {
+                Utilities.stampaToast(this, getApplicationContext().getResources().getString(R.string.networkNotAvailable));
+                return;
+            }
+
+            Utilities.stampaToast(this, "Funzionalità in sviluppo!");
+
+            /*
+            Intent myIntent = new Intent(LoginActivity.this, PasswordDimenticata.class);
+            LoginActivity.this.startActivity(myIntent);
+            */
+        };
     }
 
     private View.OnClickListener registrationOnClickListener(boolean isSocialLogin, String socialProvider) {
         return v -> {
             if (!Utilities.isOnline(getApplicationContext())) {
-                Utilities.stampaToast(getApplicationContext(),
-                        getApplicationContext().getResources().getString(R.string.networkNotAvailable));
+                Utilities.stampaToast(this, getApplicationContext().getResources().getString(R.string.networkNotAvailable));
                 return;
             }
 
@@ -157,11 +172,19 @@ public class LoginActivity extends AppCompatActivity {
         loginButton = findViewById(R.id.loginButton);
         loadingProgressBar = findViewById(R.id.loading);
         creaNuovoAccount = findViewById(R.id.nuovoAccount);
+        passwordDimenticata = findViewById(R.id.passwordDimenticata);
         googleLogo = findViewById(R.id.googleLogo);
     }
 
     //Nasconde la tastiera alla pressione di un elemento che non sia essa stessa o una text box
     @Override
+    public boolean dispatchTouchEvent(MotionEvent event) {
+        boolean ret = super.dispatchTouchEvent(event);
+        Utilities.hideKeyboard(this, event);
+        return ret;
+    }
+
+    /*@Override
     public boolean dispatchTouchEvent(MotionEvent event) {
         View view = getCurrentFocus();
         boolean ret = super.dispatchTouchEvent(event);
@@ -179,15 +202,16 @@ public class LoginActivity extends AppCompatActivity {
             }
         }
         return ret;
-    }
+    }*/
 
     private void updateUiWithUser(LoggedInUserView model) {
         String welcome = getString(R.string.welcome) + " " + model.getDisplayName();
         // TODO : initiate successful logged in experience
-        Utilities.stampaToast(getApplicationContext(), welcome);
+        Utilities.stampaToast(this, welcome);
     }
 
     //Metodo che viene chiamato al termine del login (quando ha successo), consente di svuotare il backStack
+    //TODO: pare che il metodo non funzioni correttamente
     private void clearBackStack() {
         FragmentManager fm = getFragmentManager(); // or 'getSupportFragmentManager();'
         int count = fm.getBackStackEntryCount();

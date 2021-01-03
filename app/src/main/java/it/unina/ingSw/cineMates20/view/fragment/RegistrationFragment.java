@@ -79,7 +79,7 @@ public class RegistrationFragment extends Fragment {
         registrationButton.setOnClickListener(listener -> {
             //TODO: confermare che chiamare LoginController da qui vada bene (serve un RegistrationController?)
             if(context != null && !Utilities.isOnline(context)) {
-                LoginController.stampaMessaggioToast(context, "Connessione ad internet non disponibile!");
+                Utilities.stampaToast(getActivity(), "Connessione ad internet non disponibile!");
                 return;
             }
 
@@ -87,21 +87,21 @@ public class RegistrationFragment extends Fragment {
              * e il tasto registrati viene disabilitato non appena una EditText diventa vuota. */
 
             if (!Utilities.isUserNameValid(usernameEditText.getText().toString())) {
-                LoginController.stampaMessaggioToast(context, "L'username inserito non è valido oppure è già in uso.");
+                Utilities.stampaToast(getActivity(), "L'username inserito non è valido oppure è già in uso.");
                 return;
             }
 
             if(nome==null || cognome == null) {
                 if (!Utilities.isEmailValid(emailEditText.getText().toString())) {
-                    LoginController.stampaMessaggioToast(context, "L'email inserita non è valida oppure è già in uso.");
+                    Utilities.stampaToast(getActivity(), "L'email inserita non è valida oppure è già in uso.");
                     return;
                 }
                 if (!Utilities.isPasswordValid(passwordEditText.getText().toString())) {
-                    LoginController.stampaMessaggioToast(context, "La password deve contenere almeno un numero, un carattere speciale, una lettera minuscola e una maiuscola.");
+                    Utilities.stampaToast(getActivity(), "La password deve contenere almeno un numero, un carattere speciale, una lettera minuscola e una maiuscola.");
                     return;
                 }
                 if (!Utilities.isConfirmPasswordValid(passwordEditText.getText().toString(), confermaPasswordEditText.getText().toString())) {
-                    LoginController.stampaMessaggioToast(context, "Le password non coincidono!");
+                    Utilities.stampaToast(getActivity(), "Le password non coincidono!");
                     return;
                 }
             }
@@ -110,7 +110,7 @@ public class RegistrationFragment extends Fragment {
              *      Procedere con la registrazione (dire a RegistrationActivity di mostrare
              *      ConfirmRegistrationCodeFragment se questo è login non social, nome==null || cognome==null) */
             //...
-            LoginController.stampaMessaggioToast(context, "Funzionalità in sviluppo!");
+            Utilities.stampaToast(getActivity(), "Funzionalità in sviluppo!");
         });
 
         afterTextChangedListener = new TextWatcher() {
@@ -154,6 +154,8 @@ public class RegistrationFragment extends Fragment {
             passwordEditText.setVisibility(View.GONE);
             confermaPasswordEditText.setVisibility(View.GONE);
             emailEditText.setVisibility(View.GONE);
+            nomeEditText.setText(nome);
+            cognomeEditText.setText(cognome);
         }
     }
 

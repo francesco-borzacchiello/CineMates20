@@ -9,6 +9,6 @@
     <color name="white">#FFFFFFFF</color>
     <color name="lightBlue">#027DB4</color>
     <color name="lightBlueButton">#169BD5</color>
-    <color name="grey">#808080</color>
+    <color name="gray">#808080</color>
     <color name="turquoise">#81D3F8</color>
 </resources>
