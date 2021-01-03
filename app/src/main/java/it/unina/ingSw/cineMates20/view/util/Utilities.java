@@ -1,7 +1,9 @@
 package it.unina.ingSw.cineMates20.view.util;
 
 import android.app.Activity;
+import android.app.FragmentManager;
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.StrictMode;
@@ -43,6 +45,7 @@ public class Utilities {
         //TODO: aggiungere && !email.isUsed() tramite un metodo di Amplify OR email.isUsed() && email.isPending()
     }
 
+    //TODO: classe da rimuovere
     /**
      *  Classe utilizzata per incapsulare un Runnable all'interno di un intent Bundle
      *  Nota: la classe è statica per permettere la "Serializzazione", ma attraverso l'instanziazione ad ogni uso,
@@ -100,5 +103,11 @@ public class Utilities {
                 imm.hideSoftInputFromWindow(activity.getWindow().getCurrentFocus().getWindowToken(), 0);
             }
         }
+    }
+
+    //Metodo che consente di svuotare il backStack prima di lanciare una nuova activity
+    //TODO: da testare
+    public static void clearBackStack(Intent intent) {
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
     }
 }

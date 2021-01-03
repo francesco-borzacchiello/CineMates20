@@ -2,6 +2,7 @@ package it.unina.ingSw.cineMates20.controller;
 
 import android.util.Log;
 
+import com.amplifyframework.auth.AuthUser;
 import com.amplifyframework.core.Amplify;
 
 import it.unina.ingSw.cineMates20.EntryPoint;
@@ -17,27 +18,21 @@ public class MainController {
 
     public MainController(EntryPoint entryPoint) {
         this.activity = entryPoint;
-        this.controllerLogin = new LoginController();
+        this.controllerLogin = LoginController.getLoginControllerInstance();
     }
 
     public void start(){
-        checkIfUserIsAlreadyLoggedIn();
-    }
-
-
-    private void checkIfUserIsAlreadyLoggedIn() {
-        Amplify.Auth.fetchAuthSession(
+        //Lancia eccezione, non va bene
+        /*Amplify.Auth.fetchAuthSession(
             isSignIn -> ifIsLoggedInOpenHomeElseOpenLogin(isSignIn.isSignedIn()),
-            //TODO: in secondo momento controllare cosa mettere sugli error
             error -> Log.e("AuthQuickstart", error.toString())
-        );
-    }
+        );*/
 
-    private void ifIsLoggedInOpenHomeElseOpenLogin(boolean isSignedIn) {
+        AuthUser user = Amplify.Auth.getCurrentUser(); //Se l'utente non è autenticato, restituisce null
         activity.overridePendingTransition(0, 0);
 
-        //TODO: togliere ! alla fine del test sul login
-        if (isSignedIn) openHomeActivity();
+        //TODO: sostituire opportunamente == e != alla fine del test sul login
+        if(user == null) openHomeActivity();
         else openLoginActivity();
 
         activity.finish();

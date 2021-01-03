@@ -142,6 +142,22 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/nuovoAccount" />
+
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/linkInCenterOfPage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:constraint_referenced_ids="passwordDimenticata,nuovoAccount"
+            tools:layout_editor_absoluteX="16dp"
+            tools:layout_editor_absoluteY="16dp" />
+
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/linkSocial"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:constraint_referenced_ids="twitterLogo,facebookLogo,googleLogo,rettangoloSocial,socialLogin"
+            tools:layout_editor_absoluteX="16dp"
+            tools:layout_editor_absoluteY="16dp" />
     </LinearLayout>
 
     <Button
@@ -218,24 +234,6 @@
         app:layout_constraintStart_toEndOf="@id/facebookLogo"
         app:layout_constraintTop_toBottomOf="@id/rettangoloSocial"
         app:srcCompat="@mipmap/twitter_logo_foreground" />
-
-    <androidx.constraintlayout.widget.Group
-        android:id="@+id/linkInCenterOfPage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:constraint_referenced_ids="passwordDimenticata,nuovoAccount"
-        tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="16dp" />
-
-    <androidx.constraintlayout.widget.Group
-        android:id="@+id/linkSocial"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:constraint_referenced_ids="twitterLogo,facebookLogo,googleLogo,rettangoloSocial,socialLogin"
-        tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="16dp" />
-
-
 
 
     <!--EditText

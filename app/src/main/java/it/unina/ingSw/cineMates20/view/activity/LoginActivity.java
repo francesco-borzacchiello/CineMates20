@@ -1,39 +1,31 @@
 package it.unina.ingSw.cineMates20.view.activity;
 
-import android.app.Activity;
-import android.app.FragmentManager;
-import android.content.Intent;
 import android.os.Bundle;
-import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.ViewModelProvider;
 
 import java.util.Objects;
 
 import it.unina.ingSw.cineMates20.R;
-import it.unina.ingSw.cineMates20.view.util.IdentifiedForEventHandlers;
+import it.unina.ingSw.cineMates20.controller.LoginController;
 import it.unina.ingSw.cineMates20.view.util.Utilities;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private LoginViewModel loginViewModel;
+    private LoginController loginController;
     private Runnable eventForLoginClick,
                      eventForCreateNewUser;
 
     private EditText usernameEditText;
     private EditText passwordEditText;
     private Button loginButton;
-    private ProgressBar loadingProgressBar;
     private TextView creaNuovoAccount;
     private TextView passwordDimenticata;
     private ImageView googleLogo;
@@ -45,85 +37,21 @@ public class LoginActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_login);
 
-        loginViewModel = new ViewModelProvider(this, new LoginViewModelFactory()).get(LoginViewModel.class);
+        loginController = LoginController.getLoginControllerInstance();
+        loginController.setLoginActivity(this);
 
         initializeGraphicsComponents();
+        setAllActionListener();
+    }
 
-        loginViewModel.getLoginFormState().observe(this, loginFormState -> {
-            if (loginFormState == null) {
-                return;
-            }
-            loginButton.setEnabled(loginFormState.isDataValid());
-            if (loginFormState.getUsernameError() != null) {
-                usernameEditText.setError(getString(loginFormState.getUsernameError()));
-            }
-            if (loginFormState.getPasswordError() != null) {
-                passwordEditText.setError(getString(loginFormState.getPasswordError()));
-            }
-        });
+    private void setAllActionListener() {
+        TextWatcher usernameTextChangedListener = loginController.usernameLoginTextWatcher();
+        TextWatcher passwordTextChangedListener = loginController.passwordLoginTextWatcher();
 
-        loginViewModel.getLoginResult().observe(this, loginResult -> {
-            if (loginResult == null) {
-                return;
-            }
-            loadingProgressBar.setVisibility(View.GONE);
-            if (loginResult.getError() != null) {
-                Utilities.stampaToast(this, loginResult.getError().toString());
-            }
-            if (loginResult.getSuccess() != null) {
-                updateUiWithUser(loginResult.getSuccess());
-            }
-            setResult(Activity.RESULT_OK);
+        usernameEditText.addTextChangedListener(usernameTextChangedListener);
+        passwordEditText.addTextChangedListener(passwordTextChangedListener);
 
-            //Complete and destroy login activity once successful
-            finish();
-        });
-
-        TextWatcher afterTextChangedListener = new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                loginViewModel.loginDataChanged(usernameEditText.getText().toString(),
-                        passwordEditText.getText().toString());
-            }
-        };
-
-        usernameEditText.addTextChangedListener(afterTextChangedListener);
-        passwordEditText.addTextChangedListener(afterTextChangedListener);
-
-        passwordEditText.setOnEditorActionListener((v, actionId, event) -> {
-            if (actionId == EditorInfo.IME_ACTION_DONE) {
-                loginViewModel.login(usernameEditText.getText().toString(),
-                        passwordEditText.getText().toString());
-            }
-            return false;
-        });
-
-        loginButton.setOnClickListener(v -> {
-            if(!Utilities.isOnline(getApplicationContext())) {
-                Utilities.stampaToast(this, getApplicationContext().getResources().getString(R.string.networkNotAvailable));
-                return;
-            }
-
-            try {
-                //Estraggo Runnable per il listener del pulsante login
-                Utilities.Srunnable s = (Utilities.Srunnable) getIntent().getSerializableExtra(IdentifiedForEventHandlers.ON_CLICK_LOGIN);
-                this.eventForLoginClick = s.getRunnable();
-                eventForLoginClick.run();
-            } catch(NullPointerException e) {
-                Utilities.stampaToast(this, "Al momento non è possibile effettuare il login.\nRiprova tra qualche minuto");
-                return;
-            }
-
-            loadingProgressBar.setVisibility(View.VISIBLE);
-            loginViewModel.login(usernameEditText.getText().toString(),
-                    passwordEditText.getText().toString());
-        });
+        loginButton.setOnClickListener(loginOnClickListener());
 
         creaNuovoAccount.setOnClickListener(registrationOnClickListener(false, null));
         googleLogo.setOnClickListener(registrationOnClickListener(true, "google"));
@@ -131,8 +59,34 @@ public class LoginActivity extends AppCompatActivity {
         passwordDimenticata.setOnClickListener(passwordDimenticataOnClickListener());
     }
 
-    private View.OnClickListener passwordDimenticataOnClickListener() {
+    private View.OnClickListener loginOnClickListener() {
         return v -> {
+            eventForLoginClick = loginController.eventHandlerForOnClickLogin(usernameEditText.getText().toString(),
+                    passwordEditText.getText().toString());
+            try {
+                eventForLoginClick.run();
+            } catch(NullPointerException e) {
+                Utilities.stampaToast(this, "Al momento non è possibile effettuare il login.\nRiprova tra qualche minuto");
+                //return;
+            }
+        };
+    }
+
+    private View.OnClickListener registrationOnClickListener(boolean isSocialLogin, String socialProvider) {
+        return v -> {
+            eventForCreateNewUser = loginController.eventHandlerForOnClickRegistration(isSocialLogin, socialProvider);
+
+            try {
+                eventForCreateNewUser.run();
+            } catch(NullPointerException e) {
+                Utilities.stampaToast(this, "Al momento non è possibile creare un nuovo account.\nRiprova tra qualche minuto");
+                //return;
+            }
+        };
+    }
+
+    private View.OnClickListener passwordDimenticataOnClickListener() {
+        return v -> { //TODO: spostare logica in LoginController non appena avremo creato la classe passwordRecoveryActivity
             if (!Utilities.isOnline(getApplicationContext())) {
                 Utilities.stampaToast(this, getApplicationContext().getResources().getString(R.string.networkNotAvailable));
                 return;
@@ -141,26 +95,9 @@ public class LoginActivity extends AppCompatActivity {
             Utilities.stampaToast(this, "Funzionalità in sviluppo!");
 
             /*
-            Intent myIntent = new Intent(LoginActivity.this, PasswordDimenticata.class);
+            Intent myIntent = new Intent(LoginActivity.this, passwordRecoveryActivity.class);
             LoginActivity.this.startActivity(myIntent);
             */
-        };
-    }
-
-    private View.OnClickListener registrationOnClickListener(boolean isSocialLogin, String socialProvider) {
-        return v -> {
-            if (!Utilities.isOnline(getApplicationContext())) {
-                Utilities.stampaToast(this, getApplicationContext().getResources().getString(R.string.networkNotAvailable));
-                return;
-            }
-
-            Intent myIntent = new Intent(LoginActivity.this, RegistrationActivity.class);
-
-            myIntent.putExtra("isSocialLogin", isSocialLogin);
-            myIntent.putExtra("socialProvider", socialProvider);
-
-            LoginActivity.this.startActivity(myIntent);
-            //Non lanciare finish() in quanto in caso di pressione di tasto indietro si verrà reindirizzati qui*/
         };
     }
 
@@ -170,7 +107,6 @@ public class LoginActivity extends AppCompatActivity {
         usernameEditText = findViewById(R.id.usernameLogin);
         passwordEditText = findViewById(R.id.passwordLogin);
         loginButton = findViewById(R.id.loginButton);
-        loadingProgressBar = findViewById(R.id.loading);
         creaNuovoAccount = findViewById(R.id.nuovoAccount);
         passwordDimenticata = findViewById(R.id.passwordDimenticata);
         googleLogo = findViewById(R.id.googleLogo);
@@ -182,42 +118,6 @@ public class LoginActivity extends AppCompatActivity {
         boolean ret = super.dispatchTouchEvent(event);
         Utilities.hideKeyboard(this, event);
         return ret;
-    }
-
-    /*@Override
-    public boolean dispatchTouchEvent(MotionEvent event) {
-        View view = getCurrentFocus();
-        boolean ret = super.dispatchTouchEvent(event);
-
-        if (view instanceof EditText) {
-            View w = getCurrentFocus();
-            int[] screenCords = new int[2];
-            w.getLocationOnScreen(screenCords);
-            float x = event.getRawX() + w.getLeft() - screenCords[0];
-            float y = event.getRawY() + w.getTop() - screenCords[1];
-
-            if (event.getAction() == MotionEvent.ACTION_UP && (x < w.getLeft() || x >= w.getRight() || y < w.getTop() || y > w.getBottom())) {
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(getWindow().getCurrentFocus().getWindowToken(), 0);
-            }
-        }
-        return ret;
-    }*/
-
-    private void updateUiWithUser(LoggedInUserView model) {
-        String welcome = getString(R.string.welcome) + " " + model.getDisplayName();
-        // TODO : initiate successful logged in experience
-        Utilities.stampaToast(this, welcome);
-    }
-
-    //Metodo che viene chiamato al termine del login (quando ha successo), consente di svuotare il backStack
-    //TODO: pare che il metodo non funzioni correttamente
-    private void clearBackStack() {
-        FragmentManager fm = getFragmentManager(); // or 'getSupportFragmentManager();'
-        int count = fm.getBackStackEntryCount();
-        for(int i = 0; i < count; ++i) {
-            fm.popBackStack();
-        }
     }
 }
 
@@ -265,7 +165,7 @@ public class LoginActivity extends AppCompatActivity {
                         error -> Log.e("AmplifyQuickstart", "login: " + error.toString())
                 );*/
 
-//Codice per fare login con username e password:
+                //Codice per fare login con username e password:
                 /*Amplify.Auth.signIn(
                         "carmineG",
                         "Carmine_97",
