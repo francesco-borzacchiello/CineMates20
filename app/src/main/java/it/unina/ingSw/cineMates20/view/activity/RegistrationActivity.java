@@ -30,6 +30,8 @@ public class RegistrationActivity extends AppCompatActivity {
     private boolean isSocialRegistration;
     private RegistrationFragment registrationFragment;
     private FragmentManager manager;
+    private ConfirmRegistrationCodeFragment fragmentConfermaCodice;
+    private String username;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -78,7 +80,7 @@ public class RegistrationActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
-        if (requestCode == 10) {
+        if (requestCode == 1111) {
             // The Task returned from this call is always completed, no need to attach
             // a listener.
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
@@ -119,22 +121,6 @@ public class RegistrationActivity extends AppCompatActivity {
         return registrationFragment.allEditTextAreNotEmpty();
     }
 
-    public CheckBox getMostraPasswordCheckBox() {
-        return registrationFragment.getMostraPasswordCheckBox();
-    }
-
-    public EditText getPasswordEditText() {
-        return registrationFragment.getPasswordEditText();
-    }
-
-    public EditText getConfermaPasswordEditText() {
-        return registrationFragment.getConfermaPasswordEditText();
-    }
-
-    public Button getRegistrationButton() {
-        return registrationFragment.getRegistrationButton();
-    }
-
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
         boolean ret = super.dispatchTouchEvent(event);
@@ -146,8 +132,96 @@ public class RegistrationActivity extends AppCompatActivity {
         manager = getSupportFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction();
         transaction.setCustomAnimations(R.animator.fade_in, R.anim.fragment_fade_exit);
-        transaction.replace(R.id.frameLayoutFragmentRegistrazione, new ConfirmRegistrationCodeFragment());
+        fragmentConfermaCodice = new ConfirmRegistrationCodeFragment();
+
+        fragmentConfermaCodice.setTextWatcherConfermaCodice(registrationController.getConfermaCodiceTextWatcher());
+        fragmentConfermaCodice.setInviaCodiceOnClickListener(registrationController.getInviaCodiceOnClickListener());
+        fragmentConfermaCodice.setReinviaCodiceOnClickListener(registrationController.getReinviaCodiceOnClickListener());
+
+        transaction.replace(R.id.frameLayoutFragmentRegistrazione, fragmentConfermaCodice);
         transaction.addToBackStack(null);
         transaction.commit();
+    }
+
+    public void setEnableSendButton(boolean enable) {
+        if(fragmentConfermaCodice != null)
+            fragmentConfermaCodice.setEnableSendButton(enable);
+    }
+
+    public int getLengthEditTextInviaCodice() {
+        if(fragmentConfermaCodice != null)
+            return fragmentConfermaCodice.getLengthEditTextInviaCodice();
+        return -1;
+    }
+
+    public String getCodiceDiConferma() {
+        if(fragmentConfermaCodice != null)
+            return fragmentConfermaCodice.getCodiceDiConferma();
+        return null;
+    }
+
+    public String getEmail() {
+        if(registrationFragment != null)
+            return registrationFragment.getEmail();
+        return null;
+    }
+
+    public String getUsername() {
+        if(username == null && registrationFragment != null)
+            username = registrationFragment.getUsername();
+        return username;
+    }
+
+    public String getCognome() {
+        if(registrationFragment != null)
+            return registrationFragment.getCognome();
+        return null;
+    }
+
+    public String getNome() {
+        if(registrationFragment != null)
+            return registrationFragment.getNome();
+        return null;
+    }
+
+    public String getPassword() {
+        if(registrationFragment != null)
+            return registrationFragment.getPassword();
+        return null;
+    }
+
+    public String getConfermaPassword() {
+        if(registrationFragment != null)
+            return registrationFragment.getConfermaPassword();
+        return null;
+    }
+
+    public void enableRegisterButtonIfTextIsNotEmpty() {
+        if(registrationFragment != null)
+            registrationFragment.enableRegisterButtonIfTextIsNotEmpty();
+    }
+
+    public boolean isMostraPasswordChecked() {
+        if(registrationFragment != null)
+            return registrationFragment.isMostraPasswordChecked();
+        return false;
+    }
+
+    public void showOrHidePassword(boolean show) {
+        if(registrationFragment != null)
+            registrationFragment.showOrHidePassword(show);
+    }
+
+    public void updatePasswordFocus() {
+        if(registrationFragment != null)
+            registrationFragment.updatePasswordFocus();
+    }
+
+    public void returnToLogin() {
+        if(fragmentConfermaCodice != null)
+            manager.popBackStack();
+        if(registrationFragment != null)
+            manager.popBackStack();
+        finish();
     }
 }

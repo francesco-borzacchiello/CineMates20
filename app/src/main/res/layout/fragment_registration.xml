@@ -14,11 +14,10 @@
             android:id="@+id/registrazioneLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="65dp"
+            android:layout_marginTop="20dp"
             android:text="@string/effettuaRegistrazioneLabel"
             android:textColor="@color/white"
             android:textSize="30sp"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintBottom_toTopOf="@id/profileAvatarRegistration"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -26,7 +25,7 @@
 
         <ImageView
             android:id="@+id/profileAvatarRegistration"
-            android:layout_width="138dp"
+            android:layout_width="140dp"
             android:layout_height="140dp"
             android:contentDescription="@string/avatarDescr"
             android:src="@mipmap/avatar_foreground"
@@ -52,7 +51,6 @@
             android:id="@+id/nomeRegistrazione"
             android:layout_width="match_parent"
             android:layout_height="40dp"
-            android:layout_marginTop="10dp"
             android:autofillHints=""
             android:background="@drawable/round_rect_shape"
             android:ems="10"
@@ -73,7 +71,7 @@
             android:id="@+id/cognomeRegistrazione"
             android:layout_width="match_parent"
             android:layout_height="40dp"
-            android:layout_marginTop="25dp"
+            android:layout_marginTop="10dp"
             android:autofillHints=""
             android:background="@drawable/round_rect_shape"
             android:ems="10"
@@ -94,7 +92,7 @@
             android:id="@+id/usernameRegistrazione"
             android:layout_width="match_parent"
             android:layout_height="40dp"
-            android:layout_marginTop="25dp"
+            android:layout_marginTop="10dp"
             android:autofillHints=""
             android:background="@drawable/round_rect_shape"
             android:ems="10"
@@ -115,7 +113,7 @@
             android:id="@+id/emailRegistrazione"
             android:layout_width="match_parent"
             android:layout_height="40dp"
-            android:layout_marginTop="25dp"
+            android:layout_marginTop="10dp"
             android:autofillHints=""
             android:background="@drawable/round_rect_shape"
             android:ems="10"
@@ -136,7 +134,7 @@
             android:id="@+id/passwordRegistrazione"
             android:layout_width="match_parent"
             android:layout_height="40dp"
-            android:layout_marginTop="25dp"
+            android:layout_marginTop="10dp"
             android:autofillHints=""
             android:background="@drawable/round_rect_shape"
             android:ems="10"
@@ -160,6 +158,7 @@
             android:layout_height="20dp"
             android:text="@string/mostra_password_checkbox"
             android:textColor="@color/white"
+            android:layout_marginTop="10dp"
             app:layout_constraintBottom_toTopOf="@id/registratiButton"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.000"
@@ -170,7 +169,7 @@
             android:id="@+id/confermaPasswordRegistrazione"
             android:layout_width="match_parent"
             android:layout_height="40dp"
-            android:layout_marginTop="25dp"
+            android:layout_marginTop="10dp"
             android:autofillHints=""
             android:background="@drawable/round_rect_shape"
             android:ems="10"
@@ -185,7 +184,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/passwordRegistrazione"
-            app:layout_constraintBottom_toTopOf="@id/registratiButton" />
+            app:layout_constraintBottom_toTopOf="@id/mostraPswRegistrazione" />
 
         <Button
             android:id="@+id/registratiButton"
@@ -201,7 +200,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/confermaPasswordRegistrazione" />
+            app:layout_constraintTop_toBottomOf="@+id/mostraPswRegistrazione" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 

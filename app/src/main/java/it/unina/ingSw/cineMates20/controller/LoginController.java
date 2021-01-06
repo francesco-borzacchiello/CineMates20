@@ -4,13 +4,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.text.method.HideReturnsTransformationMethod;
-import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.EditText;
 
 import com.amplifyframework.core.Amplify;
 
@@ -49,7 +44,6 @@ public class LoginController {
 
     public LoginActivity getLoginActivity() { return loginActivity; }
 
-
     public Runnable getEventHandlerForOnClickLogin(String username, String password){
         return () -> {
             if(checkNullActivityOrNoConnection(loginActivity))
@@ -57,12 +51,14 @@ public class LoginController {
 
             try {
                 //Nota: in caso di wifi spento, non possiamo trovarci qui.
+                //Nota 2: se l'utente già loggato prova a rifare login con credenziali errate, Amplify dirà login con successo
                 Amplify.Auth.signIn(
-                        "carmineG",    //TODO: sostituire con "username"
-                        "Carmine_97",  //TODO: sostituire con "password"
+                        loginActivity.getUsername(),
+                        loginActivity.getPassword(),
                         //result -> Log.i("login", "risultato del login:" + result.isSignInComplete()),
                         result -> getLoginControllerInstance().setNextLoginStep(result.isSignInComplete(), username),
-                        error -> Log.e("login", error.toString())
+                        error -> getLoginControllerInstance().setNextLoginStep(false, username)
+                        //error -> Log.e("loginAmplify", error.toString())
                 );
             } catch (Exception error) {
                 Log.e("AuthQuickstart", "Could not initialize Amplify", error);
@@ -84,8 +80,6 @@ public class LoginController {
         };
     }
 
-
-    //TODO: Se il login è fallito allora mostra errori a schermo, altrimenti passa alla prossima activity, chiama Utilities.clearBackStack(), setta loginActivity=null e infine finish()
     public void setNextLoginStep(boolean signIn, String username) {
         if(checkNullActivityOrNoConnection(loginActivity))
             return;
@@ -96,11 +90,12 @@ public class LoginController {
 
             //Mostra schermata home con un intent, passando LoginActivity come parent e poi distruggendo tutte le activity create...
             Intent intent = new Intent(); //TODO: sostituire con new Intent(loginActivity, HomeActivity.class);
-            Utilities.clearBackStack(intent); //Nota: testato già con TmpActivity, elimina solo dopo aver chiamato startActivity()
+            loginActivity.runOnUiThread(() -> Utilities.clearBackStack(intent)); //Nota: testato già con TmpActivity, elimina solo dopo aver chiamato startActivity()
             //loginActivity.startActivity(intent);
+            //loginActivity.finish();
         }
         else {
-            Utilities.stampaToast(loginActivity, "Credenziali errate.");
+            loginActivity.runOnUiThread(() -> Utilities.stampaToast(loginActivity, "Credenziali errate."));
         }
     }
 
@@ -111,7 +106,7 @@ public class LoginController {
             return true; //null activity
 
         if(!Utilities.isOnline(getLoginActivity())) {
-            Utilities.stampaToast(activity, activity.getApplicationContext().getResources().getString(R.string.networkNotAvailable));
+            loginActivity.runOnUiThread(() -> Utilities.stampaToast(activity, activity.getApplicationContext().getResources().getString(R.string.networkNotAvailable)));
             return true; //no connection
         }
 
@@ -132,16 +127,12 @@ public class LoginController {
                 if(loginActivity == null)
                     return;
 
-                Button loginButton = loginActivity.findViewById(R.id.loginButton);
-                EditText username = loginActivity.findViewById(R.id.usernameLogin);
-                EditText password = loginActivity.findViewById(R.id.passwordLogin);
-
-                if(!Utilities.isEmailValid(username.getText().toString()) && !Utilities.isUserNameValid(username.getText().toString())) {
-                    username.setError("Email o username non valido");
-                    loginButton.setEnabled(false);
+                if(!Utilities.isEmailValid(loginActivity.getUsername()) && !Utilities.isUserNameValid(loginActivity.getUsername())) {
+                    loginActivity.showUsernameError();
+                    loginActivity.enableLoginButton(false);
                 }
-                else if(Utilities.isPasswordValid(password.getText().toString()))
-                    loginButton.setEnabled(true);
+                else if(Utilities.isPasswordValid(loginActivity.getPassword()))
+                    loginActivity.enableLoginButton(true);
             }
         };
     }
@@ -159,35 +150,28 @@ public class LoginController {
                 if(loginActivity == null)
                     return;
 
-                Button loginButton = loginActivity.findViewById(R.id.loginButton);
-                EditText username = loginActivity.findViewById(R.id.usernameLogin);
-                EditText password = loginActivity.findViewById(R.id.passwordLogin);
-
-                if(!Utilities.isPasswordValid(password.getText().toString())) {
-                    password.setError("La password non è valida");
-                    loginButton.setEnabled(false);
+                if(!Utilities.isPasswordValid(loginActivity.getPassword())) {
+                    loginActivity.showPasswordError();
+                    loginActivity.enableLoginButton(false);
                 }
-                else if(Utilities.isEmailValid(username.getText().toString()) || Utilities.isUserNameValid(username.getText().toString()))
-                    loginButton.setEnabled(true);
+                else if(Utilities.isEmailValid(loginActivity.getUsername()) || Utilities.isUserNameValid(loginActivity.getUsername()))
+                    loginActivity.enableLoginButton(true);
             }
         };
     }
 
     public View.OnClickListener getMostraPasswordCheckBoxListener() {
         return listener -> {
-            CheckBox mostraPassword = loginActivity.getMostraPasswordCheckBox();
-            EditText passwordEditText = loginActivity.getPasswordEditText();
-
             //Se la CheckBox è selezionata
-            if (mostraPassword.isChecked()) {
+            if (loginActivity.isCheckBoxMostraPasswordEnabled()) {
                 // mostra password
-                passwordEditText.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+                loginActivity.showOrHidePassword(true);
             } else {
                 // nascondi password
-                passwordEditText.setTransformationMethod(PasswordTransformationMethod.getInstance());
+                loginActivity.showOrHidePassword(false);
             }
-            if(passwordEditText.hasFocus())
-                passwordEditText.setSelection(passwordEditText.length());
+
+            loginActivity.updatePasswordFocus();
         };
     }
 }

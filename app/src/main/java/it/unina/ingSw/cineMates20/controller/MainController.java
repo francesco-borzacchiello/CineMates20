@@ -11,7 +11,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import it.unina.ingSw.cineMates20.EntryPoint;
 
 /**
- * Verifica se l'utente è loggato comunicando con cognito.
+ * Verifica se l'utente è loggato comunicando con cognito,
+ * se non è loggato con cognito, verifica se è loggato con google o facebook.
  * Se loggato aprirà la home, altrimenti la pagina di login
  */
 public class MainController {
@@ -25,24 +26,17 @@ public class MainController {
     }
 
     public void start(){
-        //Lancia eccezione, non va bene
-        /*Amplify.Auth.fetchAuthSession(
-            isSignIn -> ifIsLoggedInOpenHomeElseOpenLogin(isSignIn.isSignedIn()),
-            error -> Log.e("AuthQuickstart", error.toString())
-        );*/
-
-        AuthUser user = Amplify.Auth.getCurrentUser(); //Se l'utente non è autenticato, restituisce null
         activity.overridePendingTransition(0, 0);
 
         //TODO: modificare opportunamente isLoggedIn() togliendo il ! alla fine del test sul login
-        openLoginActivity();
+        if(!isLoggedIn()) openHomeActivity();
+        else openLoginActivity();
 
         activity.finish();
     }
 
     private boolean isLoggedIn() {
         AuthUser user = Amplify.Auth.getCurrentUser(); //Se l'utente non è autenticato, restituisce null
-        activity.overridePendingTransition(0, 0);
         if(user != null)
             return true;
 
@@ -53,11 +47,7 @@ public class MainController {
             return true;
 
         // Se l'utente è già loggato, restituisce l'account con il quale si è loggato l'ultima volta
-        GoogleSignInAccount gUser = GoogleSignIn.getLastSignedInAccount(activity);
-        if(gUser != null)
-            return true;
-
-        return false;
+        return GoogleSignIn.getLastSignedInAccount(activity) != null;
     }
 
     private void openLoginActivity() { controllerLogin.start(activity); }

@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.StrictMode;
-import android.util.Patterns;
+import org.apache.commons.validator.routines.EmailValidator;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -17,23 +17,61 @@ import org.jetbrains.annotations.NotNull;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.regex.Pattern;
 
 public class Utilities {
 
     public static boolean isUserNameValid(String username) {
-        return username != null && !username.trim().isEmpty()
-                && username.trim().length() > 3;
+        if(username != null) {
+            if(username.trim().isEmpty())
+                return false;
+
+            if(username.trim().length() < 3)
+                return false;
+
+            Pattern whiteSpacePattern = Pattern.compile("\\s+");
+            return !whiteSpacePattern.matcher(username.trim()).find();
+        }
+        return true;
+
         //TODO: aggiungere && !username.isUsed() tramite un metodo di Amplify
+        //Fare signIn() con username e password = "123" e catch di UserNotFoundException e UserNotConfirmedException
     }
 
     public static boolean isPasswordValid(String password) {
-        return password != null && password.trim().length() >= 8;
-        /* TODO: aggiungere gli altri vincoli di Cognito richiesti:
+        if(password != null) {
+        /*  Vincoli di Cognito richiesti:
             Richiedi numeri
             Richiedi carattere speciale
             Richiedi lettere maiuscole
             Richiedi lettere minuscole
+
+            Vincolo aggiuntivo: niente spazi bianchi nel mezzo
         */
+            Pattern specialCharPattern = Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE);
+            Pattern upperCasePattern = Pattern.compile("[A-Z ]");
+            Pattern lowerCasePattern = Pattern.compile("[a-z ]");
+            Pattern digitCasePattern = Pattern.compile("[0-9 ]");
+            Pattern whiteSpacePattern = Pattern.compile("\\s+");
+
+            if (password.trim().length() < 8)
+                return false;
+
+            if(whiteSpacePattern.matcher(password.trim()).find())
+                return false;
+
+            if (!specialCharPattern.matcher(password).find())
+                return false;
+
+            if (!upperCasePattern.matcher(password).find())
+                return false;
+
+            if (!lowerCasePattern.matcher(password).find())
+                return false;
+
+            return digitCasePattern.matcher(password).find();
+        }
+        return false;
     }
 
     public static boolean isConfirmPasswordValid(@NotNull String password, String confirmPassword) {
@@ -41,8 +79,12 @@ public class Utilities {
     }
 
     public static boolean isEmailValid(String email) {
-        return email != null && Patterns.EMAIL_ADDRESS.matcher(email).matches();
-        //TODO: aggiungere && !email.isUsed() tramite un metodo di Amplify OR email.isUsed() && email.isPending()
+        if(email != null) {
+            return EmailValidator.getInstance().isValid(email);
+        }
+        return false;
+        //TODO: aggiungere && !email.isUsed() tramite un metodo di Amplify OR (email.isUsed() && email.isPending())
+        //Fare signIn() con email e password = "123" e catch di UserNotFoundException e UserNotConfirmedException
     }
 
     public static void stampaToast(@NotNull Activity activity, String msg) {

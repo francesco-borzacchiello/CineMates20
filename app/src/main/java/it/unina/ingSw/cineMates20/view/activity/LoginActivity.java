@@ -2,6 +2,8 @@ package it.unina.ingSw.cineMates20.view.activity;
 
 import android.os.Bundle;
 import android.text.TextWatcher;
+import android.text.method.HideReturnsTransformationMethod;
+import android.text.method.PasswordTransformationMethod;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
@@ -11,6 +13,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
@@ -23,23 +28,19 @@ public class LoginActivity extends AppCompatActivity {
     private LoginController loginController;
     private Runnable eventForLoginClick,
                      eventForCreateNewUser;
-
-    private EditText usernameEditText;
-    private EditText passwordEditText;
+    private EditText usernameEditText,
+                     passwordEditText;
     private Button loginButton;
-    private TextView creaNuovoAccount;
-    private TextView passwordDimenticata;
-    private ImageView googleLogo;
-    private ImageView facebookLogo;
-    private ImageView twitterLogo;
+    private TextView creaNuovoAccount,
+                     passwordDimenticata;
+    private ImageView googleLogo,
+                      facebookLogo,
+                      twitterLogo;
     private CheckBox mostraPassword;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //Objects.requireNonNull(getSupportActionBar()).hide(); //Nasconde la barra del titolo - chiamare questo metodo prima di setContentView
-
-        setContentView(R.layout.activity_login);
 
         loginController = LoginController.getLoginControllerInstance();
         loginController.setLoginActivity(this);
@@ -66,14 +67,20 @@ public class LoginActivity extends AppCompatActivity {
         passwordDimenticata.setOnClickListener(passwordDimenticataOnClickListener());
     }
 
-    public EditText getPasswordEditText() {
-        return passwordEditText;
+    public String getUsername() {
+        if(usernameEditText != null)
+            return usernameEditText.getText().toString().trim();
+        return null;
     }
 
-    public CheckBox getMostraPasswordCheckBox() {
-        return mostraPassword;
+    public String getPassword() {
+        if(passwordEditText != null)
+            return passwordEditText.getText().toString().trim();
+        return null;
     }
 
+    @NotNull
+    @Contract(pure = true)
     private View.OnClickListener loginOnClickListener() {
         return v -> {
             eventForLoginClick = loginController.getEventHandlerForOnClickLogin(usernameEditText.getText().toString(),
@@ -87,6 +94,8 @@ public class LoginActivity extends AppCompatActivity {
         };
     }
 
+    @NotNull
+    @Contract(pure = true)
     private View.OnClickListener registrationOnClickListener(boolean isSocialLogin, String socialProvider) {
         return v -> {
             eventForCreateNewUser = loginController.getEventHandlerForOnClickRegistration(isSocialLogin, socialProvider);
@@ -100,6 +109,8 @@ public class LoginActivity extends AppCompatActivity {
         };
     }
 
+    @NotNull
+    @Contract(pure = true)
     private View.OnClickListener passwordDimenticataOnClickListener() {
         return v -> { //TODO: spostare logica in LoginController non appena avremo creato la classe passwordRecoveryActivity
             if (!Utilities.isOnline(getApplicationContext())) {
@@ -136,6 +147,41 @@ public class LoginActivity extends AppCompatActivity {
         boolean ret = super.dispatchTouchEvent(event);
         Utilities.hideKeyboard(this, event);
         return ret;
+    }
+
+    public void showUsernameError() {
+        if(usernameEditText != null)
+            usernameEditText.setError("Email o username non valido");
+    }
+
+    public void showPasswordError() {
+        if(passwordEditText != null)
+            passwordEditText.setError("La password non è valida");
+    }
+
+    public void enableLoginButton(boolean enable) {
+        if(loginButton != null)
+            loginButton.setEnabled(enable);
+    }
+
+    public boolean isCheckBoxMostraPasswordEnabled() {
+        if(mostraPassword != null)
+            return mostraPassword.isChecked();
+        return false;
+    }
+
+    public void showOrHidePassword(boolean show) {
+        if(show) {
+            passwordEditText.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+        }
+        else {
+            passwordEditText.setTransformationMethod(PasswordTransformationMethod.getInstance());
+        }
+    }
+
+    public void updatePasswordFocus() {
+        if(passwordEditText != null && passwordEditText.hasFocus())
+            passwordEditText.setSelection(passwordEditText.length());
     }
 }
 

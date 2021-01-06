@@ -36,8 +36,6 @@ public class EntryPoint extends AppCompatActivity {
     }
 
     private void initActivity() {
-        //TODO: testare se su uno smartphone vero se viene mostrato a schermo questo colore
-        //this.getWindow().getDecorView().setBackgroundColor(getResources().getColor(R.color.lightBlue));
         //Objects.requireNonNull(getSupportActionBar()).hide(); //Nasconde la barra del titolo - chiamare questo metodo prima di setContentView
         setContentView(R.layout.activity_tmp);
 

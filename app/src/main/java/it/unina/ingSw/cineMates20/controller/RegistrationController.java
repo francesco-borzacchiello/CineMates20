@@ -5,14 +5,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.text.method.HideReturnsTransformationMethod;
-import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.EditText;
 
+import com.amplifyframework.auth.AuthUserAttribute;
+import com.amplifyframework.auth.AuthUserAttributeKey;
+import com.amplifyframework.auth.options.AuthSignUpOptions;
+import com.amplifyframework.core.Amplify;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -30,9 +29,9 @@ import com.google.android.gms.tasks.Task;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
-import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.view.activity.RegistrationActivity;
 import it.unina.ingSw.cineMates20.view.util.Utilities;
 
@@ -50,8 +49,6 @@ public class RegistrationController {
 
     public void setRegistrationActivity(RegistrationActivity activity) { this.registrationActivity = activity; }
 
-    public RegistrationActivity getRegistrationActivity() { return registrationActivity; }
-
     public Runnable getEventHandlerForOnClickRegistration() {
         if(registrationActivity == null)
             return null;
@@ -64,44 +61,64 @@ public class RegistrationController {
                 return;
             }
 
-            /* Nome e cognome sono per forza validi in quanto è soltanto richiesto che siano non vuoti,
-             * e il tasto registrati viene disabilitato non appena una EditText diventa vuota. */
-            EditText usernameEditText = registrationActivity.findViewById(R.id.usernameRegistrazione);
-            EditText emailEditText = registrationActivity.findViewById(R.id.emailRegistrazione);
-            EditText passwordEditText = registrationActivity.findViewById(R.id.passwordRegistrazione);
-            EditText confermaPasswordEditText = registrationActivity.findViewById(R.id.confermaPasswordRegistrazione);
+            boolean inputIsValid = isInputValid(isSocialRegistration);
 
-            if (!Utilities.isUserNameValid(usernameEditText.getText().toString())) {
-                registrationActivity.runOnUiThread(() -> Utilities.stampaToast(registrationActivity, "L'username inserito non è valido oppure è già in uso."));
-                return;
-            }
-
-            if(!isSocialRegistration) {
-                if (!Utilities.isEmailValid(emailEditText.getText().toString())) {
-                    Utilities.stampaToast(registrationActivity, "L'email inserita non è valida oppure è già in uso.");
-                    return;
-                }
-                if (!Utilities.isPasswordValid(passwordEditText.getText().toString())) {
-                    Utilities.stampaToast(registrationActivity, "La password deve contenere almeno un numero, un carattere speciale, una lettera minuscola e una maiuscola.");
-                    return;
-                }
-                if (!Utilities.isConfirmPasswordValid(passwordEditText.getText().toString(), confermaPasswordEditText.getText().toString())) {
-                    Utilities.stampaToast(registrationActivity, "Le password non coincidono!");
-                    return;
-                }
-
+            if(!isSocialRegistration && inputIsValid) {
                 /*TODO: Se non è stata modificata foto, passare url foto default a Cognito.
                  *      Procedere con la registrazione (dire a RegistrationActivity di mostrare
                  *      ConfirmRegistrationCodeFragment)*/
                 //Si procede con la registrazione interna
-                //...
-                registrationActivity.mostraFragmentConfermaCodice();
+                ArrayList<AuthUserAttribute> attributes = new ArrayList<>();
+                attributes.add(new AuthUserAttribute(AuthUserAttributeKey.email(), registrationActivity.getEmail()));
+                attributes.add(new AuthUserAttribute(AuthUserAttributeKey.preferredUsername(), registrationActivity.getUsername()));
+                attributes.add(new AuthUserAttribute(AuthUserAttributeKey.familyName(), registrationActivity.getCognome())); //Cognome
+                attributes.add(new AuthUserAttribute(AuthUserAttributeKey.givenName(), registrationActivity.getNome())); //Nome
+                attributes.add(new AuthUserAttribute(AuthUserAttributeKey.name(), ""));
+                attributes.add(new AuthUserAttribute(AuthUserAttributeKey.picture(), "null")); //TODO: da modificare successivamente
+
+                Amplify.Auth.signUp(
+                        registrationActivity.getUsername(),
+                        registrationActivity.getPassword(),
+                        AuthSignUpOptions.builder().userAttributes(attributes).build(),
+                        result -> Log.i("AuthQuickStart", "Result: " + result.toString()),
+                        error -> Log.e("AuthQuickStart", "Sign up failed", error)
+                );
+
+                registrationActivity.mostraFragmentConfermaCodice(); //TODO: questo va fatto solo se result è corretto, gestire caso dati già esistenti ma non confermati
             }
-            else { //Si procede con la registrazione social
+            else if(inputIsValid) { //Si procede con la registrazione social
                 //...
                 registrationActivity.runOnUiThread(() -> Utilities.stampaToast(registrationActivity, "Funzionalità in sviluppo!"));
             }
         };
+    }
+
+    private boolean isInputValid(boolean isSocialRegistration) {
+        /* Nome e cognome sono per forza validi in quanto è soltanto richiesto che siano non vuoti,
+         * e il tasto registrati viene disabilitato non appena una EditText diventa vuota. */
+
+        if (!Utilities.isUserNameValid(registrationActivity.getUsername())) {
+            registrationActivity.runOnUiThread(() -> Utilities.stampaToast(registrationActivity, "L'username inserito non è valido oppure è già in uso."));
+            return false;
+        }
+
+        if(!isSocialRegistration) {
+            if (!Utilities.isEmailValid(registrationActivity.getEmail())) {
+                registrationActivity.runOnUiThread(() -> Utilities.stampaToast(registrationActivity, "L'email inserita non è valida oppure è già in uso."));
+                return false;
+            }
+            if (!Utilities.isPasswordValid(registrationActivity.getPassword())) {
+                registrationActivity.runOnUiThread(() -> Utilities.stampaToast(registrationActivity, "La password deve contenere almeno un numero, " +
+                        "un carattere speciale, una lettera minuscola e una maiuscola."));
+                return false;
+            }
+            if (!Utilities.isConfirmPasswordValid(registrationActivity.getPassword(), registrationActivity.getConfermaPassword())) {
+                registrationActivity.runOnUiThread(() -> Utilities.stampaToast(registrationActivity, "Le password non coincidono!"));
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public TextWatcher getAbilitaRegistrazioneTextWatcher() {
@@ -115,9 +132,8 @@ public class RegistrationController {
             @Override
             public void afterTextChanged(Editable s) {
                 if(registrationActivity != null) {
-                    Button registrationButton = registrationActivity.getRegistrationButton();
                     //Se tutte le EditText sono non vuote, abilita il tasto Registrati
-                    registrationButton.setEnabled(registrationActivity.allEditTextAreNotEmpty());
+                    registrationActivity.enableRegisterButtonIfTextIsNotEmpty();
                 }
             }
         };
@@ -125,24 +141,16 @@ public class RegistrationController {
 
     public View.OnClickListener getMostraPasswordCheckBoxListener() {
         return listener -> {
-            CheckBox mostraPassword = registrationActivity.getMostraPasswordCheckBox();
-            EditText passwordEditText = registrationActivity.getPasswordEditText(),
-                     confermaPasswordEditText = registrationActivity.getConfermaPasswordEditText();
-
             //Se la CheckBox è selezionata
-            if (mostraPassword.isChecked()) {
+            if (registrationActivity.isMostraPasswordChecked()) {
                 // mostra password
-                passwordEditText.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
-                confermaPasswordEditText.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+                registrationActivity.showOrHidePassword(true);
             } else {
                 // nascondi password
-                passwordEditText.setTransformationMethod(PasswordTransformationMethod.getInstance());
-                confermaPasswordEditText.setTransformationMethod(PasswordTransformationMethod.getInstance());
+                registrationActivity.showOrHidePassword(false);
             }
-            if(passwordEditText.hasFocus())
-                passwordEditText.setSelection(passwordEditText.length());
-            else if(confermaPasswordEditText.hasFocus())
-                confermaPasswordEditText.setSelection(confermaPasswordEditText.length());
+
+            registrationActivity.updatePasswordFocus();
         };
     }
 
@@ -165,7 +173,7 @@ public class RegistrationController {
                                 String email;
                                 if (object.has("email")) {
                                     email = object.getString("email");
-                                    Log.i("TESTLOGFB", email);
+                                    //Log.i("TESTLOGFB", email);
                                 }
                                 else email = "facebookUser@mail.com";
 
@@ -183,13 +191,13 @@ public class RegistrationController {
 
             @Override
             public void onCancel() {
-                Utilities.stampaToast(registrationActivity, "Login annullato");
+                registrationActivity.runOnUiThread(() -> Utilities.stampaToast(registrationActivity, "Login annullato"));
                 registrationActivity.finish();
             }
 
             @Override
             public void onError(FacebookException exception) {
-                Utilities.stampaToast(registrationActivity, "Si è verificato un errore");
+                registrationActivity.runOnUiThread(() -> Utilities.stampaToast(registrationActivity, "Si è verificato un errore"));
                 registrationActivity.finish();
             }
         };
@@ -217,7 +225,7 @@ public class RegistrationController {
         GoogleSignInClient googleSignInClient = GoogleSignIn.getClient(registrationActivity, gso);
 
         Intent signInIntent = googleSignInClient.getSignInIntent();
-        registrationActivity.startActivityForResult(signInIntent, 10); //Va bene qualunque numero coerente in onActivityResult()
+        registrationActivity.startActivityForResult(signInIntent, 1111); //Va bene qualunque numero coerente in onActivityResult()
     }
 
     public void handleGoogleSignInResult(@NotNull Task<GoogleSignInAccount> completedTask) {
@@ -229,12 +237,62 @@ public class RegistrationController {
             if(account != null)
                 registrationActivity.showHomeOrRegistrationPage(account.getGivenName(), account.getFamilyName());
             else
-                Utilities.stampaToast(registrationActivity, "Si è verificato un errore");
+                registrationActivity.runOnUiThread(() -> Utilities.stampaToast(registrationActivity, "Si è verificato un errore"));
         } catch (ApiException e) {
             // The ApiException status code indicates the detailed failure reason.
             // Please refer to the GoogleSignInStatusCodes class reference for more information.
             Log.w("GoogleLogin", "signInResult:failed code=" + e.getStatusCode());
-            Utilities.stampaToast(registrationActivity, "Si è verificato un errore:\n" + e.getStatusCode());
+            registrationActivity.runOnUiThread(() -> Utilities.stampaToast(registrationActivity, "Si è verificato un errore:\n" + e.getStatusCode()));
         }
+    }
+
+    public TextWatcher getConfermaCodiceTextWatcher() {
+        return new TextWatcher() {
+            @Override
+            public void beforeTextChanged (CharSequence s,int start, int count, int after){}
+
+            @Override
+            public void onTextChanged (CharSequence s,int start, int before, int count){}
+
+            @Override
+            public void afterTextChanged (Editable s){
+                if(registrationActivity == null)
+                    return;
+
+                //Se la editText ha lunghezza maggiore di 0, abilita il tasto INVIA
+                registrationActivity.setEnableSendButton(registrationActivity.getLengthEditTextInviaCodice() > 0);
+            }
+        };
+    }
+
+    public View.OnClickListener getInviaCodiceOnClickListener() {
+        return listener -> {
+            //Codice per confermare l'email
+            Amplify.Auth.confirmSignUp(
+                    registrationActivity.getUsername(),
+                    registrationActivity.getCodiceDiConferma(),
+                    result -> handleSendedVerificationCode(result.isSignUpComplete()),
+                    error -> handleSendedVerificationCode(false)
+            );
+        };
+    }
+
+    private void handleSendedVerificationCode(boolean isSignUpComplete) {
+        if(isSignUpComplete) {
+            //Reindirizzare a pagina login
+            registrationActivity.returnToLogin();
+            registrationActivity.runOnUiThread(() -> Utilities.stampaToast(registrationActivity, "Account creato con successo"));
+        }
+        else {
+            registrationActivity.runOnUiThread(() -> Utilities.stampaToast(registrationActivity, "Codice errato"));
+        }
+    }
+
+    public View.OnClickListener getReinviaCodiceOnClickListener() {
+        return listener -> Amplify.Auth.resendSignUpCode(
+                registrationActivity.getUsername(),
+                result -> registrationActivity.runOnUiThread(() -> Utilities.stampaToast(registrationActivity, "Codice reinviato")),
+                error -> registrationActivity.runOnUiThread(() -> Utilities.stampaToast(registrationActivity, "L'email inserita non è valida oppure è già in uso."))
+        );
     }
 }

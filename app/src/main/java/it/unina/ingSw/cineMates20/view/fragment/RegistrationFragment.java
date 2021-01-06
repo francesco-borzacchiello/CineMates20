@@ -2,6 +2,8 @@ package it.unina.ingSw.cineMates20.view.fragment;
 
 import android.os.Bundle;
 import android.text.TextWatcher;
+import android.text.method.HideReturnsTransformationMethod;
+import android.text.method.PasswordTransformationMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -86,22 +88,6 @@ public class RegistrationFragment extends Fragment {
     }
 
     //region Getter e Setter
-    public Button getRegistrationButton() {
-        return registrationButton;
-    }
-
-    public CheckBox getMostraPasswordCheckBox() {
-        return checkBoxMostraPassword;
-    }
-
-    public EditText getPasswordEditText() {
-        return passwordEditText;
-    }
-
-    public EditText getConfermaPasswordEditText() {
-        return confermaPasswordEditText;
-    }
-
     public void setAbilitaRegistrazioneTextWatcher(TextWatcher txtw) {
         this.afterTextChangedListener = txtw;
     }
@@ -162,5 +148,73 @@ public class RegistrationFragment extends Fragment {
                 confermaPasswordEditText.addTextChangedListener(afterTextChangedListener);
             }
         }
+    }
+
+    public String getEmail() {
+        if(emailEditText != null)
+            return emailEditText.getText().toString().trim();
+        return null;
+    }
+
+    public String getUsername() {
+        if(usernameEditText != null)
+            return usernameEditText.getText().toString().trim();
+        return null;
+    }
+
+    public String getCognome() {
+        if(cognomeEditText != null)
+            return cognomeEditText.getText().toString().trim();
+        return null;
+    }
+
+    public String getNome() {
+        if(nomeEditText != null)
+            return nomeEditText.getText().toString().trim();
+        return null;
+    }
+
+    public String getPassword() {
+        if(passwordEditText != null)
+            return passwordEditText.getText().toString().trim();
+        return null;
+    }
+
+    public String getConfermaPassword() {
+        if(confermaPasswordEditText != null)
+            return confermaPasswordEditText.getText().toString().trim();
+        return null;
+    }
+
+    public void enableRegisterButtonIfTextIsNotEmpty() {
+        if(registrationButton != null)
+            registrationButton.setEnabled(allEditTextAreNotEmpty());
+    }
+
+    public boolean isMostraPasswordChecked() {
+        if(checkBoxMostraPassword != null)
+            return checkBoxMostraPassword.isChecked();
+        return false;
+    }
+
+    public void showOrHidePassword(boolean show) {
+        if(show) {
+            if (passwordEditText != null && confermaPasswordEditText != null) {
+                passwordEditText.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+                confermaPasswordEditText.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+            }
+        }
+        else {
+            passwordEditText.setTransformationMethod(PasswordTransformationMethod.getInstance());
+            confermaPasswordEditText.setTransformationMethod(PasswordTransformationMethod.getInstance());
+        }
+    }
+
+
+    public void updatePasswordFocus() {
+        if(passwordEditText.hasFocus())
+            passwordEditText.setSelection(passwordEditText.length());
+        else if(confermaPasswordEditText.hasFocus())
+            confermaPasswordEditText.setSelection(confermaPasswordEditText.length());
     }
 }

@@ -8,7 +8,6 @@
     android:background="@color/lightBlue"
     android:fitsSystemWindows="true"
     android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context=".view.activity.LoginActivity">
@@ -22,6 +21,7 @@
         android:textSize="30sp"
         app:layout_constraintBottom_toTopOf="@id/loginEditTextLL"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -29,11 +29,12 @@
         android:id="@+id/loginEditTextLL"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingBottom="7dp"
         android:gravity="center"
-        android:layout_marginTop="30dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toTopOf="@id/loginButton"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.812"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/effettuaLogin">
 
@@ -63,8 +64,8 @@
             android:layout_width="match_parent"
             android:layout_height="40dp"
             android:layout_marginStart="24dp"
-            android:layout_marginEnd="24dp"
             android:layout_marginTop="15dp"
+            android:layout_marginEnd="24dp"
             android:autofillHints=""
             android:background="@drawable/round_rect_shape"
             android:ems="10"
@@ -106,10 +107,9 @@
     <LinearLayout
         android:id="@+id/loginTextViewLL"
         android:layout_width="match_parent"
-        android:layout_height="224dp"
+        android:layout_height="180dp"
         android:gravity="center"
         android:orientation="vertical"
-        android:paddingTop="10dp"
         app:layout_constraintBottom_toTopOf="@id/rettangoloSocial"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -132,9 +132,9 @@
             android:id="@+id/nuovoAccount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/nuovoAccountLabel"
+            android:layout_marginTop="30dp"
             android:gravity="center"
-            android:layout_marginTop="35dp"
+            android:text="@string/nuovoAccountLabel"
             android:textColor="@color/login_clickable_text"
             android:textSize="17sp"
             app:layout_constraintBottom_toTopOf="@id/socialLogin"
@@ -146,11 +146,11 @@
             android:id="@+id/socialLogin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingTop="60dp"
             android:text="@string/loginSocialLabel"
             android:textColor="@color/white"
             android:textSize="17sp"
-            android:paddingTop="90dp"
-            android:gravity="center"
             app:layout_constraintBottom_toTopOf="@id/rettangoloSocial"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -185,7 +185,7 @@
         app:layout_constraintBottom_toTopOf="@id/loginTextViewLL"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/loginEditTextLL" />
+        app:layout_constraintTop_toBottomOf="@id/mostraPswLogin" />
 
     <ProgressBar
         android:id="@+id/loading"
@@ -207,6 +207,7 @@
         android:layout_height="68dp"
         android:background="@drawable/round_rect_shape2"
         android:orientation="horizontal"
+        android:layout_marginBottom="15dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
