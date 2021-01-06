@@ -1,14 +1,160 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/lightBlue"
     tools:context=".view.fragment.ConfirmRegistrationCodeFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/confermaCodiceRegistrazioneTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/confermaCodiceRegistrazioneLabel"
+            android:textColor="@color/white"
+            android:textSize="25sp"
+            app:layout_constraintBottom_toTopOf="@id/confermaCodiceRegistrazioneEditText"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <EditText
+            android:id="@+id/confermaCodiceRegistrazioneEditText"
+            android:layout_width="355dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="0dp"
+            android:layout_gravity="center_horizontal"
+            android:autofillHints=""
+            android:background="@drawable/round_rect_shape"
+            android:ems="10"
+            android:hint="@string/prompt_conferma_codice"
+            android:imeOptions="actionDone"
+            android:inputType="textPersonName"
+            android:maxLength="15"
+            android:paddingLeft="14dp"
+            android:paddingRight="14dp"
+            android:selectAllOnFocus="false"
+            android:textColor="@color/black"
+            app:layout_constraintBottom_toTopOf="@id/inviaCodiceRegistrazioneButton"
+            app:layout_constraintTop_toBottomOf="@id/confermaCodiceRegistrazioneTextView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <Button
+            android:id="@+id/reinviaCodiceButton"
+            style="@style/MaterialButtonStyle"
+            android:layout_width="100dp"
+            android:layout_height="60dp"
+            android:layout_marginTop="100dp"
+            android:layout_marginBottom="100dp"
+            android:enabled="true"
+            android:text="@string/action_send_code_again"
+            android:textColor="@color/white"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/inviaCodiceRegistrazioneButton"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/confermaCodiceRegistrazioneEditText" />
+
+        <Button
+            android:id="@+id/inviaCodiceRegistrazioneButton"
+            style="@style/MaterialButtonStyle"
+            android:layout_width="100dp"
+            android:layout_height="60dp"
+            android:layout_marginTop="100dp"
+            android:layout_marginBottom="100dp"
+            android:enabled="false"
+            android:text="@string/action_send_code"
+            android:textColor="@color/white"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/reinviaCodiceButton"
+            app:layout_constraintTop_toBottomOf="@id/confermaCodiceRegistrazioneEditText" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </FrameLayout>
+
+
+    <!--
+    <?xml version="1.0" encoding="utf-8"?>
+    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/lightBlue"
+        tools:context=".view.fragment.ConfirmRegistrationCodeFragment">
+
+        <TextView
+            android:id="@+id/confermaCodiceRegistrazioneTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/confermaCodiceRegistrazioneLabel"
+            android:textColor="@color/white"
+            android:textSize="25sp"
+            app:layout_constraintBottom_toTopOf="@id/confermaCodiceRegistrazioneEditText"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <EditText
+            android:id="@+id/confermaCodiceRegistrazioneEditText"
+            android:layout_width="355dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="100dp"
+            android:layout_gravity="center_horizontal"
+            android:autofillHints=""
+            android:background="@drawable/round_rect_shape"
+            android:ems="10"
+            android:hint="@string/prompt_conferma_codice"
+            android:imeOptions="actionDone"
+            android:inputType="textPersonName"
+            android:maxLength="15"
+            android:paddingLeft="14dp"
+            android:paddingRight="14dp"
+            android:selectAllOnFocus="false"
+            android:textColor="@color/black"
+            app:layout_constraintBottom_toTopOf="@id/inviaCodiceRegistrazioneButton"
+            app:layout_constraintTop_toBottomOf="@id/confermaCodiceRegistrazioneTextView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <Button
+            android:id="@+id/inviaCodiceRegistrazioneButton"
+            style="@style/MaterialButtonStyle"
+            android:layout_width="100dp"
+            android:layout_height="60dp"
+            android:layout_marginTop="300dp"
+            android:layout_marginStart="215dp"
+            android:enabled="false"
+            android:text="@string/action_send_code"
+            android:textColor="@color/white"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/reinviaCodiceButton"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/confermaCodiceRegistrazioneEditText" />
+
+        <Button
+            android:id="@+id/reinviaCodiceButton"
+            style="@style/MaterialButtonStyle"
+            android:layout_width="100dp"
+            android:layout_height="60dp"
+            android:layout_marginTop="300dp"
+            android:layout_marginStart="65dp"
+            android:enabled="true"
+            android:text="@string/action_send_code_again"
+            android:textColor="@color/white"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/inviaCodiceRegistrazioneButton"
+            app:layout_constraintTop_toBottomOf="@id/confermaCodiceRegistrazioneEditText" />
+
+    </FrameLayout>-->

@@ -1,7 +1,6 @@
 package it.unina.ingSw.cineMates20.view.util;
 
 import android.app.Activity;
-import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
@@ -14,7 +13,8 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import java.io.Serializable;
+import org.jetbrains.annotations.NotNull;
+
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -36,7 +36,7 @@ public class Utilities {
         */
     }
 
-    public static boolean isConfirmPasswordValid(String password, String confirmPassword) {
+    public static boolean isConfirmPasswordValid(@NotNull String password, String confirmPassword) {
         return password.equals(confirmPassword);
     }
 
@@ -45,26 +45,13 @@ public class Utilities {
         //TODO: aggiungere && !email.isUsed() tramite un metodo di Amplify OR email.isUsed() && email.isPending()
     }
 
-    //TODO: classe da rimuovere
-    /**
-     *  Classe utilizzata per incapsulare un Runnable all'interno di un intent Bundle
-     *  Nota: la classe è statica per permettere la "Serializzazione", ma attraverso l'instanziazione ad ogni uso,
-     *  è possibile ottenere istanze indipendenti tra loro, in modo tale da rendere i Runnable passati alla classe indipendenti.
-     */
-    public static class Srunnable implements Serializable {
-        Runnable runnable;
-        public Srunnable(Runnable runnable) { this.runnable = runnable; }
-
-        public Runnable getRunnable() { return runnable; }
-    }
-
-    public static void stampaToast(Activity activity, String msg) {
+    public static void stampaToast(@NotNull Activity activity, String msg) {
         Toast.makeText(activity.getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
     }
 
     /* Metodo per determinare se l'applicazione dispone di una connessione
        Mobile o WIFI, prima di inviare qualunque richiesta internet al server. */
-    public static boolean isOnline(Context context) {
+    public static boolean isOnline(@NotNull Context context) {
         ConnectivityManager cm = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
 
@@ -89,7 +76,7 @@ public class Utilities {
         return false;
     }
 
-    public static void hideKeyboard(Activity activity, MotionEvent event) {
+    public static void hideKeyboard(@NotNull Activity activity, MotionEvent event) {
         View view = activity.getCurrentFocus();
         if (view instanceof EditText) {
             View w = activity.getCurrentFocus();
@@ -107,7 +94,7 @@ public class Utilities {
 
     //Metodo che consente di svuotare il backStack prima di lanciare una nuova activity
     //TODO: da testare
-    public static void clearBackStack(Intent intent) {
+    public static void clearBackStack(@NotNull Intent intent) {
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
     }
 }

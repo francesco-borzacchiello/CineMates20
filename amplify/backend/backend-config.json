@@ -1,6 +1,6 @@
 {
   "auth": {
-    "cinemates207b6f262d": {
+    "cinemates2015b29bc5": {
       "service": "Cognito",
       "serviceType": "imported",
       "providerPlugin": "awscloudformation",

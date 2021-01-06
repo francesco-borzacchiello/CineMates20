@@ -13,15 +13,19 @@
     <string name="prompt_cognome">Cognome</string>
     <string name="prompt_username">Username</string>
     <string name="prompt_email">Indirizzo e-mail</string>
+    <string name="prompt_conferma_codice">Codice di verifica</string>
 
     <string name="action_sign_up">REGISTRATI</string>
     <string name="action_sign_in_short">LOGIN</string>
+    <string name="action_send_code_again">REINVIA CODICE</string>
+    <string name="action_send_code">INVIA</string>
     <string name="welcome">"Benvenuto"</string>
     <string name="invalid_username">E-mail o username non valido</string>
     <string name="invalid_password">La password deve essere lunga almeno 8 caratteri</string>
     <string name="login_failed">"Login fallito"</string>
 
     <string name="effettuaRegistrazioneLabel">Registrazione</string>
+    <string name="confermaCodiceRegistrazioneLabel">Inserisci il codice di \nverifica ricevuto via mail</string>
     <string name="pswDimenticataLabel">Password dimenticata?</string>
     <string name="nuovoAccountLabel">Crea un nuovo account</string>
     <string name="loginSocialLabel">Oppure effettua login \no registrazione con:</string>
@@ -31,6 +35,7 @@
     <string name="avatarDescr">Immagine di profilo scelta durante la registrazione</string>
     <string name="pencilDescr">Matita che simboleggia la possibilità di modificare l\'immagine del profilo</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="mostra_password_checkbox">Mostra password</string>
+
+    <string name="facebook_app_id">1526900177515260</string> <string name="fb_login_protocol_scheme">fb1526900177515260</string>
 </resources>

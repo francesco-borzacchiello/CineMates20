@@ -4,6 +4,9 @@ import android.util.Log;
 
 import com.amplifyframework.auth.AuthUser;
 import com.amplifyframework.core.Amplify;
+import com.facebook.AccessToken;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 
 import it.unina.ingSw.cineMates20.EntryPoint;
 
@@ -31,11 +34,31 @@ public class MainController {
         AuthUser user = Amplify.Auth.getCurrentUser(); //Se l'utente non è autenticato, restituisce null
         activity.overridePendingTransition(0, 0);
 
-        //TODO: sostituire opportunamente == e != alla fine del test sul login
-        if(user == null) openHomeActivity();
+        //TODO: modificare opportunamente isLoggedIn() togliendo il ! alla fine del test sul login
+        if(!isLoggedIn()) openHomeActivity();
         else openLoginActivity();
 
         activity.finish();
+    }
+
+    private boolean isLoggedIn() {
+        AuthUser user = Amplify.Auth.getCurrentUser(); //Se l'utente non è autenticato, restituisce null
+        activity.overridePendingTransition(0, 0);
+        if(user != null)
+            return true;
+
+        //Verifica se l'utente è loggato con Facebook
+        //Nota: il token di Facebook scade circa 60 giorni dall'ultimo utilizzo dell'applicazione
+        AccessToken fbAccessToken = AccessToken.getCurrentAccessToken();
+        if(fbAccessToken != null)
+            return true;
+
+        // Se l'utente è già loggato, restituisce l'account con il quale si è loggato l'ultima volta
+        GoogleSignInAccount gUser = GoogleSignIn.getLastSignedInAccount(activity);
+        if(gUser != null)
+            return true;
+
+        return false;
     }
 
     private void openLoginActivity() { controllerLogin.start(activity); }

@@ -1,5 +1,215 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".view.fragment.RegistrationFragment">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/registrazioneLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="65dp"
+            android:text="@string/effettuaRegistrazioneLabel"
+            android:textColor="@color/white"
+            android:textSize="30sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/profileAvatarRegistration"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/profileAvatarRegistration"
+            android:layout_width="138dp"
+            android:layout_height="140dp"
+            android:contentDescription="@string/avatarDescr"
+            android:src="@mipmap/avatar_foreground"
+            app:layout_constraintBottom_toTopOf="@+id/nomeRegistrazione"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/registrazioneLabel" />
+
+        <ImageView
+            android:id="@+id/editAvatarPencil"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/pencilDescr"
+            app:layout_constraintBottom_toBottomOf="@id/profileAvatarRegistration"
+            app:layout_constraintEnd_toEndOf="@id/profileAvatarRegistration"
+            app:layout_constraintHorizontal_bias="0.850"
+            app:layout_constraintStart_toStartOf="@id/profileAvatarRegistration"
+            app:layout_constraintTop_toTopOf="@id/profileAvatarRegistration"
+            app:layout_constraintVertical_bias="0.806"
+            app:srcCompat="@android:drawable/ic_menu_edit" />
+
+        <EditText
+            android:id="@+id/nomeRegistrazione"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginTop="10dp"
+            android:autofillHints=""
+            android:background="@drawable/round_rect_shape"
+            android:ems="10"
+            android:hint="@string/prompt_nome"
+            android:imeOptions="actionDone"
+            android:inputType="textPersonName"
+            android:maxLength="15"
+            android:paddingLeft="14dp"
+            android:paddingRight="14dp"
+            android:selectAllOnFocus="false"
+            android:textColor="@color/black"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/profileAvatarRegistration"
+            app:layout_constraintBottom_toTopOf="@id/cognomeRegistrazione" />
+
+        <EditText
+            android:id="@+id/cognomeRegistrazione"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginTop="25dp"
+            android:autofillHints=""
+            android:background="@drawable/round_rect_shape"
+            android:ems="10"
+            android:hint="@string/prompt_cognome"
+            android:imeOptions="actionDone"
+            android:inputType="textPersonName"
+            android:maxLength="15"
+            android:paddingLeft="14dp"
+            android:paddingRight="14dp"
+            android:selectAllOnFocus="false"
+            android:textColor="@color/black"
+            app:layout_constraintBottom_toTopOf="@id/usernameRegistrazione"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/nomeRegistrazione" />
+
+        <EditText
+            android:id="@+id/usernameRegistrazione"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginTop="25dp"
+            android:autofillHints=""
+            android:background="@drawable/round_rect_shape"
+            android:ems="10"
+            android:hint="@string/prompt_username"
+            android:imeOptions="actionDone"
+            android:inputType="text"
+            android:maxLength="15"
+            android:paddingLeft="14dp"
+            android:paddingRight="14dp"
+            android:selectAllOnFocus="false"
+            android:textColor="@color/black"
+            app:layout_constraintBottom_toTopOf="@id/emailRegistrazione"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cognomeRegistrazione" />
+
+        <EditText
+            android:id="@+id/emailRegistrazione"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginTop="25dp"
+            android:autofillHints=""
+            android:background="@drawable/round_rect_shape"
+            android:ems="10"
+            android:hint="@string/prompt_email"
+            android:imeOptions="actionDone"
+            android:inputType="textEmailAddress"
+            android:maxLength="320"
+            android:paddingLeft="14dp"
+            android:paddingRight="14dp"
+            android:selectAllOnFocus="false"
+            android:textColor="@color/black"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/usernameRegistrazione"
+            app:layout_constraintBottom_toTopOf="@id/passwordRegistrazione" />
+
+        <EditText
+            android:id="@+id/passwordRegistrazione"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginTop="25dp"
+            android:autofillHints=""
+            android:background="@drawable/round_rect_shape"
+            android:ems="10"
+            android:hint="@string/prompt_password"
+            android:imeOptions="actionDone"
+            android:inputType="textPassword"
+            android:maxLength="100"
+            android:paddingLeft="14dp"
+            android:paddingRight="14dp"
+            android:selectAllOnFocus="false"
+            android:textColor="@color/black"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/emailRegistrazione"
+            app:layout_constraintBottom_toTopOf="@id/confermaPasswordRegistrazione" />
+
+        <CheckBox
+            android:id="@+id/mostraPswRegistrazione"
+            android:buttonTint="@color/white"
+            android:layout_width="150dp"
+            android:layout_height="20dp"
+            android:text="@string/mostra_password_checkbox"
+            android:textColor="@color/white"
+            app:layout_constraintBottom_toTopOf="@id/registratiButton"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.000"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/confermaPasswordRegistrazione" />
+
+        <EditText
+            android:id="@+id/confermaPasswordRegistrazione"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginTop="25dp"
+            android:autofillHints=""
+            android:background="@drawable/round_rect_shape"
+            android:ems="10"
+            android:hint="@string/prompt_conferma_password"
+            android:imeOptions="actionDone"
+            android:inputType="textPassword"
+            android:maxLength="100"
+            android:paddingLeft="14dp"
+            android:paddingRight="14dp"
+            android:selectAllOnFocus="false"
+            android:textColor="@color/black"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/passwordRegistrazione"
+            app:layout_constraintBottom_toTopOf="@id/registratiButton" />
+
+        <Button
+            android:id="@+id/registratiButton"
+            style="@style/MaterialButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="45dp"
+            android:layout_marginBottom="50dp"
+            android:layout_gravity="center"
+            android:enabled="false"
+            android:text="@string/action_sign_up"
+            android:textColor="@color/white"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/confermaPasswordRegistrazione" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+</FrameLayout>
+
+<!--
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -130,4 +340,4 @@
         android:text="@string/action_sign_up"
         android:textColor="@color/white" />
 
-</FrameLayout>
+</FrameLayout>-->

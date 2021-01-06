@@ -1,13 +1,12 @@
 package it.unina.ingSw.cineMates20.view.fragment;
 
-import android.content.Context;
 import android.os.Bundle;
-import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 
 import androidx.activity.OnBackPressedCallback;
@@ -16,8 +15,6 @@ import androidx.fragment.app.Fragment;
 import org.jetbrains.annotations.NotNull;
 
 import it.unina.ingSw.cineMates20.R;
-import it.unina.ingSw.cineMates20.controller.LoginController;
-import it.unina.ingSw.cineMates20.view.util.Utilities;
 
 /** Fragment che si occupa di mostrare le TextBox necessarie
   * all'inserimento dei dati di un utente che si registra. */
@@ -33,15 +30,22 @@ public class RegistrationFragment extends Fragment {
     private EditText confermaPasswordEditText;
     private Button registrationButton;
     private TextWatcher afterTextChangedListener;
-    private Context context;
+    private CheckBox checkBoxMostraPassword;
+    private Runnable registrationButtonRunnable;
+    private View.OnClickListener mostraPasswordListener;
 
     public RegistrationFragment() {
         nome = null; cognome = null;
     }
 
     public RegistrationFragment(String nome, String cognome) {
-        this.nome = nome;
-        this.cognome = cognome;
+        //if(nome != null && cognome != null) {
+            this.nome = nome;
+            this.cognome = cognome;
+        /*else { //Gestisci casi in cui non è disponibile un nome e un cognome forniti dal social provider
+            this.nome = "Inserisci nome";
+            this.cognome = "Inserisci cognome";
+        }*/
     }
 
     @Override
@@ -62,73 +66,78 @@ public class RegistrationFragment extends Fragment {
     //Questo metodo viene chiamato dopo onCreate()
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_registration, container, false);
     }
 
     @Override
     public void onViewCreated(@NotNull View view, Bundle savedInstanceState) {
-
-        if(isAdded() && getActivity() != null)
-            context = getActivity().getApplicationContext();
-        else return;
-
         setGraphicsComponents(view);
 
-        //Questo listener dipende dal fragment, e per tale ragione non può essere spostato nell'activity contenitrice
         registrationButton.setOnClickListener(listener -> {
-            //TODO: confermare che chiamare LoginController da qui vada bene (serve un RegistrationController?)
-            if(context != null && !Utilities.isOnline(context)) {
-                Utilities.stampaToast(getActivity(), "Connessione ad internet non disponibile!");
-                return;
-            }
-
-            /* Nome e cognome sono per forza validi in quanto è soltanto richiesto che siano non vuoti,
-             * e il tasto registrati viene disabilitato non appena una EditText diventa vuota. */
-
-            if (!Utilities.isUserNameValid(usernameEditText.getText().toString())) {
-                Utilities.stampaToast(getActivity(), "L'username inserito non è valido oppure è già in uso.");
-                return;
-            }
-
-            if(nome==null || cognome == null) {
-                if (!Utilities.isEmailValid(emailEditText.getText().toString())) {
-                    Utilities.stampaToast(getActivity(), "L'email inserita non è valida oppure è già in uso.");
-                    return;
-                }
-                if (!Utilities.isPasswordValid(passwordEditText.getText().toString())) {
-                    Utilities.stampaToast(getActivity(), "La password deve contenere almeno un numero, un carattere speciale, una lettera minuscola e una maiuscola.");
-                    return;
-                }
-                if (!Utilities.isConfirmPasswordValid(passwordEditText.getText().toString(), confermaPasswordEditText.getText().toString())) {
-                    Utilities.stampaToast(getActivity(), "Le password non coincidono!");
-                    return;
-                }
-            }
-
-            /*TODO: Se non è stata modificata foto, passare url foto default a Cognito.
-             *      Procedere con la registrazione (dire a RegistrationActivity di mostrare
-             *      ConfirmRegistrationCodeFragment se questo è login non social, nome==null || cognome==null) */
-            //...
-            Utilities.stampaToast(getActivity(), "Funzionalità in sviluppo!");
+            if(getRegistrationButtonRunnable() != null)
+                getRegistrationButtonRunnable().run();
         });
 
-        afterTextChangedListener = new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                //Se tutte le EditText sono non vuote, abilita il tasto Registrati
-                registrationButton.setEnabled(allEditTextAreNotEmpty());
-            }
-        };
+        //funzione che gestisce il click all'interno della CheckBox
+        if(nome == null || cognome == null)
+            checkBoxMostraPassword.setOnClickListener(mostraPasswordListener);
 
         addTextChangedListenerToEditTexts();
     }
+
+    //region Getter e Setter
+    public Button getRegistrationButton() {
+        return registrationButton;
+    }
+
+    public CheckBox getMostraPasswordCheckBox() {
+        return checkBoxMostraPassword;
+    }
+
+    public EditText getPasswordEditText() {
+        return passwordEditText;
+    }
+
+    public EditText getConfermaPasswordEditText() {
+        return confermaPasswordEditText;
+    }
+
+    public void setAbilitaRegistrazioneTextWatcher(TextWatcher txtw) {
+        this.afterTextChangedListener = txtw;
+    }
+
+    public void setMostraPasswordCheckBoxListener(View.OnClickListener listener) {
+        mostraPasswordListener = listener;
+    }
+
+    public void setRegistrationButtonRunnable(Runnable runnable) {
+        registrationButtonRunnable = runnable;
+    }
+
+    public Runnable getRegistrationButtonRunnable() {
+        return registrationButtonRunnable;
+    }
+
+    private void setGraphicsComponents(@NotNull View v) {
+        checkBoxMostraPassword = v.findViewById(R.id.mostraPswRegistrazione);
+        nomeEditText = v.findViewById(R.id.nomeRegistrazione);
+        cognomeEditText = v.findViewById(R.id.cognomeRegistrazione);
+        usernameEditText = v.findViewById(R.id.usernameRegistrazione);
+        passwordEditText = v.findViewById(R.id.passwordRegistrazione);
+        confermaPasswordEditText = v.findViewById(R.id.confermaPasswordRegistrazione);
+        emailEditText = v.findViewById(R.id.emailRegistrazione);
+        registrationButton = v.findViewById(R.id.registratiButton);
+
+        if(nome != null || cognome != null) { //Si nascondono le EditText non necessarie
+            passwordEditText.setVisibility(View.INVISIBLE);
+            confermaPasswordEditText.setVisibility(View.INVISIBLE);
+            emailEditText.setVisibility(View.INVISIBLE);
+            checkBoxMostraPassword.setVisibility(View.INVISIBLE);
+            nomeEditText.setText(nome);
+            cognomeEditText.setText(cognome);
+        }
+    }
+    //endregion
 
     //Restituisce true se tutte le EditText sono non vuote al momento dell'invocazione
     public boolean allEditTextAreNotEmpty() {
@@ -141,33 +150,17 @@ public class RegistrationFragment extends Fragment {
                     && usernameEditText.getText().toString().trim().length() > 0;
     }
 
-    private void setGraphicsComponents(@NotNull View v) {
-        nomeEditText = v.findViewById(R.id.nomeRegistrazione);
-        cognomeEditText = v.findViewById(R.id.cognomeRegistrazione);
-        usernameEditText = v.findViewById(R.id.usernameRegistrazione);
-        passwordEditText = v.findViewById(R.id.passwordRegistrazione);
-        confermaPasswordEditText = v.findViewById(R.id.confermaPasswordRegistrazione);
-        emailEditText = v.findViewById(R.id.emailRegistrazione);
-        registrationButton = v.findViewById(R.id.registratiButton);
-
-        if(nome != null || cognome != null) { //Si nascondono le EditText non necessarie
-            passwordEditText.setVisibility(View.GONE);
-            confermaPasswordEditText.setVisibility(View.GONE);
-            emailEditText.setVisibility(View.GONE);
-            nomeEditText.setText(nome);
-            cognomeEditText.setText(cognome);
-        }
-    }
-
     private void addTextChangedListenerToEditTexts() {
-        nomeEditText.addTextChangedListener(afterTextChangedListener);
-        cognomeEditText.addTextChangedListener(afterTextChangedListener);
-        usernameEditText.addTextChangedListener(afterTextChangedListener);
+        if(afterTextChangedListener != null) {
+            nomeEditText.addTextChangedListener(afterTextChangedListener);
+            cognomeEditText.addTextChangedListener(afterTextChangedListener);
+            usernameEditText.addTextChangedListener(afterTextChangedListener);
 
-        if(nome == null || cognome == null) {
-            emailEditText.addTextChangedListener(afterTextChangedListener);
-            passwordEditText.addTextChangedListener(afterTextChangedListener);
-            confermaPasswordEditText.addTextChangedListener(afterTextChangedListener);
+            if (nome == null || cognome == null) {
+                emailEditText.addTextChangedListener(afterTextChangedListener);
+                passwordEditText.addTextChangedListener(afterTextChangedListener);
+                confermaPasswordEditText.addTextChangedListener(afterTextChangedListener);
+            }
         }
     }
 }

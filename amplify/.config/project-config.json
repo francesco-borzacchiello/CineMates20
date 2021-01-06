@@ -1,10 +1,10 @@
 {
-  "projectName": "CineMates20",
+  "projectName": "cinemates20",
   "version": "3.0",
   "frontend": "android",
   "android": {
     "config": {
-      "ResDir": "app\\src\\main\\res"
+      "ResDir": "app/src/main/res"
     }
   },
   "providers": [

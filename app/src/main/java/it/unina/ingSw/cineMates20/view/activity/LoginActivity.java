@@ -5,6 +5,7 @@ import android.text.TextWatcher;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -29,6 +30,9 @@ public class LoginActivity extends AppCompatActivity {
     private TextView creaNuovoAccount;
     private TextView passwordDimenticata;
     private ImageView googleLogo;
+    private ImageView facebookLogo;
+    private ImageView twitterLogo;
+    private CheckBox mostraPassword;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -45,23 +49,34 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void setAllActionListener() {
-        TextWatcher usernameTextChangedListener = loginController.usernameLoginTextWatcher();
-        TextWatcher passwordTextChangedListener = loginController.passwordLoginTextWatcher();
+        TextWatcher usernameTextChangedListener = loginController.getUsernameLoginTextWatcher();
+        TextWatcher passwordTextChangedListener = loginController.getPasswordLoginTextWatcher();
 
         usernameEditText.addTextChangedListener(usernameTextChangedListener);
         passwordEditText.addTextChangedListener(passwordTextChangedListener);
 
         loginButton.setOnClickListener(loginOnClickListener());
+        mostraPassword.setOnClickListener(loginController.getMostraPasswordCheckBoxListener());
 
         creaNuovoAccount.setOnClickListener(registrationOnClickListener(false, null));
         googleLogo.setOnClickListener(registrationOnClickListener(true, "google"));
+        facebookLogo.setOnClickListener(registrationOnClickListener(true, "facebook"));
+        twitterLogo.setOnClickListener(registrationOnClickListener(true, "twitter"));
 
         passwordDimenticata.setOnClickListener(passwordDimenticataOnClickListener());
     }
 
+    public EditText getPasswordEditText() {
+        return passwordEditText;
+    }
+
+    public CheckBox getMostraPasswordCheckBox() {
+        return mostraPassword;
+    }
+
     private View.OnClickListener loginOnClickListener() {
         return v -> {
-            eventForLoginClick = loginController.eventHandlerForOnClickLogin(usernameEditText.getText().toString(),
+            eventForLoginClick = loginController.getEventHandlerForOnClickLogin(usernameEditText.getText().toString(),
                     passwordEditText.getText().toString());
             try {
                 eventForLoginClick.run();
@@ -74,7 +89,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private View.OnClickListener registrationOnClickListener(boolean isSocialLogin, String socialProvider) {
         return v -> {
-            eventForCreateNewUser = loginController.eventHandlerForOnClickRegistration(isSocialLogin, socialProvider);
+            eventForCreateNewUser = loginController.getEventHandlerForOnClickRegistration(isSocialLogin, socialProvider);
 
             try {
                 eventForCreateNewUser.run();
@@ -110,6 +125,9 @@ public class LoginActivity extends AppCompatActivity {
         creaNuovoAccount = findViewById(R.id.nuovoAccount);
         passwordDimenticata = findViewById(R.id.passwordDimenticata);
         googleLogo = findViewById(R.id.googleLogo);
+        facebookLogo = findViewById(R.id.facebookLogo);
+        twitterLogo = findViewById(R.id.twitterLogo);
+        mostraPassword = findViewById(R.id.mostraPswLogin);
     }
 
     //Nasconde la tastiera alla pressione di un elemento che non sia essa stessa o una text box

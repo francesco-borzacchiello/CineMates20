@@ -1,18 +1,18 @@
 {
-  "ingsw": {
+  "dev": {
     "awscloudformation": {
-      "AuthRoleName": "amplify-cinemates20-ingsw-171609-authRole",
-      "UnauthRoleArn": "arn:aws:iam::155193434482:role/amplify-cinemates20-ingsw-171609-unauthRole",
-      "AuthRoleArn": "arn:aws:iam::155193434482:role/amplify-cinemates20-ingsw-171609-authRole",
+      "AuthRoleName": "amplify-cinemates20-dev-75004-authRole",
+      "UnauthRoleArn": "arn:aws:iam::155193434482:role/amplify-cinemates20-dev-75004-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::155193434482:role/amplify-cinemates20-dev-75004-authRole",
       "Region": "eu-west-3",
-      "DeploymentBucketName": "amplify-cinemates20-ingsw-171609-deployment",
-      "UnauthRoleName": "amplify-cinemates20-ingsw-171609-unauthRole",
-      "StackName": "amplify-cinemates20-ingsw-171609",
-      "StackId": "arn:aws:cloudformation:eu-west-3:155193434482:stack/amplify-cinemates20-ingsw-171609/d4fb8071-485e-11eb-812c-0a22b537aae6"
+      "DeploymentBucketName": "amplify-cinemates20-dev-75004-deployment",
+      "UnauthRoleName": "amplify-cinemates20-dev-75004-unauthRole",
+      "StackName": "amplify-cinemates20-dev-75004",
+      "StackId": "arn:aws:cloudformation:eu-west-3:155193434482:stack/amplify-cinemates20-dev-75004/3da3a7f0-4f22-11eb-a568-0e71ef17ca32"
     },
     "categories": {
       "auth": {
-        "cinemates207b6f262d": {
+        "cinemates2015b29bc5": {
           "userPoolId": "eu-west-3_VN56xO6X5",
           "userPoolName": "UtentiCineMates20",
           "webClientId": "h1r0u4ikhbe7b5u96igvadmi3",

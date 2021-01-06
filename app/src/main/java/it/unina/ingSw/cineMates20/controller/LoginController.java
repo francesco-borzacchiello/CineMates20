@@ -4,8 +4,12 @@ import android.app.Activity;
 import android.content.Intent;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.text.method.HideReturnsTransformationMethod;
+import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 
 import com.amplifyframework.core.Amplify;
@@ -22,7 +26,6 @@ public class LoginController {
 
     private static LoginController instance;
     private LoginActivity loginActivity;
-    private RegistrationActivity registrationActivity;
 
     private LoginController() {}
 
@@ -46,12 +49,8 @@ public class LoginController {
 
     public LoginActivity getLoginActivity() { return loginActivity; }
 
-    public void setRegistrationActivity(RegistrationActivity activity) {this.registrationActivity = activity; }
 
-    public RegistrationActivity getRegistrationActivity() { return registrationActivity; }
-
-
-    public Runnable eventHandlerForOnClickLogin(String username, String password){
+    public Runnable getEventHandlerForOnClickLogin(String username, String password){
         return () -> {
             if(checkNullActivityOrNoConnection(loginActivity))
                 return;
@@ -71,7 +70,7 @@ public class LoginController {
         };
     }
 
-    public Runnable eventHandlerForOnClickRegistration(boolean isSocialLogin , String socialProvider) {
+    public Runnable getEventHandlerForOnClickRegistration(boolean isSocialLogin , String socialProvider) {
         return () -> {
             if(checkNullActivityOrNoConnection(loginActivity))
                 return;
@@ -82,13 +81,6 @@ public class LoginController {
             myIntent.putExtra("socialProvider", socialProvider);
 
             loginActivity.startActivity(myIntent);
-
-            //TODO: moriva perchè non potevamo recuperare l'activity
-            /*Intent myIntent = new Intent(activity, RegistrationActivity.class);
-            myIntent.putExtra("loginType", false);
-            activity.startActivity(myIntent);*/
-
-            //Non lanciare finish() in quanto in caso di pressione di tasto indietro si verrà reindirizzati a LoginActivity
         };
     }
 
@@ -127,7 +119,7 @@ public class LoginController {
     }
 
 
-    public TextWatcher usernameLoginTextWatcher() {
+    public TextWatcher getUsernameLoginTextWatcher() {
         return new TextWatcher() {
             @Override
             public void beforeTextChanged (CharSequence s,int start, int count, int after){}
@@ -154,7 +146,7 @@ public class LoginController {
         };
     }
 
-    public TextWatcher passwordLoginTextWatcher() {
+    public TextWatcher getPasswordLoginTextWatcher() {
         return new TextWatcher() {
             @Override
             public void beforeTextChanged (CharSequence s,int start, int count, int after){}
@@ -178,6 +170,24 @@ public class LoginController {
                 else if(Utilities.isEmailValid(username.getText().toString()) || Utilities.isUserNameValid(username.getText().toString()))
                     loginButton.setEnabled(true);
             }
+        };
+    }
+
+    public View.OnClickListener getMostraPasswordCheckBoxListener() {
+        return listener -> {
+            CheckBox mostraPassword = loginActivity.getMostraPasswordCheckBox();
+            EditText passwordEditText = loginActivity.getPasswordEditText();
+
+            //Se la CheckBox è selezionata
+            if (mostraPassword.isChecked()) {
+                // mostra password
+                passwordEditText.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+            } else {
+                // nascondi password
+                passwordEditText.setTransformationMethod(PasswordTransformationMethod.getInstance());
+            }
+            if(passwordEditText.hasFocus())
+                passwordEditText.setSelection(passwordEditText.length());
         };
     }
 }

@@ -44,13 +44,14 @@ public class EntryPoint extends AppCompatActivity {
         try {
             configureAmplify();
         }catch (AmplifyException e){
-            Log.e("initActivityException", "Errore configurazione Amplify");
+            Log.e("initActivityException", "Errore configurazione Amplify: " + e.getLocalizedMessage());
         }
     }
 
     private void configureAmplify() throws AmplifyException {
         Amplify.addPlugin(new AWSCognitoAuthPlugin());
         //Amplify.configure(getApplicationContext());
+
         AmplifyConfiguration config = AmplifyConfiguration.builder(getApplicationContext()).devMenuEnabled(false).build();
         Amplify.configure(config, getApplicationContext());
     }
