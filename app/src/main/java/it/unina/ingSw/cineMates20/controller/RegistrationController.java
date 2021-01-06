@@ -178,7 +178,7 @@ public class RegistrationController {
                 Bundle parameters = new Bundle();
                 parameters.putString("fields", "id,first_name,last_name,email,picture.type(large)"); // id,first_name,last_name,email,gender,birthday,cover,picture.type(large)
                 request.setParameters(parameters);
-                request.executeAndWait();
+                request.executeAsync();
             }
 
             @Override
@@ -226,7 +226,10 @@ public class RegistrationController {
             // Si può estrarre anche l'email dell'account con account.getEmail();
 
             // Loggato con successo: nota esiste metodo getPhotoUrl()
-            registrationActivity.showHomeOrRegistrationPage(account.getGivenName(), account.getFamilyName());
+            if(account != null)
+                registrationActivity.showHomeOrRegistrationPage(account.getGivenName(), account.getFamilyName());
+            else
+                Utilities.stampaToast(registrationActivity, "Si è verificato un errore");
         } catch (ApiException e) {
             // The ApiException status code indicates the detailed failure reason.
             // Please refer to the GoogleSignInStatusCodes class reference for more information.
