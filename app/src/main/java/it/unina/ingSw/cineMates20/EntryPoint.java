@@ -36,8 +36,7 @@ public class EntryPoint extends AppCompatActivity {
     }
 
     private void initActivity() {
-        //Objects.requireNonNull(getSupportActionBar()).hide(); //Nasconde la barra del titolo - chiamare questo metodo prima di setContentView
-        setContentView(R.layout.activity_tmp);
+        setContentView(R.layout.activity_entry_point);
 
         try {
             configureAmplify();
@@ -48,7 +47,6 @@ public class EntryPoint extends AppCompatActivity {
 
     private void configureAmplify() throws AmplifyException {
         Amplify.addPlugin(new AWSCognitoAuthPlugin());
-        //Amplify.configure(getApplicationContext());
 
         AmplifyConfiguration config = AmplifyConfiguration.builder(getApplicationContext()).devMenuEnabled(false).build();
         Amplify.configure(config, getApplicationContext());

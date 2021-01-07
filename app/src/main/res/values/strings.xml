@@ -37,5 +37,8 @@
 
     <string name="mostra_password_checkbox">Mostra password</string>
 
-    <string name="facebook_app_id">1526900177515260</string> <string name="fb_login_protocol_scheme">fb1526900177515260</string>
+    <string name="facebook_app_id">1526900177515260</string>
+    <string name="fb_login_protocol_scheme">fb1526900177515260</string>
+    <string name="cambia_password">Cambia Password</string>
+    <string name="descrizione_cambio_password">Inserisci la tua mail, ed il codice di verifica ricevuto e premere invio.\nDopodiché scegli la tua nuova password.</string>
 </resources>

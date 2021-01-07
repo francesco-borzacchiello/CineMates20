@@ -6,12 +6,14 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 
 import com.amplifyframework.core.Amplify;
 
 import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.view.activity.LoginActivity;
 import it.unina.ingSw.cineMates20.view.activity.RegistrationActivity;
+import it.unina.ingSw.cineMates20.view.activity.ResetPasswordActivity;
 import it.unina.ingSw.cineMates20.view.util.Utilities;
 
 /**
@@ -41,8 +43,6 @@ public class LoginController {
     public void setLoginActivity(LoginActivity activity) {
         this.loginActivity = activity;
     }
-
-    public LoginActivity getLoginActivity() { return loginActivity; }
 
     public Runnable getEventHandlerForOnClickLogin(String username, String password){
         return () -> {
@@ -80,7 +80,17 @@ public class LoginController {
         };
     }
 
-    public void setNextLoginStep(boolean signIn, String username) {
+    public Runnable getEventHandlerForOnClickResetPassword() {
+        return () -> { //TODO: spostare logica in LoginController non appena avremo creato la classe passwordRecoveryActivity
+            if(checkNullActivityOrNoConnection(loginActivity))
+                return;
+
+            Intent myIntent = new Intent(loginActivity, ResetPasswordActivity.class);
+            loginActivity.startActivity(myIntent);
+        };
+    }
+
+    private void setNextLoginStep(boolean signIn, String username) {
         if(checkNullActivityOrNoConnection(loginActivity))
             return;
 
@@ -105,8 +115,8 @@ public class LoginController {
             //....
             return true; //null activity
 
-        if(!Utilities.isOnline(getLoginActivity())) {
-            loginActivity.runOnUiThread(() -> Utilities.stampaToast(activity, activity.getApplicationContext().getResources().getString(R.string.networkNotAvailable)));
+        if(!Utilities.isOnline(activity)) {
+            activity.runOnUiThread(() -> Utilities.stampaToast(activity, activity.getApplicationContext().getResources().getString(R.string.networkNotAvailable)));
             return true; //no connection
         }
 
@@ -174,62 +184,5 @@ public class LoginController {
             loginActivity.updatePasswordFocus();
         };
     }
+
 }
-
-/* VECCHIO CODICE TEMPORANEO
-public class LoginController {
-
-    Activity activityParent;
-    public LoginController() {}
-
-    public void start(Activity activityParent) { startLoginActivity(activityParent); }
-
-    private void startLoginActivity(Activity activityParent){
-        //Runnable per il listener sulla pressione del pulsante Login
-        Intent intent;
-        intent = new Intent(activityParent, LoginActivity.class);
-        initializesEventHandlersForTheLoginActivity(intent);
-        activityParent.startActivity(intent);
-        activityParent.overridePendingTransition(0,0);
-    }
-
-    //Nota: questo metodo sembra venga chiamato soltanto dopo il termine del corpo di loginButton.setOnClickListener()
-    public void setNextStep(boolean signIn) {
-        //...
-    }
-
-    private void initializesEventHandlersForTheLoginActivity(Intent intent){
-        Runnable eventHandlerForOnClickLogin = eventHandlerForOnClickLogin(),
-                 eventHandlerForOnClickRegistration = eventHandlerForOnClickRegistration();
-
-        intent.putExtra(IdentifiedForEventHandlers.ON_CLICK_LOGIN, new Utilities.Srunnable(eventHandlerForOnClickLogin));
-        intent.putExtra(IdentifiedForEventHandlers.ON_CLICK_REGISTRATION, new Utilities.Srunnable(eventHandlerForOnClickRegistration));
-    }
-
-    private Runnable eventHandlerForOnClickLogin(){
-        return (Runnable & Serializable)() -> {
-            try {
-                //TODO: Aggiungere logica login in setNextStep(), se il login va a buon fine (result.isSignInComplete() == true), reindirizzare alla Home, altrimenti mostrare errore a schermo
-                //Nota: in caso di wifi spento, non possiamo trovarci qui.
-                Amplify.Auth.signIn(
-                        "carmineG", //TODO: sostituire con credenziali date in input
-                        "Carmine_97",
-                        result -> Log.i("login", "risultato del login:" + result.isSignInComplete()),  //setNextStep(result.isSignInComplete())
-                        error -> Log.e("login", error.toString())
-                );
-            } catch (Exception error) {
-                Log.e("AuthQuickstart", "Could not initialize Amplify", error);
-            }
-        };
-    }
-
-    private Runnable eventHandlerForOnClickRegistration() {
-        return (Runnable & Serializable)() -> {
-            //TODO: muore perchè non possiamo recuperare l'activity
-            /*Intent myIntent = new Intent(activity, RegistrationActivity.class);
-            myIntent.putExtra("loginType", false);
-            activity.startActivity(myIntent);
-            //Non lanciare finish() in quanto in caso di pressione di tasto indietro si verrà reindirizzati qui
-        };
-    }
-}*/

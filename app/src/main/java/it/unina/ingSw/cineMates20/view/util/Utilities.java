@@ -7,16 +7,23 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.StrictMode;
 import org.apache.commons.validator.routines.EmailValidator;
+
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.amazonaws.services.cognitoidentityprovider.model.UserNotFoundException;
+import com.amplifyframework.auth.AuthException;
+import com.amplifyframework.core.Amplify;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 
 public class Utilities {
@@ -33,9 +40,6 @@ public class Utilities {
             return !whiteSpacePattern.matcher(username.trim()).find();
         }
         return true;
-
-        //TODO: aggiungere && !username.isUsed() tramite un metodo di Amplify
-        //Fare signIn() con username e password = "123" e catch di UserNotFoundException e UserNotConfirmedException
     }
 
     public static boolean isPasswordValid(String password) {
@@ -79,13 +83,9 @@ public class Utilities {
     }
 
     public static boolean isEmailValid(String email) {
-        if(email != null) {
-            return EmailValidator.getInstance().isValid(email);
-        }
-        return false;
-        //TODO: aggiungere && !email.isUsed() tramite un metodo di Amplify OR (email.isUsed() && email.isPending())
-        //Fare signIn() con email e password = "123" e catch di UserNotFoundException e UserNotConfirmedException
+        return email != null && EmailValidator.getInstance().isValid(email);
     }
+
 
     public static void stampaToast(@NotNull Activity activity, String msg) {
         Toast.makeText(activity.getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
@@ -108,7 +108,7 @@ public class Utilities {
                                 .openConnection());
                 urlc.setRequestProperty("User-Agent", "Android");
                 urlc.setRequestProperty("Connection", "close");
-                urlc.setConnectTimeout(1500);
+                urlc.setConnectTimeout(2000);
                 urlc.connect();
 
                 return (urlc.getResponseCode() == 204 &&
@@ -135,7 +135,6 @@ public class Utilities {
     }
 
     //Metodo che consente di svuotare il backStack prima di lanciare una nuova activity
-    //TODO: da testare
     public static void clearBackStack(@NotNull Intent intent) {
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
     }

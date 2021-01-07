@@ -26,8 +26,7 @@ import it.unina.ingSw.cineMates20.view.util.Utilities;
 public class LoginActivity extends AppCompatActivity {
 
     private LoginController loginController;
-    private Runnable eventForLoginClick,
-                     eventForCreateNewUser;
+
     private EditText usernameEditText,
                      passwordEditText;
     private Button loginButton;
@@ -83,7 +82,7 @@ public class LoginActivity extends AppCompatActivity {
     @Contract(pure = true)
     private View.OnClickListener loginOnClickListener() {
         return v -> {
-            eventForLoginClick = loginController.getEventHandlerForOnClickLogin(usernameEditText.getText().toString(),
+            Runnable eventForLoginClick = loginController.getEventHandlerForOnClickLogin(usernameEditText.getText().toString(),
                     passwordEditText.getText().toString());
             try {
                 eventForLoginClick.run();
@@ -98,7 +97,7 @@ public class LoginActivity extends AppCompatActivity {
     @Contract(pure = true)
     private View.OnClickListener registrationOnClickListener(boolean isSocialLogin, String socialProvider) {
         return v -> {
-            eventForCreateNewUser = loginController.getEventHandlerForOnClickRegistration(isSocialLogin, socialProvider);
+            Runnable eventForCreateNewUser = loginController.getEventHandlerForOnClickRegistration(isSocialLogin, socialProvider);
 
             try {
                 eventForCreateNewUser.run();
@@ -112,18 +111,14 @@ public class LoginActivity extends AppCompatActivity {
     @NotNull
     @Contract(pure = true)
     private View.OnClickListener passwordDimenticataOnClickListener() {
-        return v -> { //TODO: spostare logica in LoginController non appena avremo creato la classe passwordRecoveryActivity
-            if (!Utilities.isOnline(getApplicationContext())) {
-                Utilities.stampaToast(this, getApplicationContext().getResources().getString(R.string.networkNotAvailable));
-                return;
+        return v -> {
+            Runnable eventForResetPassword = loginController.getEventHandlerForOnClickResetPassword();
+
+            try {
+                eventForResetPassword.run();
+            } catch(NullPointerException e) {
+                Utilities.stampaToast(this, "Al momento non è possibile cambiare la password.\nRiprova tra qualche minuto");
             }
-
-            Utilities.stampaToast(this, "Funzionalità in sviluppo!");
-
-            /*
-            Intent myIntent = new Intent(LoginActivity.this, passwordRecoveryActivity.class);
-            LoginActivity.this.startActivity(myIntent);
-            */
         };
     }
 

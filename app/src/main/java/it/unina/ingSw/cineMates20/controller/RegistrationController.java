@@ -8,6 +8,7 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 
+import com.amplifyframework.auth.AuthException;
 import com.amplifyframework.auth.AuthUserAttribute;
 import com.amplifyframework.auth.AuthUserAttributeKey;
 import com.amplifyframework.auth.options.AuthSignUpOptions;
@@ -80,8 +81,14 @@ public class RegistrationController {
                         registrationActivity.getUsername(),
                         registrationActivity.getPassword(),
                         AuthSignUpOptions.builder().userAttributes(attributes).build(),
-                        result -> Log.i("AuthQuickStart", "Result: " + result.toString()),
-                        error -> Log.e("AuthQuickStart", "Sign up failed", error)
+                        result -> Log.i("signUp", "Result: " + result.toString()),
+                        error -> {
+                            Amplify.Auth.resendSignUpCode(
+                                    registrationActivity.getUsername(),
+                                    result2 -> Log.i("signUp", "Result: " + result2.toString()),
+                                    error2 -> Log.e("signUp", "Result: " + error2.toString())
+                            );
+                        }
                 );
 
                 registrationActivity.mostraFragmentConfermaCodice(); //TODO: questo va fatto solo se result è corretto, gestire caso dati già esistenti ma non confermati

@@ -29,7 +29,7 @@ public class MainController {
         activity.overridePendingTransition(0, 0);
 
         //TODO: modificare opportunamente isLoggedIn() togliendo il ! alla fine del test sul login
-        if(!isLoggedIn()) openHomeActivity();
+        if(isLoggedIn()) openHomeActivity();
         else openLoginActivity();
 
         activity.finish();
