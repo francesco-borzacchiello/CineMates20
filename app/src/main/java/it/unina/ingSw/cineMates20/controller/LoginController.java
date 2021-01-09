@@ -11,6 +11,7 @@ import android.widget.TextView;
 import com.amplifyframework.core.Amplify;
 
 import it.unina.ingSw.cineMates20.R;
+import it.unina.ingSw.cineMates20.view.activity.HomeActivity;
 import it.unina.ingSw.cineMates20.view.activity.LoginActivity;
 import it.unina.ingSw.cineMates20.view.activity.RegistrationActivity;
 import it.unina.ingSw.cineMates20.view.activity.ResetPasswordActivity;
@@ -46,7 +47,7 @@ public class LoginController {
 
     public Runnable getEventHandlerForOnClickLogin(String username, String password){
         return () -> {
-            if(checkNullActivityOrNoConnection(loginActivity))
+            if(Utilities.checkNullActivityOrNoConnection(loginActivity))
                 return;
 
             try {
@@ -68,7 +69,7 @@ public class LoginController {
 
     public Runnable getEventHandlerForOnClickRegistration(boolean isSocialLogin , String socialProvider) {
         return () -> {
-            if(checkNullActivityOrNoConnection(loginActivity))
+            if(Utilities.checkNullActivityOrNoConnection(loginActivity))
                 return;
 
             Intent myIntent = new Intent(loginActivity, RegistrationActivity.class);
@@ -81,8 +82,8 @@ public class LoginController {
     }
 
     public Runnable getEventHandlerForOnClickResetPassword() {
-        return () -> { //TODO: spostare logica in LoginController non appena avremo creato la classe passwordRecoveryActivity
-            if(checkNullActivityOrNoConnection(loginActivity))
+        return () -> {
+            if(Utilities.checkNullActivityOrNoConnection(loginActivity))
                 return;
 
             Intent myIntent = new Intent(loginActivity, ResetPasswordActivity.class);
@@ -91,7 +92,7 @@ public class LoginController {
     }
 
     private void setNextLoginStep(boolean signIn, String username) {
-        if(checkNullActivityOrNoConnection(loginActivity))
+        if(Utilities.checkNullActivityOrNoConnection(loginActivity))
             return;
 
         if(signIn) {
@@ -99,30 +100,15 @@ public class LoginController {
             loginActivity.runOnUiThread(() -> Utilities.stampaToast(loginActivity, "Benvenuto " + username));
 
             //Mostra schermata home con un intent, passando LoginActivity come parent e poi distruggendo tutte le activity create...
-            Intent intent = new Intent(); //TODO: sostituire con new Intent(loginActivity, HomeActivity.class);
-            loginActivity.runOnUiThread(() -> Utilities.clearBackStack(intent)); //Nota: testato già con TmpActivity, elimina solo dopo aver chiamato startActivity()
-            //loginActivity.startActivity(intent);
-            //loginActivity.finish();
+            Intent intent = new Intent(loginActivity, HomeActivity.class);
+            loginActivity.runOnUiThread(() -> Utilities.clearBackStack(intent));
+            loginActivity.startActivity(intent);
+            loginActivity.finish();
         }
         else {
             loginActivity.runOnUiThread(() -> Utilities.stampaToast(loginActivity, "Credenziali errate."));
         }
     }
-
-    private boolean checkNullActivityOrNoConnection(Activity activity) {
-        if(activity == null)
-            //TODO: gestire questo caso (non si può chiamare stampaToast poiché activity è null)
-            //....
-            return true; //null activity
-
-        if(!Utilities.isOnline(activity)) {
-            activity.runOnUiThread(() -> Utilities.stampaToast(activity, activity.getApplicationContext().getResources().getString(R.string.networkNotAvailable)));
-            return true; //no connection
-        }
-
-        return false;
-    }
-
 
     public TextWatcher getUsernameLoginTextWatcher() {
         return new TextWatcher() {

@@ -1,14 +1,15 @@
 package it.unina.ingSw.cineMates20.controller;
 
+import android.content.Intent;
 import android.util.Log;
 
 import com.amplifyframework.auth.AuthUser;
 import com.amplifyframework.core.Amplify;
 import com.facebook.AccessToken;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 
 import it.unina.ingSw.cineMates20.EntryPoint;
+import it.unina.ingSw.cineMates20.view.activity.HomeActivity;
 
 /**
  * Verifica se l'utente è loggato comunicando con cognito,
@@ -17,14 +18,21 @@ import it.unina.ingSw.cineMates20.EntryPoint;
  */
 public class MainController {
 
-    LoginController controllerLogin;
-    EntryPoint activity;
+    //region Attributi
+    private final LoginController controllerLogin;
+    private final EntryPoint activity;
+    private final HomeController controllerHome;
+    //endregion
 
+    //region Costruttore
     public MainController(EntryPoint entryPoint) {
         this.activity = entryPoint;
         this.controllerLogin = LoginController.getLoginControllerInstance();
+        this.controllerHome = HomeController.getHomeControllerInstance();
     }
+    //endregion
 
+    //region Punto di avvio del controller
     public void start(){
         activity.overridePendingTransition(0, 0);
 
@@ -34,11 +42,12 @@ public class MainController {
 
         activity.finish();
     }
+    //endregion
 
+    //region Verifica se un utente è loggato si apre la home, altrimenti il login
     private boolean isLoggedIn() {
-        AuthUser user = Amplify.Auth.getCurrentUser(); //Se l'utente non è autenticato, restituisce null
-        if(user != null)
-            return true;
+        /*AuthUser user = Amplify.Auth.getCurrentUser(); //Se l'utente non è autenticato, restituisce null
+        if(user != null) return true;
 
         //Verifica se l'utente è loggato con Facebook
         //Nota: il token di Facebook scade circa 60 giorni dall'ultimo utilizzo dell'applicazione
@@ -47,13 +56,24 @@ public class MainController {
             return true;
 
         // Se l'utente è già loggato, restituisce l'account con il quale si è loggato l'ultima volta
-        return GoogleSignIn.getLastSignedInAccount(activity) != null;
+        return GoogleSignIn.getLastSignedInAccount(activity) != null;*/
+
+        /*
+        * Verifica se un utente è loggato internamente tramite amplify,
+        * oppure se un utente è loggato tramite facebook,
+        * oppure se un utente è loggato tramite google
+        * */
+        return Amplify.Auth.getCurrentUser() != null ||
+                AccessToken.getCurrentAccessToken() != null ||
+                GoogleSignIn.getLastSignedInAccount(activity) != null;
+
     }
 
     private void openLoginActivity() { controllerLogin.start(activity); }
 
     private void openHomeActivity() {
-        //TODO: Gestione dell'apertura dell'activity per la home (con relativo controller)
+        controllerHome.start(activity);
         Log.i("Home", "l'utente è già loggato");
     }
+    //endregion
 }

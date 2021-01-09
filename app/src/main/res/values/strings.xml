@@ -36,9 +36,29 @@
     <string name="pencilDescr">Matita che simboleggia la possibilità di modificare l\'immagine del profilo</string>
 
     <string name="mostra_password_checkbox">Mostra password</string>
+    <string name="cambia_password">Cambia password</string>
 
     <string name="facebook_app_id">1526900177515260</string>
     <string name="fb_login_protocol_scheme">fb1526900177515260</string>
-    <string name="cambia_password">Cambia Password</string>
-    <string name="descrizione_cambio_password">Inserisci la tua mail, ed il codice di verifica ricevuto e premere invio.\nDopodiché scegli la tua nuova password.</string>
+    <string name="descrizione_cambio_password">Inserisci la tua mail e premere invio,\ndopodiché inserisci il codice di verifica\n ricevuto e la tua nuova password.</string>
+
+<!--    <string name="themoviedb_api_key">1526900177515260</string>-->
+
+    <string name="home">Home</string>
+    <string name="nome_cognome">Nome\nCognome</string>
+    <string name="profile">Profilo</string>
+    <string name="amici">Amici</string>
+    <string name="preferiti">Preferiti</string>
+    <string name="daVedere">Da vedere</string>
+    <string name="liste">Liste</string>
+    <string name="altro">Altro</string>
+    <string name="impostazioni">Impostazioni</string>
+    <string name="informazioni">Informazioni</string>
+    <string name="logout">Logout</string>
+    <string name="disconnettiti">Disconnettiti</string>
+
+    <string name="search">Search</string>
+    <string name="share">Share</string>
+    <string name="notification">Notification</string>
+    <string name="hamburgerMenu">Hamburger</string>
 </resources>

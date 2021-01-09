@@ -21,6 +21,7 @@ import it.unina.ingSw.cineMates20.view.util.Utilities;
  */
 public class EntryPoint extends AppCompatActivity {
 
+    //region oonCreate
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,7 +35,9 @@ public class EntryPoint extends AppCompatActivity {
             finish();
         }
     }
+    //endregion
 
+    //region Inizializza l'activity che fa da entry point per l'applicativo
     private void initActivity() {
         setContentView(R.layout.activity_entry_point);
 
@@ -44,11 +47,14 @@ public class EntryPoint extends AppCompatActivity {
             Log.e("initActivityException", "Errore configurazione Amplify: " + e.getLocalizedMessage());
         }
     }
+    //endregion
 
+    //region Configurazione di amplify, per poter interagire con Cognito nell'applicativo
     private void configureAmplify() throws AmplifyException {
         Amplify.addPlugin(new AWSCognitoAuthPlugin());
 
         AmplifyConfiguration config = AmplifyConfiguration.builder(getApplicationContext()).devMenuEnabled(false).build();
         Amplify.configure(config, getApplicationContext());
     }
+    //endregion
 }

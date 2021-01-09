@@ -25,6 +25,7 @@ import it.unina.ingSw.cineMates20.view.util.Utilities;
 
 public class LoginActivity extends AppCompatActivity {
 
+    //region Attributi
     private LoginController loginController;
 
     private EditText usernameEditText,
@@ -36,7 +37,9 @@ public class LoginActivity extends AppCompatActivity {
                       facebookLogo,
                       twitterLogo;
     private CheckBox mostraPassword;
+    //endregion
 
+    //region onCreate
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,6 +50,7 @@ public class LoginActivity extends AppCompatActivity {
         initializeGraphicsComponents();
         setAllActionListener();
     }
+    //endregion
 
     private void setAllActionListener() {
         TextWatcher usernameTextChangedListener = loginController.getUsernameLoginTextWatcher();
@@ -66,6 +70,7 @@ public class LoginActivity extends AppCompatActivity {
         passwordDimenticata.setOnClickListener(passwordDimenticataOnClickListener());
     }
 
+    //region Getter
     public String getUsername() {
         if(usernameEditText != null)
             return usernameEditText.getText().toString().trim();
@@ -77,6 +82,7 @@ public class LoginActivity extends AppCompatActivity {
             return passwordEditText.getText().toString().trim();
         return null;
     }
+    //endregion
 
     @NotNull
     @Contract(pure = true)
@@ -88,7 +94,6 @@ public class LoginActivity extends AppCompatActivity {
                 eventForLoginClick.run();
             } catch(NullPointerException e) {
                 Utilities.stampaToast(this, "Al momento non è possibile effettuare il login.\nRiprova tra qualche minuto");
-                //return;
             }
         };
     }
@@ -123,7 +128,6 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void initializeGraphicsComponents(){
-        Objects.requireNonNull(getSupportActionBar()).hide(); //Nasconde la barra del titolo - chiamare questo metodo prima di setContentView
         setContentView(R.layout.activity_login);
         usernameEditText = findViewById(R.id.usernameLogin);
         passwordEditText = findViewById(R.id.passwordLogin);

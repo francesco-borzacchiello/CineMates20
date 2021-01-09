@@ -29,19 +29,6 @@ public class ConfirmRegistrationCodeFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        OnBackPressedCallback callback = new OnBackPressedCallback(true ) {
-            @Override
-            public void handleOnBackPressed() {
-                new AlertDialog.Builder(getContext())
-                        .setMessage("Sei sicuro di voler annullare?")
-                        .setCancelable(false)
-                        .setPositiveButton("Si", (dialog, id) -> getActivity().getSupportFragmentManager().popBackStack())
-                        .setNegativeButton("No", null)
-                        .show();
-            }
-        };
-        requireActivity().getOnBackPressedDispatcher().addCallback(this, callback);
     }
 
     @Override
@@ -53,7 +40,7 @@ public class ConfirmRegistrationCodeFragment extends Fragment {
     public void onViewCreated(@NotNull View view, Bundle savedInstanceState) {
         initializeGraphicComponents(view);
 
-        setAllActionListener(view);
+        setAllActionListener();
     }
 
     public void setTextWatcherConfermaCodice(TextWatcher txtw) {
@@ -68,7 +55,7 @@ public class ConfirmRegistrationCodeFragment extends Fragment {
         reinviaCodiceOnClickListener = listener;
     }
 
-    private void setAllActionListener(View view) {
+    private void setAllActionListener() {
         if(confermaCodiceTextChangedListener != null) {
             confermaCodice.addTextChangedListener(confermaCodiceTextChangedListener);
         }

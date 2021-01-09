@@ -23,6 +23,7 @@ import it.unina.ingSw.cineMates20.view.util.Utilities;
 
 public class ResetPasswordActivity extends AppCompatActivity {
 
+    //region Attributi
     private ResetPasswordController resetPasswordController;
 
     private EditText emailEditText,
@@ -32,7 +33,9 @@ public class ResetPasswordActivity extends AppCompatActivity {
 
     private Button sendInformationButton;
     private CheckBox mostraPasswordCheckBox;
+    //endregion
 
+    //region onCreate
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,9 +46,11 @@ public class ResetPasswordActivity extends AppCompatActivity {
 
         setAllActionListener();
     }
+    //endregion
 
+    //region Inizializzazione dell'Activity
+    //region Inizializzazione dei riferimenti ai componenti grafici che interagiscono con la logica
     private void initializeGraphicsComponents() {
-        Objects.requireNonNull(getSupportActionBar()).hide(); //Nasconde la barra del titolo - chiamare questo metodo prima di setContentView
         setContentView(R.layout.activity_reset_password);
 
         emailEditText = findViewById(R.id.editTextEmail);
@@ -55,21 +60,20 @@ public class ResetPasswordActivity extends AppCompatActivity {
         sendInformationButton = findViewById(R.id.buttonInviaCodiceResetPassword);
         mostraPasswordCheckBox = findViewById(R.id.mostraPswResetPassword);
     }
+    //endregion
 
+    //region Inizializzazione dei gestori di eventi
     private void setAllActionListener() {
-        TextWatcher emailTextChangedListener = resetPasswordController.getEmailTextWatcher();
-        emailEditText.addTextChangedListener(emailTextChangedListener);
+        emailEditText.addTextChangedListener(resetPasswordController.getEmailTextWatcher());
 
-        TextWatcher newPasswordTextChangedListener = resetPasswordController.getNewPasswordTextWatcher();
-        newPasswordEditText.addTextChangedListener(newPasswordTextChangedListener);
-
-        TextWatcher confirmNewPasswordTextChangedListener = resetPasswordController.getConfirmNewPasswordTextWatcher();
-        confirmNewPasswordEditText.addTextChangedListener(confirmNewPasswordTextChangedListener);
+        newPasswordEditText.addTextChangedListener(resetPasswordController.getNewPasswordTextWatcher());
+        confirmNewPasswordEditText.addTextChangedListener(resetPasswordController.getConfirmNewPasswordTextWatcher());
 
         sendInformationButton.setOnClickListener(sendConfirmCodeOnClickListener());
 
         mostraPasswordCheckBox.setOnClickListener(resetPasswordController.getMostraPasswordCheckBoxListener());
     }
+    //endregion
 
     @NotNull
     @Contract(pure = true)
@@ -96,34 +100,47 @@ public class ResetPasswordActivity extends AppCompatActivity {
         };
     }
 
+    //endregion
+
+    //region Cambiamenti grafici dell'Activity
+    //region Nascondere la tastiera al tocco dello schermo, in un aria differente dalla tastiera
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
         boolean ret = super.dispatchTouchEvent(event);
         Utilities.hideKeyboard(this, event);
         return ret;
     }
+    //endregion
 
+    //region Abilita EditText in cui verrà inserita la password
     public void enableEditTextsForNewPassword(){
         confirmCodeEditText.setEnabled(true);
         newPasswordEditText.setEnabled(true);
         confirmNewPasswordEditText.setEnabled(true);
     }
+    //endregion
 
+    //region Abilita / Disabilita il tasto
     public void enableSendInformationButton(boolean enabled){
         sendInformationButton.setEnabled(enabled);
     }
+    //endregion
 
+    //region Cambia il testo contenuto nel tasto
     public void changeTextFromSendInformationButton(){
-        sendInformationButton.setText("Cambia Password");
+        sendInformationButton.setText(R.string.cambia_password);
     }
+    //endregion
 
+    //region Disabilita l'EditText che contiene la mail
     public void disableEmailEditText(){
         emailEditText.setEnabled(false);
     }
+    //endregion
 
+    //region Mostra Errori
     public void showEmailError() {
-        if(emailEditText != null)
-            emailEditText.setError("Email non valida");
+        if(emailEditText != null) emailEditText.setError("Email non valida");
     }
 
     public void showNewPasswordError() {
@@ -135,7 +152,34 @@ public class ResetPasswordActivity extends AppCompatActivity {
         if(confirmNewPasswordEditText != null)
             confirmNewPasswordEditText.setError("Le password non coincidono");
     }
+    //endregion
 
+    //region Mostra / Nascondi le password
+    public void showOrHidePassword(boolean show) {
+        if(show) {
+            newPasswordEditText.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+            confirmNewPasswordEditText.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+        }
+        else {
+            newPasswordEditText.setTransformationMethod(PasswordTransformationMethod.getInstance());
+            confirmNewPasswordEditText.setTransformationMethod(PasswordTransformationMethod.getInstance());
+        }
+    }
+    //endregion
+
+    public void updatePasswordFocus() {
+        if(newPasswordEditText.hasFocus())
+            newPasswordEditText.setSelection(newPasswordEditText.length());
+        else if(confirmNewPasswordEditText.hasFocus())
+            confirmNewPasswordEditText.setSelection(confirmNewPasswordEditText.length());
+    }
+
+    public void enableMostraPasswordCheckBox() {
+        mostraPasswordCheckBox.setEnabled(true);
+    }
+    //endregion
+
+    //region Getter per le informazioni presenti sull'Activity
     public String getEmail() {
         return emailEditText.getText().toString().trim();
     }
@@ -155,22 +199,5 @@ public class ResetPasswordActivity extends AppCompatActivity {
     public boolean isCheckBoxMostraPasswordEnabled() {
         return mostraPasswordCheckBox.isChecked();
     }
-
-    public void showOrHidePassword(boolean show) {
-        if(show) {
-            newPasswordEditText.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
-            confirmNewPasswordEditText.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
-        }
-        else {
-            newPasswordEditText.setTransformationMethod(PasswordTransformationMethod.getInstance());
-            confirmNewPasswordEditText.setTransformationMethod(PasswordTransformationMethod.getInstance());
-        }
-    }
-
-    public void updatePasswordFocus() {
-        if(newPasswordEditText.hasFocus())
-            newPasswordEditText.setSelection(newPasswordEditText.length());
-        else if(confirmNewPasswordEditText.hasFocus())
-            confirmNewPasswordEditText.setSelection(confirmNewPasswordEditText.length());
-    }
+    //endregion
 }

@@ -13,13 +13,23 @@
         android:roundIcon="@mipmap/app_logo_launcher"
         android:screenOrientation="portrait"
         android:supportsRtl="true"
-        android:theme="@style/Theme.MyApplication">
+        android:theme="@style/Theme.MyApplication"
+        android:uiOptions="splitActionBarWhenNarrow">
+
+        <activity
+            android:name=".view.activity.SearchMovieActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/HomeTheme">
+        </activity>
+
         <activity
             android:name=".view.activity.ResetPasswordActivity"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait" />
+
         <activity
             android:name=".view.activity.LoginActivity"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait" />
+
         <activity
             android:name=".EntryPoint"
             android:screenOrientation="portrait"
@@ -30,10 +40,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".view.activity.TmpActivity" />
+
+        <activity
+            android:name=".view.activity.HomeActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/HomeTheme" />
+
         <activity
             android:name=".view.activity.RegistrationActivity"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait" />
+
         <activity
             android:name="com.facebook.FacebookActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"

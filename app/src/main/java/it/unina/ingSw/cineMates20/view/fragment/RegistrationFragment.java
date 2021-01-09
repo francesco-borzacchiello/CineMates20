@@ -1,5 +1,6 @@
 package it.unina.ingSw.cineMates20.view.fragment;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.text.TextWatcher;
 import android.text.method.HideReturnsTransformationMethod;
@@ -54,12 +55,20 @@ public class RegistrationFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //Alla pressione del tasto indietro, distruggi Activity padre RegistrationActivity
         OnBackPressedCallback callback = new OnBackPressedCallback(true ) {
             @Override
             public void handleOnBackPressed() {
-                if(isAdded() && getActivity() != null)
-                    getActivity().finish();
+                new AlertDialog.Builder(getContext())
+                        .setMessage("Sei sicuro di voler annullare?")
+                        .setCancelable(false)
+                        .setPositiveButton("Si", (dialog, id) ->  {
+                            if(isAdded() && getActivity() != null) {
+                                getActivity().getSupportFragmentManager().popBackStack();
+                                getActivity().finish();
+                            }
+                         })
+                        .setNegativeButton("No", null)
+                        .show();
             }
         };
         requireActivity().getOnBackPressedDispatcher().addCallback(this, callback);

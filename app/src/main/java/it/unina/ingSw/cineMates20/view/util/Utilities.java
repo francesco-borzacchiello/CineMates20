@@ -6,25 +6,23 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.StrictMode;
-import org.apache.commons.validator.routines.EmailValidator;
 
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.amazonaws.services.cognitoidentityprovider.model.UserNotFoundException;
-import com.amplifyframework.auth.AuthException;
-import com.amplifyframework.core.Amplify;
-
 import org.jetbrains.annotations.NotNull;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
+
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
+
+import it.unina.ingSw.cineMates20.R;
 
 public class Utilities {
 
@@ -83,7 +81,16 @@ public class Utilities {
     }
 
     public static boolean isEmailValid(String email) {
-        return email != null && EmailValidator.getInstance().isValid(email);
+        if (email == null) return false;
+
+        boolean result = true;
+        try {
+            InternetAddress emailAddress = new InternetAddress(email);
+            emailAddress.validate();
+        } catch (AddressException ex) {
+            result = false;
+        }
+        return result;
     }
 
 
@@ -137,5 +144,19 @@ public class Utilities {
     //Metodo che consente di svuotare il backStack prima di lanciare una nuova activity
     public static void clearBackStack(@NotNull Intent intent) {
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+    }
+
+    public static boolean checkNullActivityOrNoConnection(Activity activity) {
+        if(activity == null)
+            //TODO: gestire questo caso (non si può chiamare stampaToast poiché activity è null)
+            //....
+            return true; //null activity
+
+        if(!Utilities.isOnline(activity)) {
+            activity.runOnUiThread(() -> Utilities.stampaToast(activity, activity.getApplicationContext().getResources().getString(R.string.networkNotAvailable)));
+            return true; //no connection
+        }
+
+        return false;
     }
 }
