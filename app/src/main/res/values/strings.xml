@@ -17,7 +17,7 @@
 
     <string name="action_sign_up">REGISTRATI</string>
     <string name="action_sign_in_short">LOGIN</string>
-    <string name="action_send_code_again">REINVIA CODICE</string>
+    <string name="action_send_code_again">REINVIA&#10;CODICE</string>
     <string name="action_send_code">INVIA</string>
     <string name="welcome">"Benvenuto"</string>
     <string name="invalid_username">E-mail o username non valido</string>
@@ -28,7 +28,7 @@
     <string name="confermaCodiceRegistrazioneLabel">Inserisci il codice di \nverifica ricevuto via mail</string>
     <string name="pswDimenticataLabel">Password dimenticata?</string>
     <string name="nuovoAccountLabel">Crea un nuovo account</string>
-    <string name="loginSocialLabel">Oppure effettua login \no registrazione con:</string>
+    <string name="loginSocialLabel">Oppure effettua login o registrazione con:</string>
     <string name="googleLogoDescr">Logo di Google</string>
     <string name="facebookLogoDescr">Logo di Facebook</string>
     <string name="twitterLogoDescr">Logo di Twitter</string>
@@ -42,7 +42,7 @@
     <string name="fb_login_protocol_scheme">fb1526900177515260</string>
     <string name="descrizione_cambio_password">Inserisci la tua mail e premere invio,\ndopodiché inserisci il codice di verifica\n ricevuto e la tua nuova password.</string>
 
-<!--    <string name="themoviedb_api_key">1526900177515260</string>-->
+    <string name="themoviedb_api_key">b3a2d6a56e6622052bbf6936ff2ace73</string>
 
     <string name="home">Home</string>
     <string name="nome_cognome">Nome\nCognome</string>
@@ -57,8 +57,35 @@
     <string name="logout">Logout</string>
     <string name="disconnettiti">Disconnettiti</string>
 
-    <string name="search">Search</string>
-    <string name="share">Share</string>
-    <string name="notification">Notification</string>
+    <string name="search">Cerca</string>
+    <string name="share">Condividi</string>
+    <string name="notification">Notifiche</string>
     <string name="hamburgerMenu">Hamburger</string>
+    <string name="schermata_di_ricerca">Schermata di ricerca</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="la_ricerca_non_ha_prodotto_risultati">La ricerca non ha\nprodotto risultati!!</string>
+    <string name="title">Title</string>
+    <string name="description_movie_result_search">Description</string>
+    <string name="description_cover_film">Locandina Film</string>
+    <string name="three_dots_description">Menu per l\'apertura del bottom menu</string>
+    <string name="aggiungi_a_da_vedere">Aggiungi alla lista dei \"Film da vedere\"</string>
+    <string name="aggiungi_a_preferiti">Aggiungi alla lista dei \"Film preferiti\"</string>
+    <string name="segnala_film_icon">Segnala film</string>
+    <string name="segnala_film_text">Segnala questo film come inappropriato</string>
+
+    <string name="first_path_backdrop_image">https://www.themoviedb.org/t/p/w1280</string>
+    <string name="first_path_poster_image">https://www.themoviedb.org/t/p/original</string>
+    <string name="description_label_movie_show_details">Descrizione:</string>
+    <string name="titolo">Titolo</string>
+    <string name="cast">Cast</string>
+    <string name="data_di_uscita">Data di uscita:\u0020</string>
+    <string name="regista">Regista:\u0020</string>
+    <string name="genere">Genere:\u0020</string>
+    <string name="durata">Durata:\u0020</string>
+    <string name="votoFilm">0.0</string>
+    <string name="ratingStarDescription">Stella valutazione del film</string>
+    <string name="etaConsigliata">Età minima consigliata:\u0020</string>
+    <string name="unavailable">Non disponibile</string>
 </resources>

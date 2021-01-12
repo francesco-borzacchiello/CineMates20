@@ -35,6 +35,12 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
+    packagingOptions {
+        exclude "META-INF/LICENSE"
+        exclude "META-INF/NOTICE"
+        exclude "META-INF/NOTICE.txt"
+    }
 }
 
 dependencies {
@@ -44,6 +50,8 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.2.0'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0'
+
+    implementation group: 'org.slf4j', name: 'slf4j-jdk14', version: '1.7.30'
 
     //Email validator dependency
     implementation group: 'javax.mail', name: 'mail', version: '1.4.1'
@@ -73,4 +81,12 @@ dependencies {
 
     //TheMovieDb API wrapper
     implementation group: 'info.movito', name: 'themoviedbapi', version:'1.10'
+
+    implementation 'com.squareup.picasso:picasso:2.71828'
+
+    //Slider per le immagini
+    implementation 'com.github.denzcoskun:ImageSlideshow:0.1.0'
+
+    //Dipendenza per "Mostra altro" nella pagina dei film
+    implementation 'com.github.AhmMhd:SeeMoreTextView-Android:1.0.0'
 }

@@ -13,7 +13,7 @@
         android:layout_height="match_parent">
 
         <include
-            layout="@layout/toolbar_header" />
+            layout="@layout/background_toolbar_header" />
 
         <!--for fragments-->
         <!--<FrameLayout

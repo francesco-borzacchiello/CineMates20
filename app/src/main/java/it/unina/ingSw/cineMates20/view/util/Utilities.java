@@ -146,6 +146,12 @@ public class Utilities {
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
     }
 
+    //Metodo che consente di svuotare il backStack eccetto la prima activity root
+    public static void resumeBottomBackStackActivity(@NotNull Intent intent) {
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+    }
+
     public static boolean checkNullActivityOrNoConnection(Activity activity) {
         if(activity == null)
             //TODO: gestire questo caso (non si può chiamare stampaToast poiché activity è null)

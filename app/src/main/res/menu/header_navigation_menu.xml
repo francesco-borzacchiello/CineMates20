@@ -25,7 +25,6 @@
             android:icon="@drawable/ic_notifications"
             app:showAsAction="always" >
         </item>
-
     </group>
 
 </menu>

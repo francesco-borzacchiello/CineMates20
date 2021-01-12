@@ -7,8 +7,11 @@
     <color name="teal_700">#FF018786</color>
     <color name="yellow">#FFFF00</color>
     <color name="black">#FF000000</color>
+    <color name="lightBlack">#191919</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="lightGray">#F0F0F0</color>
     <color name="navy">#000080</color>
+    <color name="neonBlue">#1b03a3</color>
     <color name="blue">#0000FF</color>
     <color name="blueNavigationMenu">#015478</color>
     <color name="lightBlue">#027DB4</color>

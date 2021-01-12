@@ -82,10 +82,10 @@ public class ResetPasswordActivity extends AppCompatActivity {
             Runnable eventForSendConfirmCode = resetPasswordController.getEventHandlerForOnClickSendConfirmCode();
             try {
                 eventForSendConfirmCode.run();
+                sendInformationButton.setOnClickListener(sendNewPasswordOnClickListener());
             } catch (NullPointerException e) {
                 Utilities.stampaToast(this, "Al momento non è possibile inviare il codice per cambiare la password.\nRiprova tra qualche minuto");
             }
-            sendInformationButton.setOnClickListener(sendNewPasswordOnClickListener());
         };
     }
 

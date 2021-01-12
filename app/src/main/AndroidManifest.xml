@@ -17,9 +17,17 @@
         android:uiOptions="splitActionBarWhenNarrow">
 
         <activity
-            android:name=".view.activity.SearchMovieActivity"
+            android:name=".view.activity.ShowDetailsMovieActivity"
             android:screenOrientation="portrait"
             android:theme="@style/HomeTheme">
+
+        </activity>
+
+        <activity
+            android:name=".view.activity.SearchMovieActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/HomeTheme"
+            android:windowSoftInputMode="adjustPan">
         </activity>
 
         <activity

@@ -42,13 +42,8 @@ public class RegistrationFragment extends Fragment {
     }
 
     public RegistrationFragment(String nome, String cognome) {
-        //if(nome != null && cognome != null) {
-            this.nome = nome;
-            this.cognome = cognome;
-        /*else { //Gestisci casi in cui non è disponibile un nome e un cognome forniti dal social provider
-            this.nome = "Inserisci nome";
-            this.cognome = "Inserisci cognome";
-        }*/
+        this.nome = nome;
+        this.cognome = cognome;
     }
 
     @Override

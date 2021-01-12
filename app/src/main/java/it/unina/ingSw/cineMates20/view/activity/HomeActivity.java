@@ -19,7 +19,6 @@ import it.unina.ingSw.cineMates20.view.util.Utilities;
 
 public class HomeActivity extends AppCompatActivity {
 
-
     private NavigationView navigationView;
     private DrawerLayout homeDrawerLayout;
     private HomeController homeController;
@@ -35,16 +34,11 @@ public class HomeActivity extends AppCompatActivity {
         homeController.setHomeActivity(this);
 
         initializeGraphicsComponents();
+        configureNavigationDrawer();
     }
 
     private void initializeGraphicsComponents() {
         setContentView(R.layout.activity_home);
-
-        setToolBar();
-        configureNavigationDrawer();
-    }
-
-    private void setToolBar() {
         toolbar = findViewById(R.id.toolbarHeader);
         setSupportActionBar(toolbar);
         ActionBar ab = getSupportActionBar();
@@ -80,7 +74,7 @@ public class HomeActivity extends AppCompatActivity {
         //Listener per icone del NavigationView
         navigationView.setNavigationItemSelectedListener(
                 item -> {
-                    Runnable r = homeController.getNavigationViewOnOptionsItemSelected(item.getItemId());
+                    Runnable r = homeController.getNavigationViewOnOptionsItemSelected(this, item.getItemId());
                     try {
                         r.run();
                     }catch(NullPointerException e){
@@ -109,9 +103,13 @@ public class HomeActivity extends AppCompatActivity {
         return homeDrawerLayout;
     }
 
-    public void hideSearchView() {
-        menu.findItem(R.id.searchItem).collapseActionView();
-        searchView.setIconified(true);
-        searchView.clearFocus();
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (menu != null && searchView != null) {
+            menu.findItem(R.id.searchItem).collapseActionView();
+            searchView.setIconified(true);
+            searchView.clearFocus();
+        }
     }
 }
