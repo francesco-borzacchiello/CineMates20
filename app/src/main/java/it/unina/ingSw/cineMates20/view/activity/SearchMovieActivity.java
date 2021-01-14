@@ -1,19 +1,13 @@
 package it.unina.ingSw.cineMates20.view.activity;
 
-import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -168,7 +162,8 @@ public class SearchMovieActivity extends AppCompatActivity {
         bottomMenuDialog.setContentView(bottomSheetView);
 
         TextView titleTextView = bottomMenuDialog.findViewById(R.id.titoloBottomMenu);
-        titleTextView.setText(title);
+        if(titleTextView != null)
+            titleTextView.setText(title);
 
         if(imagePath != null) {
             ImageView coverImageView = bottomMenuDialog.findViewById(R.id.copertinaBottomMenu);
@@ -225,6 +220,7 @@ public class SearchMovieActivity extends AppCompatActivity {
     public void finish() {
         if (manager.getBackStackEntryCount() == 0) {
             super.finish();
+            searchMovieController.resetHomeRecyclerViewPosition();
             overridePendingTransition(0,0);
         }
         else {
@@ -250,11 +246,11 @@ public class SearchMovieActivity extends AppCompatActivity {
         searchQueue.offer(query);
     }
 
-    public ProgressBar getSearchMovieProgressBar() {
-        return progressBar;
-    }
-
     public void hideSearchMovieProgressBar() {
         progressBar.setVisibility(View.INVISIBLE);
+    }
+
+    public void showSearchMovieProgressBar() {
+        progressBar.setVisibility(View.VISIBLE);
     }
 }

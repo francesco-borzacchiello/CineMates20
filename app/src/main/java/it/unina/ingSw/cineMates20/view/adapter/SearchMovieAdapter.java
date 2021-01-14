@@ -49,19 +49,17 @@ public class SearchMovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        MovieHolder movieHolder;
         if(holder.getClass() != MovieHolder.class)
             throw new IllegalArgumentException("Holder non valido!");
 
-        movieHolder = (MovieHolder)holder;
+        MovieHolder movieHolder = (MovieHolder)holder;
         movieHolder.titleTextView.setText(title.get(position));
         movieHolder.descriptionTextView.setText(description.get(position));
 
         String firstPath = context.getResources().getString(R.string.first_path_poster_image);
         if(linkImage.get(position) != null)
             Picasso.get().load(firstPath +
-                    linkImage.get(position)).resize(270, 360)
-                    .noFade().into(movieHolder.coverImageView,
+                    linkImage.get(position)).resize(270, 360).noFade().into(movieHolder.coverImageView,
                     new Callback() {
                         @Override
                         public void onSuccess() {

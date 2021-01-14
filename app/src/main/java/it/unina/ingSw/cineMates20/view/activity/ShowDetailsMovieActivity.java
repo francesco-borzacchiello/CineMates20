@@ -1,10 +1,13 @@
 package it.unina.ingSw.cineMates20.view.activity;
 
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.denzcoskun.imageslider.ImageSlider;
 import com.denzcoskun.imageslider.constants.ScaleTypes;
@@ -30,17 +33,24 @@ public class ShowDetailsMovieActivity extends AppCompatActivity {
                      categoryTextView,
                      lengthTextView,
                      ratingTextView,
-                     etaMinimaTextView;
+                     etaMinimaTextView,
+                     castTextView;
     private ImageView coverImageView;
     private SeeMoreTextView descrizioneTextView;
+    private RecyclerView actorsRecyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
         showDetailsMovieController = ShowDetailsMovieController.getShowDetailsMovieControllerInstance();
         showDetailsMovieController.setShowDetailsMovieActivity(this);
+
+        String caller = getIntent().getStringExtra("caller");
+        if(caller != null && caller.equals("HomeActivity"))
+            showDetailsMovieController.hideHomeMovieProgressBar();
+        else
+            showDetailsMovieController.hideSearchMovieProgressBar();
 
         initializeGraphicsComponents();
     }
@@ -58,8 +68,10 @@ public class ShowDetailsMovieActivity extends AppCompatActivity {
         etaMinimaTextView = findViewById(R.id.ageMovieShowDetails);
         coverImageView = findViewById(R.id.details_cover_movie);
         descrizioneTextView = findViewById(R.id.descriptionMovieShowDetails);
+        actorsRecyclerView = findViewById(R.id.movieCastRecyclerView);
+        castTextView = findViewById(R.id.castMovieShowDetails);
 
-        //TODO: aggiungere altri parametri e settarli in setMovieDetails
+        //TODO: aggiungere qui altri parametri e settarli in setMovieDetails
 
         showDetailsMovieController.initializeShowDetailsMovieActivity();
     }
@@ -87,7 +99,7 @@ public class ShowDetailsMovieActivity extends AppCompatActivity {
         if(description != null && !description.equals("")) {
             //seemoreTv.setTextMaxLength(300) //Default è 250
             descrizioneTextView.setSeeMoreText("Mostra altro", "Mostra meno");
-            descrizioneTextView.setSeeMoreTextColor(R.color.blue);
+            descrizioneTextView.setSeeMoreTextColor(R.color.lightBlueVariant);
             descrizioneTextView.setElegantTextHeight(false);
             descrizioneTextView.setContent(description);
         }
@@ -96,7 +108,20 @@ public class ShowDetailsMovieActivity extends AppCompatActivity {
 
         if(coverUrl != null)
             Picasso.get().load(getResources().getString(R.string.first_path_poster_image) + coverUrl).
-                    resize(270, 360)
-                    .noFade().into(coverImageView);
+                    noFade().into(coverImageView);
+    }
+
+    public void setMovieCastRecyclerView(RecyclerView.Adapter<RecyclerView.ViewHolder> adapter) {
+        actorsRecyclerView.setAdapter(adapter);
+
+        actorsRecyclerView.setHasFixedSize(true);
+        actorsRecyclerView.setItemViewCacheSize(30);
+
+        actorsRecyclerView.setLayoutManager(new LinearLayoutManager
+                (this, LinearLayoutManager.HORIZONTAL, false));
+    }
+
+    public void hideCastTextView() {
+        castTextView.setVisibility(View.GONE);
     }
 }

@@ -34,9 +34,6 @@ public class SearchMovieController {
     }
 
     public void start(Activity parent, String query) {
-        //Invocato dall'activity poiché occorre il suo riferimento, che qui non esiste ancora
-        //initializeMovieSearch(query);
-
         Intent intent = new Intent(parent, SearchMovieActivity.class);
         intent.putExtra("searchText", query); //Questa stringa verrà mostrata nella toolbar di SearchMovieActivity
         parent.startActivity(intent);
@@ -48,10 +45,6 @@ public class SearchMovieController {
 
         this.searchMovieActivity = searchMovieActivity;
         tmdbApi = new TmdbApi(searchMovieActivity.getResources().getString(R.string.themoviedb_api_key));
-    }
-
-    public static TmdbApi getTmdbApiInstance() {
-        return tmdbApi;
     }
 
     public Runnable getOnOptionsItemSelected(int itemId) {
@@ -70,6 +63,11 @@ public class SearchMovieController {
         return new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
+                if(Utilities.checkNullActivityOrNoConnection(searchMovieActivity)) {
+                    searchMovieActivity.clearSearchViewFocus();
+                    return false;
+                }
+
                 searchMovieActivity.showNextSearchFragment(!initializeMovieSearch(query));
 
                 searchMovieActivity.updateSearchQueue(query);
@@ -100,7 +98,7 @@ public class SearchMovieController {
         searchMovieActivity.clearSearchViewFocus();
         searchMovieActivity.setSearchText(query);
 
-        tmdbApi = new TmdbApi(searchMovieActivity.getResources().getString(R.string.themoviedb_api_key));
+        //tmdbApi = new TmdbApi(searchMovieActivity.getResources().getString(R.string.themoviedb_api_key));
         TmdbSearch search = tmdbApi.getSearch();
         MovieResultsPage movieResults = search.searchMovie(searchMovieActivity.getSearchText(), 0, "it", true, 0);
 
@@ -148,13 +146,25 @@ public class SearchMovieController {
     @NotNull
     @Contract(pure = true)
     private Runnable getDetailsMovieListener(MovieDb movie) {
-        return ()-> ShowDetailsMovieController.getShowDetailsMovieControllerInstance()
-                .start(searchMovieActivity, movie);
+        return ()-> {
+            if(Utilities.checkNullActivityOrNoConnection(searchMovieActivity)) return;
+
+            searchMovieActivity.showSearchMovieProgressBar();
+            ShowDetailsMovieController.getShowDetailsMovieControllerInstance()
+                    .start(searchMovieActivity, movie, null);
+        };
     }
 
     @NotNull
     @Contract(pure = true)
     private Runnable getThreeDotsListener(MovieDb movie) {
-        return ()-> searchMovieActivity.createAndShowBottomMenuFragment(movie.getPosterPath(), movie.getOriginalTitle());
+        return ()-> {
+            if(Utilities.checkNullActivityOrNoConnection(searchMovieActivity)) return;
+            searchMovieActivity.createAndShowBottomMenuFragment(movie.getPosterPath(), movie.getOriginalTitle());
+        };
+    }
+
+    public void resetHomeRecyclerViewPosition() {
+        HomeController.getHomeControllerInstance().resetHomeRecyclerViewPosition();
     }
 }

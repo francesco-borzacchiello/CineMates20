@@ -88,4 +88,11 @@
     <string name="ratingStarDescription">Stella valutazione del film</string>
     <string name="etaConsigliata">Età minima consigliata:\u0020</string>
     <string name="unavailable">Non disponibile</string>
+    <string name="nome_cognome_attore">Nome Cognome</string>
+    <string name="description_cover_actor">Copertina attore</string>
+    <string name="votoFilmLabel">Voto:</string>
+    <string name="now_showing">Ora in sala:</string>
+    <string name="most_popular">Film di tendenza:</string>
+    <string name="upcoming">Prossime uscite:</string>
+    <string name="topRated">I più votati:</string>
 </resources>

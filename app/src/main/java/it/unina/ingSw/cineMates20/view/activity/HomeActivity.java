@@ -3,6 +3,9 @@ package it.unina.ingSw.cineMates20.view.activity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -10,11 +13,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.navigation.NavigationView;
 
 import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.controller.HomeController;
+import it.unina.ingSw.cineMates20.view.adapter.HomeMovieAdapter;
 import it.unina.ingSw.cineMates20.view.util.Utilities;
 
 public class HomeActivity extends AppCompatActivity {
@@ -25,6 +31,16 @@ public class HomeActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private SearchView searchView;
     private Menu menu;
+    private ProgressBar progressBar;
+    private TextView nowShowingLabelHomeMoviesTextView,
+                     mostPopularMoviesTextView,
+                     upcomingMoviesTextView,
+                     topRatedMoviesTextView;
+
+    private RecyclerView nowPlayingHomeMoviesRecyclerView,
+                         mostPopularHomeMoviesRecyclerView,
+                         upcomingHomeMoviesRecyclerView,
+                         topRatedHomeMoviesRecyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +55,33 @@ public class HomeActivity extends AppCompatActivity {
 
     private void initializeGraphicsComponents() {
         setContentView(R.layout.activity_home);
+        setHomeToolbar();
+
+        nowPlayingHomeMoviesRecyclerView = findViewById(R.id.nowShowingHomeMoviesRecyclerView);
+        mostPopularHomeMoviesRecyclerView = findViewById(R.id.mostPopularHomeMoviesRecyclerView);
+        upcomingHomeMoviesRecyclerView = findViewById(R.id.upcomingHomeMoviesRecyclerView);
+        topRatedHomeMoviesRecyclerView = findViewById(R.id.topRatedHomeMoviesRecyclerView);
+
+        //Le seguenti TextView saranno rese visibili non appena la Home sarà pronta
+        nowShowingLabelHomeMoviesTextView = findViewById(R.id.nowShowingLabelHomeMovies);
+        nowShowingLabelHomeMoviesTextView.setVisibility(View.INVISIBLE);
+
+        mostPopularMoviesTextView = findViewById(R.id.mostPopularMovies);
+        mostPopularMoviesTextView.setVisibility(View.INVISIBLE);
+
+        upcomingMoviesTextView = findViewById(R.id.upcomingMovies);
+        upcomingMoviesTextView.setVisibility(View.INVISIBLE);
+
+        topRatedMoviesTextView = findViewById(R.id.topRatedMovies);
+        topRatedMoviesTextView.setVisibility(View.INVISIBLE);
+
+        progressBar = findViewById(R.id.progressBarHomeMovies);
+        progressBar.setVisibility(View.INVISIBLE);
+
+        homeController.setHomeActivityMovies();
+    }
+
+    private void setHomeToolbar() {
         toolbar = findViewById(R.id.toolbarHeader);
         setSupportActionBar(toolbar);
         ActionBar ab = getSupportActionBar();
@@ -48,6 +91,7 @@ public class HomeActivity extends AppCompatActivity {
             ab.setTitle("Home");
         }
     }
+
 
     private void configureNavigationDrawer() {
         homeDrawerLayout = findViewById(R.id.navMenuDrawerLayout);
@@ -63,6 +107,8 @@ public class HomeActivity extends AppCompatActivity {
         searchView.setQueryHint("Cerca un film");
 
         searchView.setOnQueryTextListener(homeController.getSearchViewOnQueryTextListener());
+        searchView.setOnQueryTextFocusChangeListener(homeController.getSearchViewOnQueryTextFocusChangeListener());
+        searchView.setOnSearchClickListener(homeController.getOnSearchClickListener());
 
         setNavigationViewActionListener();
         this.menu = menu;
@@ -111,5 +157,78 @@ public class HomeActivity extends AppCompatActivity {
             searchView.setIconified(true);
             searchView.clearFocus();
         }
+    }
+
+    public void setNowPlayingHomeMoviesRecyclerView(RecyclerView.Adapter<RecyclerView.ViewHolder> adapter) {
+        nowPlayingHomeMoviesRecyclerView.setAdapter(adapter);
+
+        nowPlayingHomeMoviesRecyclerView.setHasFixedSize(true);
+        nowPlayingHomeMoviesRecyclerView.setItemViewCacheSize(20);
+
+        nowPlayingHomeMoviesRecyclerView.setLayoutManager(new LinearLayoutManager
+                (this, LinearLayoutManager.HORIZONTAL, false));
+    }
+
+    public void setMostPopularHomeMoviesRecyclerView(RecyclerView.Adapter<RecyclerView.ViewHolder> adapter) {
+        mostPopularHomeMoviesRecyclerView.setAdapter(adapter);
+
+        mostPopularHomeMoviesRecyclerView.setHasFixedSize(true);
+        mostPopularHomeMoviesRecyclerView.setItemViewCacheSize(20);
+
+        mostPopularHomeMoviesRecyclerView.setLayoutManager(new LinearLayoutManager
+                (this, LinearLayoutManager.HORIZONTAL, false));
+    }
+
+    public void setUpcomingHomeMoviesRecyclerView(RecyclerView.Adapter<RecyclerView.ViewHolder> adapter) {
+        upcomingHomeMoviesRecyclerView.setAdapter(adapter);
+
+        upcomingHomeMoviesRecyclerView.setHasFixedSize(true);
+        upcomingHomeMoviesRecyclerView.setItemViewCacheSize(20);
+
+        upcomingHomeMoviesRecyclerView.setLayoutManager(new LinearLayoutManager
+                (this, LinearLayoutManager.HORIZONTAL, false));
+    }
+
+    public void setTopRatedHomeMoviesRecyclerView(HomeMovieAdapter adapter) {
+        topRatedHomeMoviesRecyclerView.setAdapter(adapter);
+
+        topRatedHomeMoviesRecyclerView.setHasFixedSize(true);
+        topRatedHomeMoviesRecyclerView.setItemViewCacheSize(20);
+
+        topRatedHomeMoviesRecyclerView.setLayoutManager(new LinearLayoutManager
+                (this, LinearLayoutManager.HORIZONTAL, false));
+    }
+
+    public void showHomeTextViews() {
+        nowShowingLabelHomeMoviesTextView.setVisibility(View.VISIBLE);
+        nowShowingLabelHomeMoviesTextView.setAlpha(0.0f);
+        nowShowingLabelHomeMoviesTextView.animate().alpha(1.0f);
+
+        mostPopularMoviesTextView.setVisibility(View.VISIBLE);
+        mostPopularMoviesTextView.setAlpha(0.0f);
+        mostPopularMoviesTextView.animate().alpha(1.0f);
+
+        upcomingMoviesTextView.setVisibility(View.VISIBLE);
+        upcomingMoviesTextView.setAlpha(0.0f);
+        upcomingMoviesTextView.animate().alpha(1.0f);
+
+        topRatedMoviesTextView.setVisibility(View.VISIBLE);
+        topRatedMoviesTextView.setAlpha(0.0f);
+        topRatedMoviesTextView.animate().alpha(1.0f);
+    }
+
+    public void resetRecyclersViewPosition() {
+        nowPlayingHomeMoviesRecyclerView.smoothScrollToPosition(0);
+        mostPopularHomeMoviesRecyclerView.smoothScrollToPosition(0);
+        upcomingHomeMoviesRecyclerView.smoothScrollToPosition(0);
+        topRatedHomeMoviesRecyclerView.smoothScrollToPosition(0);
+    }
+
+    public void hideMovieProgressBar() {
+        progressBar.setVisibility(View.INVISIBLE);
+    }
+
+    public void showMovieProgressBar() {
+        progressBar.setVisibility(View.VISIBLE);
     }
 }
