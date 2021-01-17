@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -12,6 +13,8 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -20,7 +23,6 @@ import com.google.android.material.navigation.NavigationView;
 
 import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.controller.HomeController;
-import it.unina.ingSw.cineMates20.view.adapter.HomeMovieAdapter;
 import it.unina.ingSw.cineMates20.view.util.Utilities;
 
 public class HomeActivity extends AppCompatActivity {
@@ -94,8 +96,8 @@ public class HomeActivity extends AppCompatActivity {
 
 
     private void configureNavigationDrawer() {
-        homeDrawerLayout = findViewById(R.id.navMenuDrawerLayout);
-        navigationView = findViewById(R.id.navigationView);
+        homeDrawerLayout = findViewById(R.id.homeDrawerLayout);
+        navigationView = findViewById(R.id.homeNavigationView);
         navigationView.setItemIconTintList(null);
     }
 
@@ -145,8 +147,12 @@ public class HomeActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public DrawerLayout getDrawerLayout() {
-        return homeDrawerLayout;
+    public void closeDrawerLayout() {
+        homeDrawerLayout.closeDrawer(GravityCompat.START);
+    }
+
+    public void openDrawerLayout() {
+        homeDrawerLayout.openDrawer(GravityCompat.START);
     }
 
     @Override
@@ -189,7 +195,7 @@ public class HomeActivity extends AppCompatActivity {
                 (this, LinearLayoutManager.HORIZONTAL, false));
     }
 
-    public void setTopRatedHomeMoviesRecyclerView(HomeMovieAdapter adapter) {
+    public void setTopRatedHomeMoviesRecyclerView(RecyclerView.Adapter<RecyclerView.ViewHolder> adapter) {
         topRatedHomeMoviesRecyclerView.setAdapter(adapter);
 
         topRatedHomeMoviesRecyclerView.setHasFixedSize(true);
@@ -230,5 +236,26 @@ public class HomeActivity extends AppCompatActivity {
 
     public void showMovieProgressBar() {
         progressBar.setVisibility(View.VISIBLE);
+    }
+
+    public void keepSearchViewExpanded() {
+        if(searchView != null) {
+            searchView.clearFocus();
+            menu.findItem(R.id.searchItem).expandActionView(); //Verrà collassata in onResume()
+        }
+    }
+
+    public void setLayoutsForHome(boolean searchIsExpanded) {
+        LinearLayout ll = findViewById(R.id.linearLayoutHome);
+        ConstraintLayout cl = findViewById(R.id.constraintLayoutHome);
+
+        if(searchIsExpanded) {
+            ll.setVisibility(View.INVISIBLE);
+            cl.setBackgroundColor(getResources().getColor(R.color.lightGray));
+        }
+        else {
+            ll.setVisibility(View.VISIBLE);
+            cl.setBackgroundColor(getResources().getColor(R.color.white));
+        }
     }
 }

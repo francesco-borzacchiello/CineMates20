@@ -50,7 +50,8 @@ public class ActorMovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         String firstPath = context.getResources().getString(R.string.first_path_poster_image);
         if(linkImage.get(position) != null && !linkImage.get(position).equals(""))
             Picasso.get().load(firstPath +
-                    linkImage.get(position)).noFade().into(actorHolder.actorImageView,
+                    linkImage.get(position)).resize(270, 360).noFade()
+                    .into(actorHolder.actorImageView,
                     new Callback() {
                         @Override
                         public void onSuccess() {

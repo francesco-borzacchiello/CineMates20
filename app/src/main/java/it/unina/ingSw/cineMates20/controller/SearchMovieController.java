@@ -51,11 +51,7 @@ public class SearchMovieController {
         return () -> {
             if(Utilities.checkNullActivityOrNoConnection(searchMovieActivity)) return;
 
-            //if(itemId == android.R.id.home)
-                //searchMovieActivity.finish(); //handleOnBackPressed();
-            //else if(itemId == ...)
-
-            //TODO: aggiungere la gestione degli altri item del menu, come la search (invio richiesta a themoviedb)...
+            //TODO: aggiungere la gestione degli altri item del menu, come le notifiche
         };
     }
 
@@ -151,7 +147,7 @@ public class SearchMovieController {
 
             searchMovieActivity.showSearchMovieProgressBar();
             ShowDetailsMovieController.getShowDetailsMovieControllerInstance()
-                    .start(searchMovieActivity, movie, null);
+                    .start(searchMovieActivity, movie, "SearchMovieActivity");
         };
     }
 

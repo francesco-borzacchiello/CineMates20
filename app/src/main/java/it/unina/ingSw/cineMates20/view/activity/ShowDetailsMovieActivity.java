@@ -49,8 +49,10 @@ public class ShowDetailsMovieActivity extends AppCompatActivity {
         String caller = getIntent().getStringExtra("caller");
         if(caller != null && caller.equals("HomeActivity"))
             showDetailsMovieController.hideHomeMovieProgressBar();
-        else
+        else if(caller.equals("SearchMovieActivity"))
             showDetailsMovieController.hideSearchMovieProgressBar();
+        else //MoviesListActivity
+            showDetailsMovieController.hideMoviesListProgressBar();
 
         initializeGraphicsComponents();
     }
@@ -93,8 +95,15 @@ public class ShowDetailsMovieActivity extends AppCompatActivity {
         directorTextView.setText(director);
         categoryTextView.setText(category);
         lengthTextView.setText(length);
-        ratingTextView.setText(rating);
         etaMinimaTextView.setText(age);
+
+        if(rating.equals("0.0")) {
+            ratingTextView.setText(getResources().getString(R.string.unavailable));
+            ImageView ratingStar = findViewById(R.id.ratingStar);
+            ratingStar.setVisibility(View.GONE);
+        }
+        else
+            ratingTextView.setText(rating);
 
         if(description != null && !description.equals("")) {
             //seemoreTv.setTextMaxLength(300) //Default è 250
@@ -115,7 +124,7 @@ public class ShowDetailsMovieActivity extends AppCompatActivity {
         actorsRecyclerView.setAdapter(adapter);
 
         actorsRecyclerView.setHasFixedSize(true);
-        actorsRecyclerView.setItemViewCacheSize(30);
+        actorsRecyclerView.setItemViewCacheSize(10);
 
         actorsRecyclerView.setLayoutManager(new LinearLayoutManager
                 (this, LinearLayoutManager.HORIZONTAL, false));

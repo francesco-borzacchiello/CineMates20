@@ -14,6 +14,8 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -37,6 +39,7 @@ public class SearchMovieActivity extends AppCompatActivity {
     private SearchMovieController searchMovieController;
     private NavigationView navigationView;
     private BottomSheetDialog bottomMenuDialog;
+    private DrawerLayout drawerLayout;
     private FragmentSearchNotEmpty fragmentSearchNotEmpty;
     private FragmentSearchEmpty fragmentSearchEmpty;
     private FragmentManager manager;
@@ -67,6 +70,7 @@ public class SearchMovieActivity extends AppCompatActivity {
 
         searchMovieController = SearchMovieController.getSearchMovieControllerInstance();
         searchMovieController.setSearchMovieActivity(this);
+        HomeController.getHomeControllerInstance().setSearchMovieActivity(this);
 
         //Inizializzo l'unica istanza di FragmentSearchEmpty necessaria
         fragmentSearchEmpty = new FragmentSearchEmpty();
@@ -129,6 +133,7 @@ public class SearchMovieActivity extends AppCompatActivity {
     }
 
     private void initializeGraphicsComponents() {
+        drawerLayout = findViewById(R.id.searchMovieNavMenuDrawerLayout);
         progressBar = findViewById(R.id.progressBarSearchMovies);
         toolbar = findViewById(R.id.toolbarHeader);
         setSupportActionBar(toolbar);
@@ -252,5 +257,9 @@ public class SearchMovieActivity extends AppCompatActivity {
 
     public void showSearchMovieProgressBar() {
         progressBar.setVisibility(View.VISIBLE);
+    }
+
+    public void closeDrawerLayout() {
+        drawerLayout.closeDrawer(GravityCompat.START);
     }
 }

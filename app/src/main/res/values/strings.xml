@@ -91,8 +91,17 @@
     <string name="nome_cognome_attore">Nome Cognome</string>
     <string name="description_cover_actor">Copertina attore</string>
     <string name="votoFilmLabel">Voto:</string>
-    <string name="now_showing">Ora in sala:</string>
+    <string name="now_showing">Usciti di recente:</string>
     <string name="most_popular">Film di tendenza:</string>
     <string name="upcoming">Prossime uscite:</string>
     <string name="topRated">I più votati:</string>
+    <string name="prompt_lista_vuota">La lista è vuota!</string>
+    <string name="delete">Elimina</string>
+    <string name="selectAll">Seleziona tutti</string>
+    <string name="noDataFound">Nessun dato trovato</string>
+
+    <string-array name="movies_list_tag">
+        <item>Preferiti</item>
+        <item>Da vedere</item>
+    </string-array>
 </resources>

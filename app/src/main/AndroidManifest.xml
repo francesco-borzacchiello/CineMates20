@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="it.unina.ingSw.cineMates20">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
     <application
         android:allowBackup="true"
@@ -14,30 +16,29 @@
         android:screenOrientation="portrait"
         android:supportsRtl="true"
         android:theme="@style/Theme.MyApplication"
-        android:uiOptions="splitActionBarWhenNarrow">
+        android:uiOptions="splitActionBarWhenNarrow"
+        tools:ignore="AllowBackup">
+
+        <activity
+            android:name=".view.activity.MoviesListActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/HomeTheme"/>
 
         <activity
             android:name=".view.activity.ShowDetailsMovieActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/HomeTheme">
-
-        </activity>
-
+            android:theme="@style/HomeTheme" />
         <activity
             android:name=".view.activity.SearchMovieActivity"
             android:screenOrientation="portrait"
             android:theme="@style/HomeTheme"
-            android:windowSoftInputMode="adjustPan">
-        </activity>
-
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".view.activity.ResetPasswordActivity"
             android:screenOrientation="portrait" />
-
         <activity
             android:name=".view.activity.LoginActivity"
             android:screenOrientation="portrait" />
-
         <activity
             android:name=".EntryPoint"
             android:screenOrientation="portrait"
@@ -48,17 +49,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".view.activity.HomeActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/HomeTheme">
-        </activity>
-
+            android:theme="@style/HomeTheme" />
+        <activity
+            android:name=".view.activity.FriendsActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/HomeTheme" />
         <activity
             android:name=".view.activity.RegistrationActivity"
             android:screenOrientation="portrait" />
-
         <activity
             android:name="com.facebook.FacebookActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
@@ -67,7 +68,6 @@
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_app_id" />
-
     </application>
 
 </manifest>

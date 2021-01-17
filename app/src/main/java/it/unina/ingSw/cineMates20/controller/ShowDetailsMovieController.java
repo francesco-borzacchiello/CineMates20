@@ -87,6 +87,8 @@ public class ShowDetailsMovieController {
             nomiCognomi.add(person.getName());
             nomiCognomiFilm.add(person.getCharacter());
             castImagesUrl.add(person.getProfilePath());
+
+            if(nomiCognomi.size() > 200) break;
         }
 
         if(castList.size() > 0) {
@@ -216,7 +218,6 @@ public class ShowDetailsMovieController {
     public void start(Activity activityParent, MovieDb movie, @Nullable String caller) {
         actualMovie = movie;
         Intent intent = new Intent(activityParent, ShowDetailsMovieActivity.class);
-
         //Utilizzato per comunicare a ShowDetailsMovieActivity se il suo chiamante non è SearchMovieActivity
         if(caller != null)
             intent.putExtra("caller", caller);
@@ -230,5 +231,9 @@ public class ShowDetailsMovieController {
 
     public void hideHomeMovieProgressBar() {
         HomeController.getHomeControllerInstance().hideHomeMovieProgressBar();
+    }
+
+    public void hideMoviesListProgressBar() {
+        MoviesListController.getMoviesListControllerInstance().hideMoviesListProgressBar();
     }
 }

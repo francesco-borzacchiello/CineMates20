@@ -22,7 +22,7 @@ import java.util.List;
 import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.controller.SearchMovieController;
 
-public class SearchMovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
+public class SearchMovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private final Context context;
     private final List<String> title, description, linkImage;
