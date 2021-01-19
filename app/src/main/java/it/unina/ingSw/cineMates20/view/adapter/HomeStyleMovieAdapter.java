@@ -18,6 +18,7 @@ import com.squareup.picasso.Picasso;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -82,7 +83,7 @@ public class HomeStyleMovieAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                         }
                     });
 
-        movieHolder.movieCardView.setOnClickListener(addListenerForMovieCard(position, movieHolder.checkBox));
+        movieHolder.movieCardView.setOnClickListener(addListenerForMovieCard(movieHolder));
 
         if(moviesIds != null) { //Allora questo adapter è per MoviesListActivity
             movieHolder.movieCardView.setOnLongClickListener(view -> {
@@ -106,14 +107,14 @@ public class HomeStyleMovieAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     @NotNull
     @Contract(pure = true)
-    private View.OnClickListener addListenerForMovieCard(int position, CheckBox checkBox) {
+    private View.OnClickListener addListenerForMovieCard(MovieHolder movieHolder) {
         return listener -> {
             if (!isDeleteEnabled()) {
                 try {
-                    movieCardListeners.get(position).run();
+                    movieCardListeners.get(movieHolder.getLayoutPosition()).run();
                 } catch (NullPointerException ignore) {}
             } else
-                checkBox.setChecked(!checkBox.isChecked());
+                movieHolder.checkBox.setChecked(!movieHolder.checkBox.isChecked());
         };
     }
 
@@ -143,13 +144,16 @@ public class HomeStyleMovieAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     }
 
     public void deleteSelectedItem() {
-        int elementiEliminati = 0;
-        for(int position : deleteList) {
-            title.remove(position - elementiEliminati);
-            linkImage.remove(position - elementiEliminati);
-            movieCardListeners.remove(position - elementiEliminati++);
+        if(deleteList.size() > 0) {
+            int deletedElements = 0;
+            for(int position : deleteList) {
+                title.remove(position - deletedElements);
+                linkImage.remove(position - deletedElements);
+                movieCardListeners.remove(position - deletedElements++);
+            }
+
+            deleteList.clear();
         }
-        deleteList.clear();
 
         if(title.size() == 0)
             MoviesListController.getMoviesListControllerInstance().showEmptyMovieList();

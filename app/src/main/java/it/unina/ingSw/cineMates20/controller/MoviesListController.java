@@ -204,16 +204,15 @@ public class MoviesListController {
 
     public MenuItem.OnMenuItemClickListener getOnMenuItemClickListener() {
         return item -> {
-            //actualAdapter.deleteIconClicked();
+            if(Utilities.checkNullActivityOrNoConnection(moviesListActivity)) return true;
 
             if(actualAdapter.isDeleteEnabled()) {
                 actualAdapter.deleteSelectedItem();
-                //actualAdapter.notifyItemRangeChanged(actualAdapter.minChangedRangePosition(), actualAdapter.getItemCount());
 
                 moviesListActivity.getMoviesRecyclerView().getRecycledViewPool().clear();
             }
             updateAllMoviesCheckBoxesVisibility();
-            return false;
+            return true;
         };
     }
 

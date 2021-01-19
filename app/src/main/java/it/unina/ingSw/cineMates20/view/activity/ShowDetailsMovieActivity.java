@@ -5,6 +5,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -42,6 +43,15 @@ public class ShowDetailsMovieActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        OnBackPressedCallback callback = new OnBackPressedCallback(true ) {
+            @Override
+            public void handleOnBackPressed() {
+                finish();
+                overridePendingTransition(0,0);
+            }
+        };
+        getOnBackPressedDispatcher().addCallback(this, callback);
 
         showDetailsMovieController = ShowDetailsMovieController.getShowDetailsMovieControllerInstance();
         showDetailsMovieController.setShowDetailsMovieActivity(this);

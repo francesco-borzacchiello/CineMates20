@@ -3,9 +3,6 @@ package it.unina.ingSw.cineMates20.view.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MotionEvent;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.EditText;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -16,9 +13,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.tasks.Task;
 
-import java.util.Objects;
-
 import it.unina.ingSw.cineMates20.R;
+import it.unina.ingSw.cineMates20.controller.HomeController;
 import it.unina.ingSw.cineMates20.controller.RegistrationController;
 import it.unina.ingSw.cineMates20.view.fragment.ConfirmRegistrationCodeFragment;
 import it.unina.ingSw.cineMates20.view.fragment.RegistrationFragment;
@@ -31,6 +27,7 @@ public class RegistrationActivity extends AppCompatActivity {
     private RegistrationFragment registrationFragment;
     private FragmentManager manager;
     private ConfirmRegistrationCodeFragment fragmentConfermaCodice;
+    private String socialProviderRegistration;
     private String username;
 
     @Override
@@ -38,10 +35,9 @@ public class RegistrationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registration);
 
-        registrationController = RegistrationController.getLoginControllerInstance();
+        registrationController = RegistrationController.getRegistrationControllerInstance();
         registrationController.setRegistrationActivity(this);
 
-        String socialProviderRegistration;
         Bundle loginBundle = getIntent().getExtras();
         if(loginBundle != null) {
             isSocialRegistration = loginBundle.getBoolean("isSocialLogin");
@@ -74,6 +70,10 @@ public class RegistrationActivity extends AppCompatActivity {
         }
     }
 
+    public String getSocialRegistrationProvider() {
+        return socialProviderRegistration;
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -90,7 +90,7 @@ public class RegistrationActivity extends AppCompatActivity {
     }
 
     public void showHomeOrRegistrationPage(String nome, String cognome) {
-        //if(!user.isAlreadyRegistered()) { //Comunicazione con il DAO sul server spring
+        if(!registrationController.isUserAlreadyRegistered()) {
             registrationFragment = new RegistrationFragment(nome, cognome);
             createAndShowNewFragment(registrationFragment);
 
@@ -98,10 +98,10 @@ public class RegistrationActivity extends AppCompatActivity {
                     getEventHandlerForOnClickRegistration());
             registrationFragment.setAbilitaRegistrazioneTextWatcher(registrationController.
                     getAbilitaRegistrazioneTextWatcher());
-        //else { //Si deallocano le activity e si mostra la home tramite un metodo di registrationController
-            //Utilities.stampaToast(this, "Login effettuato con successo");
-            //...
-        //}
+        } else { //Si deallocano le activity e si mostra la home
+            Utilities.stampaToast(this, "Login effettuato con successo");
+            HomeController.getHomeControllerInstance().start(this);
+        }
     }
 
     public boolean getLoginOrRegistrationType() {
@@ -165,7 +165,7 @@ public class RegistrationActivity extends AppCompatActivity {
     }
 
     public String getUsername() {
-        if(username == null && registrationFragment != null)
+        if(registrationFragment != null)
             username = registrationFragment.getUsername();
         return username;
     }

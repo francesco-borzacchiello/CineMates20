@@ -1,15 +1,19 @@
 package it.unina.ingSw.cineMates20.controller;
 
-import android.content.Intent;
 import android.util.Log;
 
-import com.amplifyframework.auth.AuthUser;
 import com.amplifyframework.core.Amplify;
 import com.facebook.AccessToken;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 
+import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
+
 import it.unina.ingSw.cineMates20.EntryPoint;
-import it.unina.ingSw.cineMates20.view.activity.HomeActivity;
+import it.unina.ingSw.cineMates20.R;
+import it.unina.ingSw.cineMates20.model.UserDB;
+import it.unina.ingSw.cineMates20.view.util.Utilities;
 
 /**
  * Verifica se l'utente è loggato comunicando con cognito,
@@ -63,10 +67,33 @@ public class MainController {
         * oppure se un utente è loggato tramite facebook,
         * oppure se un utente è loggato tramite google
         * */
-        return Amplify.Auth.getCurrentUser() != null ||
-                AccessToken.getCurrentAccessToken() != null ||
-                GoogleSignIn.getLastSignedInAccount(activity) != null;
+        return  Amplify.Auth.getCurrentUser() != null ||
+                ((AccessToken.getCurrentAccessToken() != null ||
+                  GoogleSignIn.getLastSignedInAccount(activity) != null)
+                  && isUserAlreadyRegistered());
 
+    }
+
+    public boolean isUserAlreadyRegistered() {
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
+        String url = activity.getResources().getString(R.string.db_path) + "User/getById/{email}";
+        String email;
+
+        if(AccessToken.getCurrentAccessToken() != null)
+            email = Utilities.tryToGetFacebookEmail();
+        else
+            email = Utilities.tryToGetGoogleEmail(activity);
+
+        if(email == null) return false;
+
+        try {
+            UserDB userDB = restTemplate.getForObject(url, UserDB.class, email);
+            if(userDB != null)
+                return true;
+        }catch(HttpClientErrorException ignore){}
+
+        return false;
     }
 
     private void openLoginActivity() { controllerLogin.start(activity); }

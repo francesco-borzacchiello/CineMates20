@@ -18,38 +18,43 @@
         <include
             layout="@layout/background_toolbar_header" />
 
-        <LinearLayout
-            android:id="@+id/moviesListLinearLayout"
+        <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_marginTop="?actionBarSize"
-            android:orientation="vertical"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <Spinner
-                android:id="@+id/moviesListSpinner"
-                android:layout_width="130dp"
-                android:layout_height="42dp"
-                android:background="@drawable/spinner_background"
-                android:entries="@array/movies_list_tag"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="30dp"/>
+            <LinearLayout
+                android:id="@+id/moviesListLinearLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/moviesListRecyclerView"
-                android:layout_gravity="center"
-                android:layout_marginTop="10dp"
-                android:layout_marginStart="20dp"
-                android:layout_marginEnd="20dp"
-                android:layout_marginBottom="10dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layoutManager="androidx.recyclerview.widget.GridLayoutManager" />
+                <Spinner
+                    android:id="@+id/moviesListSpinner"
+                    android:layout_width="130dp"
+                    android:layout_height="42dp"
+                    android:background="@drawable/spinner_background"
+                    android:entries="@array/movies_list_tag"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="30dp"/>
 
-        </LinearLayout>
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/moviesListRecyclerView"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layoutManager="androidx.recyclerview.widget.GridLayoutManager" />
+
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

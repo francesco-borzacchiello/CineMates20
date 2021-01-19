@@ -88,8 +88,7 @@ public class LoginActivity extends AppCompatActivity {
     @Contract(pure = true)
     private View.OnClickListener loginOnClickListener() {
         return v -> {
-            Runnable eventForLoginClick = loginController.getEventHandlerForOnClickLogin(usernameEditText.getText().toString(),
-                    passwordEditText.getText().toString());
+            Runnable eventForLoginClick = loginController.getEventHandlerForOnClickLogin();
             try {
                 eventForLoginClick.run();
             } catch(NullPointerException e) {

@@ -4,18 +4,40 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.appcompat.widget.SearchView;
 
 import com.amplifyframework.core.Amplify;
+import com.facebook.AccessToken;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.facebook.HttpMethod;
+import com.facebook.login.LoginManager;
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.api.GoogleApi;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import info.movito.themoviedbapi.TmdbApi;
 import info.movito.themoviedbapi.TmdbMovies;
@@ -23,6 +45,7 @@ import info.movito.themoviedbapi.model.MovieDb;
 import info.movito.themoviedbapi.model.core.MovieResultsPage;
 import it.unina.ingSw.cineMates20.EntryPoint;
 import it.unina.ingSw.cineMates20.R;
+import it.unina.ingSw.cineMates20.model.UserDB;
 import it.unina.ingSw.cineMates20.view.activity.FriendsActivity;
 import it.unina.ingSw.cineMates20.view.activity.HomeActivity;
 import it.unina.ingSw.cineMates20.view.activity.MoviesListActivity;
@@ -48,9 +71,18 @@ public class HomeController {
     public void start(Activity activity) {
         Intent intent = new Intent(activity, HomeActivity.class);
         activity.startActivity(intent);
+        activity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         tmdbMovies = new TmdbMovies(new TmdbApi(activity.getResources().getString(R.string.themoviedb_api_key)));
     }
     //endregion
+
+    public void startFromLogin(Activity activity) {
+        Intent intent = new Intent(activity, HomeActivity.class);
+        Utilities.clearBackStack(intent);
+        activity.startActivity(intent);
+        activity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        tmdbMovies = new TmdbMovies(new TmdbApi(activity.getResources().getString(R.string.themoviedb_api_key)));
+    }
 
     //region getInstance() per il pattern singleton
     public static HomeController getHomeControllerInstance() {
@@ -81,6 +113,8 @@ public class HomeController {
 
     //Costruisce e setta gli adapter per i RecyclerView che andranno a mostrare i film sulla home
     public void setHomeActivityMovies() {
+        if(tmdbMovies == null) return;
+
         MovieResultsPage upcomingUsa = tmdbMovies.getUpcoming("it", 1, "US");           //Prossime uscite USA
         MovieResultsPage upcomingIt = tmdbMovies.getUpcoming("it", 1, "IT");           //Prossime uscite Italia
         MovieResultsPage nowPlaying = tmdbMovies.getNowPlayingMovies("it", 1, "IT"); //Ora in sala
@@ -193,7 +227,7 @@ public class HomeController {
                 homeActivity.openDrawerLayout();
             //else if(itemId == ...)
 
-            //TODO: aggiungere la gestione degli altri item del menu, come la search (invio richiesta a themoviedb)...
+            //TODO: aggiungere la gestione degli altri item del menu, come le notifiche
         };
     }
 
@@ -244,13 +278,13 @@ public class HomeController {
         if(activity != null) {
             closeActivityNavigationView(activity);
 
-            new Handler().postDelayed(() -> {
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
                 MoviesListController.getMoviesListControllerInstance()
                         .start(activity, isFavourites);
 
                 if(activity.equals(moviesListActivity))
                     activity.finish();
-            }, 250);
+            }, 240);
         }
     }
 
@@ -258,8 +292,10 @@ public class HomeController {
         if(activity != null) {
             closeActivityNavigationView(activity);
 
-            new Handler().postDelayed(() -> FriendsController.getFriendsControllerInstance()
-                    .start(activity), 250);
+            if(!activity.equals(friendsActivity))
+                new Handler(Looper.getMainLooper()).postDelayed(() ->
+                        FriendsController.getFriendsControllerInstance()
+                        .start(activity), 240);
         }
     }
 
@@ -316,17 +352,38 @@ public class HomeController {
 
     //region Logica del logout
     private void logOut() {
-        Amplify.Auth.signOut(
-                () -> {
-                    //Mostra schermata home con un intent, passando inizialmente homeActivity come parent e poi distruggendo tutte le activity create
-                    Intent intent = new Intent(homeActivity, EntryPoint.class);
-                    homeActivity.runOnUiThread(() -> Utilities.clearBackStack(intent));
-                    homeActivity.startActivity(intent);
-                    homeActivity.finish();
-                    homeActivity.runOnUiThread(() -> Utilities.stampaToast(homeActivity, "Logout effettuato."));
-                },
-                error -> homeActivity.runOnUiThread(() -> Utilities.stampaToast(homeActivity, "Si è verificato un errore.\nRiprova tra qualche minuto."))
-        );
+        GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(homeActivity);
+        if (acct != null) { //Logout da google
+            GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                    .requestEmail()
+                    .build();
+
+            GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(homeActivity, gso);
+            mGoogleSignInClient.signOut();
+            backToLogin();
+        }
+        else if(AccessToken.getCurrentAccessToken() != null) { //Logout da facebook
+            new GraphRequest(AccessToken.getCurrentAccessToken(), "/me/permissions/", null, HttpMethod.DELETE,
+                    graphResponse -> {
+                        LoginManager.getInstance().logOut();
+                        backToLogin();
+                    }).executeAsync();
+        }
+        else { //Logout da Cognito
+            Amplify.Auth.signOut(
+                    this::backToLogin,
+                    error -> homeActivity.runOnUiThread(() -> Utilities.stampaToast(homeActivity, "Si è verificato un errore.\nRiprova tra qualche minuto."))
+            );
+        }
+    }
+
+    private void backToLogin() {
+        //Mostra schermata home con un intent, passando inizialmente homeActivity come parent e poi distruggendo tutte le activity create
+        Intent intent = new Intent(homeActivity, EntryPoint.class);
+        homeActivity.runOnUiThread(() -> Utilities.clearBackStack(intent));
+        homeActivity.startActivity(intent);
+        homeActivity.finish();
+        homeActivity.runOnUiThread(() -> Utilities.stampaToast(homeActivity, "Logout effettuato."));
     }
 
     //endregion
@@ -347,5 +404,29 @@ public class HomeController {
             if(view.getId() == R.id.searchItem)
                 homeActivity.setLayoutsForHome(true);
         };
+    }
+
+    public void setCurrentUserInformations() {
+        /*new Thread (() -> {
+            RestTemplate restTemplate = new RestTemplate();
+            restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
+
+            String url = homeActivity.getResources().getString(R.string.db_path) + "ServerCineMates20/User/getById/{id}";
+            Log.i("HTTPProvaURL", url);
+            UserDB userDB = null;
+            try {
+                userDB = restTemplate.getForObject(url, UserDB.class, "CarmineAdmin");
+            }catch(HttpClientErrorException e) {
+                Log.i("HTTPProvaError", "L'utente non esiste!");
+            }
+
+            if(userDB != null)
+                Log.i("HTTPProva", "UTENTE: " + userDB.getNome()+", " + userDB.getCognome() + ", " + userDB.getUsername() + ", " + userDB.getTipoUtente());
+        }).start();*/
+
+        List<String> informations = Utilities.getCurrentUserInformations(homeActivity);
+
+        if(informations.size() > 0)
+            homeActivity.setCurrentUserDrawerInformations(informations.get(0), informations.get(1));
     }
 }

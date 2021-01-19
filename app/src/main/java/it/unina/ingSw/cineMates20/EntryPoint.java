@@ -21,10 +21,11 @@ import it.unina.ingSw.cineMates20.view.util.Utilities;
  */
 public class EntryPoint extends AppCompatActivity {
 
-    //region oonCreate
+    //region onCreate
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         initActivity();
 
         MainController mainController = new MainController(this);

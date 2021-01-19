@@ -36,11 +36,14 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
-    /*packagingOptions {
+    packagingOptions {
         exclude "META-INF/LICENSE"
+        exclude "META-INF/license.txt"
+        exclude "META-INF/LICENSE.txt"
         exclude "META-INF/NOTICE"
         exclude "META-INF/NOTICE.txt"
-    }*/
+        exclude "META-INF/notice.txt"
+    }
 }
 
 dependencies {
@@ -52,9 +55,6 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0'
 
     //implementation group: 'org.slf4j', name: 'slf4j-jdk14', version: '1.7.30'
-
-    //Email validator dependency
-    implementation group: 'javax.mail', name: 'mail', version: '1.4.1'
 
     implementation 'com.amplifyframework:core:1.6.8'
     implementation 'com.amplifyframework:aws-auth-cognito:1.6.8'
@@ -91,4 +91,9 @@ dependencies {
     implementation 'com.github.AhmMhd:SeeMoreTextView-Android:1.0.0'
 
     //implementation 'org.jfrog.artifactory.client:artifactory-java-client-services:2.3.4'
+
+    implementation 'org.springframework.android:spring-android-rest-template:2.0.0.M2'
+    implementation 'org.apache.httpcomponents:httpclient-android:4.3.5'
+    implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.11'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.10.0'
 }

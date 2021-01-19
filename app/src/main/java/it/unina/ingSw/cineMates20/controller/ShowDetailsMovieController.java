@@ -223,6 +223,7 @@ public class ShowDetailsMovieController {
             intent.putExtra("caller", caller);
 
         activityParent.startActivity(intent);
+        activityParent.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
     }
 
     public void hideSearchMovieProgressBar() {

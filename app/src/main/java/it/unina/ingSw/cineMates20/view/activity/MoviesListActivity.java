@@ -33,6 +33,7 @@ public class MoviesListActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private RecyclerView moviesListRecyclerView;
     private TextView emptyListTextView;
+    private Menu menu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,13 +112,14 @@ public class MoviesListActivity extends AppCompatActivity {
 
         menu.findItem(R.id.searchItem).setVisible(false);
         menu.findItem(R.id.notificationItem).setVisible(false);
-        //menu.findItem(R.id.shareItem).setVisible(false);
         menu.findItem(R.id.shareItem).setIcon(R.drawable.ic_delete);
         menu.findItem(R.id.shareItem).setTitle("Elimina");
 
         menu.findItem(R.id.shareItem).setOnMenuItemClickListener(moviesListController.getOnMenuItemClickListener());
 
         setNavigationViewActionListener();
+
+        this.menu = menu;
 
         return true;
     }
@@ -188,10 +190,14 @@ public class MoviesListActivity extends AppCompatActivity {
     }
 
     public void setEmptyMovieListTextViewVisibility(boolean show) {
-        if(show)
+        if(show) {
             emptyListTextView.setVisibility(View.VISIBLE);
-        else
+            menu.findItem(R.id.shareItem).setVisible(false);
+        }
+        else {
             emptyListTextView.setVisibility(View.INVISIBLE);
+            menu.findItem(R.id.shareItem).setVisible(true);
+        }
     }
 
     public RecyclerView getMoviesRecyclerView() {

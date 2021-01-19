@@ -99,6 +99,17 @@ public class HomeActivity extends AppCompatActivity {
         homeDrawerLayout = findViewById(R.id.homeDrawerLayout);
         navigationView = findViewById(R.id.homeNavigationView);
         navigationView.setItemIconTintList(null);
+        homeController.setCurrentUserInformations();
+    }
+
+    public void setCurrentUserDrawerInformations(String nome, String cognome) {
+        TextView nomeTextView = navigationView.getHeaderView(0).findViewById(R.id.nomeUtenteNavMenu);
+        TextView cognomeTextView = navigationView.getHeaderView(0).findViewById(R.id.cognomeUtenteNavMenu);
+
+        runOnUiThread(() -> {
+            nomeTextView.setText(nome);
+            cognomeTextView.setText(cognome);
+        });
     }
 
     @Override

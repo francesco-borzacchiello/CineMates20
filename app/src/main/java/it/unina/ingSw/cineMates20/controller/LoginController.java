@@ -6,11 +6,9 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
-import android.widget.TextView;
 
 import com.amplifyframework.core.Amplify;
 
-import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.view.activity.HomeActivity;
 import it.unina.ingSw.cineMates20.view.activity.LoginActivity;
 import it.unina.ingSw.cineMates20.view.activity.RegistrationActivity;
@@ -45,21 +43,18 @@ public class LoginController {
         this.loginActivity = activity;
     }
 
-    public Runnable getEventHandlerForOnClickLogin(String username, String password){
+    public Runnable getEventHandlerForOnClickLogin(){
         return () -> {
             if(Utilities.checkNullActivityOrNoConnection(loginActivity))
                 return;
 
             try {
                 //Nota: in caso di wifi spento, non possiamo trovarci qui.
-                //Nota 2: se l'utente già loggato prova a rifare login con credenziali errate, Amplify dirà login con successo
                 Amplify.Auth.signIn(
                         loginActivity.getUsername(),
                         loginActivity.getPassword(),
-                        //result -> Log.i("login", "risultato del login:" + result.isSignInComplete()),
-                        result -> getLoginControllerInstance().setNextLoginStep(result.isSignInComplete(), username),
-                        error -> getLoginControllerInstance().setNextLoginStep(false, username)
-                        //error -> Log.e("loginAmplify", error.toString())
+                        result -> getLoginControllerInstance().setNextLoginStep(result.isSignInComplete(), loginActivity.getUsername()),
+                        error -> getLoginControllerInstance().setNextLoginStep(false, loginActivity.getUsername())
                 );
             } catch (Exception error) {
                 Log.e("AuthQuickstart", "Could not initialize Amplify", error);

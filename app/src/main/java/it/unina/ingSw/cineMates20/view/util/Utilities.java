@@ -5,24 +5,41 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Bundle;
 import android.os.StrictMode;
-
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.amplifyframework.AmplifyException;
+import com.amplifyframework.auth.AuthUser;
+import com.amplifyframework.auth.cognito.AWSCognitoAuthPlugin;
+import com.amplifyframework.core.Amplify;
+import com.amplifyframework.core.AmplifyConfiguration;
+import com.facebook.AccessToken;
+import com.facebook.GraphRequest;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.json.JSONException;
+import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
-
 import it.unina.ingSw.cineMates20.R;
+import it.unina.ingSw.cineMates20.model.UserDB;
 
 public class Utilities {
 
@@ -83,14 +100,9 @@ public class Utilities {
     public static boolean isEmailValid(String email) {
         if (email == null) return false;
 
-        boolean result = true;
-        try {
-            InternetAddress emailAddress = new InternetAddress(email);
-            emailAddress.validate();
-        } catch (AddressException ex) {
-            result = false;
-        }
-        return result;
+        Pattern validEmailAddressRegex =
+                Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
+        return validEmailAddressRegex.matcher(email.trim()).find();
     }
 
 
@@ -164,5 +176,138 @@ public class Utilities {
         }
 
         return false;
+    }
+
+    /**
+     * Restituisce una serie di informazioni relative all'utente
+     * attualmente loggato in una lista in cui:
+     *   - alla prima posizione si trova il nome
+     *   - alla seconda il cognome,
+     *   - alla terza ed ultima posizione si trova l'username
+     * Nota: nome e cognome riguardano i dati nel Database di
+     *       Cognito o in quello interno, non sono quelli associati all'account social
+     */
+    @NotNull
+    public static List<String> getCurrentUserInformations(Activity activity) {
+        final List<String> informations = new ArrayList<>();
+        AtomicBoolean done = new AtomicBoolean(false);
+
+        new Thread (() -> {
+            if(Amplify.Auth.getPlugins().size() == 0) {
+                try {
+                    Amplify.addPlugin(new AWSCognitoAuthPlugin());
+                    AmplifyConfiguration config = AmplifyConfiguration.builder
+                            (activity.getApplicationContext()).devMenuEnabled(false).build();
+                    Amplify.configure(config, activity.getApplicationContext());
+                } catch (AmplifyException e) { done.set(true); }
+            }
+
+            AuthUser user = Amplify.Auth.getCurrentUser();
+            if(user != null) {
+                Amplify.Auth.fetchUserAttributes(
+                        attributes -> {
+                            if(attributes.size() > 5) {
+                                String nomeCompleto = attributes.get(4).getValue(); //In posizione 4 c'è l'informazione del nome e del cognome concatenati
+                                int idx = nomeCompleto.lastIndexOf(' ');
+                                String nome = nomeCompleto.substring(0, idx);
+                                String cognome = nomeCompleto.substring(idx + 1);
+                                informations.add(nome);
+                                informations.add(cognome);
+                                informations.add(attributes.get(3).getValue()); //In posizione 3 c'è l'informazione dell'username
+
+                                done.set(true);
+                                synchronized(informations) {
+                                    informations.notifyAll();
+                                }
+                            }
+                        },
+                        error -> {
+                            done.set(true);
+                            synchronized(informations) {
+                                informations.notifyAll();
+                            }
+                        }
+                );
+            }
+            //TODO: da testare questo ramo dell'if
+            else { //L'utente è loggato con un social, per cui i dati vanno ricercati nel DB interno
+                RestTemplate restTemplate = new RestTemplate();
+                restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
+                String url = activity.getResources().getString(R.string.db_path) + "User/getById/{email}";
+
+                String email = tryToGetFacebookEmail();
+                if(email == null || email.equals(""))
+                    email = tryToGetGoogleEmail(activity);
+
+                try {
+                    UserDB userDB = restTemplate.getForObject(url, UserDB.class, email);
+                    informations.add(userDB.getNome());
+                    informations.add(userDB.getCognome());
+                    informations.add(userDB.getUsername());
+
+                    done.set(true);
+                    synchronized(informations) {
+                        informations.notifyAll();
+                    }
+                }catch(HttpClientErrorException e){
+                    done.set(true);
+                    synchronized(informations) {
+                        informations.notifyAll();
+                    }
+                }
+            }
+        }).start();
+
+        while(!done.get()) {
+            synchronized (informations) {
+                try {
+                    informations.wait();
+                } catch (InterruptedException ignore) {}
+            }
+        }
+
+        return informations;
+    }
+
+    @Nullable
+    public static String tryToGetFacebookEmail() {
+        final String[] email = new String[1];
+        email[0] = null;
+        AccessToken fbAccessToken = AccessToken.getCurrentAccessToken();
+
+        if(fbAccessToken == null) return null;
+
+        GraphRequest request = GraphRequest.newMeRequest(
+                AccessToken.getCurrentAccessToken(),
+                (object, response) -> {
+                    try {
+                        if (object.has("email"))
+                            email[0] = object.getString("email");
+                        else email[0] = null;
+                    } catch (JSONException ignore) {}
+                });
+        Bundle parameters = new Bundle();
+        parameters.putString("fields", "email");
+        request.setParameters(parameters);
+
+        Thread t = new Thread(request::executeAndWait);
+        t.start();
+
+        try {
+            t.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        return email[0];
+    }
+
+    @Nullable
+    public static String tryToGetGoogleEmail(Activity activity) {
+        GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(activity);
+        if (acct != null)
+            return acct.getEmail();
+
+        return null;
     }
 }

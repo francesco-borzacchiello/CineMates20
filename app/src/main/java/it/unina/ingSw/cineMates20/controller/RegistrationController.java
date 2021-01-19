@@ -28,12 +28,28 @@ import com.google.android.gms.tasks.Task;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import it.unina.ingSw.cineMates20.R;
+import it.unina.ingSw.cineMates20.model.UserDB;
 import it.unina.ingSw.cineMates20.view.activity.RegistrationActivity;
 import it.unina.ingSw.cineMates20.view.util.Utilities;
+
+import static com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes.SIGN_IN_CANCELLED;
 
 public class RegistrationController {
     private static RegistrationController instance;
@@ -41,7 +57,7 @@ public class RegistrationController {
     private CallbackManager facebookCallbackManager;
     private RegistrationController() {}
 
-    public static RegistrationController getLoginControllerInstance() {
+    public static RegistrationController getRegistrationControllerInstance() {
         if(instance == null)
             instance = new RegistrationController();
         return instance;
@@ -81,22 +97,72 @@ public class RegistrationController {
                         registrationActivity.getPassword(),
                         AuthSignUpOptions.builder().userAttributes(attributes).build(),
                         result -> Log.i("signUp", "Result: " + result.toString()),
-                        error -> {
-                            Amplify.Auth.resendSignUpCode(
-                                    registrationActivity.getUsername(),
-                                    result2 -> Log.i("signUp", "Result: " + result2.toString()),
-                                    error2 -> Log.e("signUp", "Result: " + error2.toString())
-                            );
-                        }
+                        error -> Amplify.Auth.resendSignUpCode(
+                                  registrationActivity.getUsername(),
+                                  result2 -> Log.i("signUp", "Result: " + result2.toString()),
+                                  error2 -> Log.e("signUp", "Result: " + error2.toString())
+                                 )
                 );
 
                 registrationActivity.mostraFragmentConfermaCodice(); //TODO: questo va fatto solo se result è corretto, gestire caso dati già esistenti ma non confermati
             }
             else if(inputIsValid) { //Si procede con la registrazione social
-                //...
-                registrationActivity.runOnUiThread(() -> Utilities.stampaToast(registrationActivity, "Funzionalità in sviluppo!"));
+                RestTemplate restTemplate = new RestTemplate();
+                restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
+                String url = registrationActivity.getResources().getString(R.string.db_path) + "User/add";
+                String email;
+
+                //TODO: memorizzare image_url per S3
+
+                if(registrationActivity.getSocialRegistrationProvider().equals("facebook"))
+                    email = Utilities.tryToGetFacebookEmail();
+                else
+                    email = Utilities.tryToGetGoogleEmail(registrationActivity);
+
+                if(email != null) {
+                    try {
+                        HttpHeaders headers = new HttpHeaders();
+                        headers.setContentType(MediaType.APPLICATION_JSON);
+                        UserDB userDB = new UserDB(registrationActivity.getUsername(), registrationActivity.getNome(), registrationActivity.getCognome(), email, "utente");
+                        HttpEntity<UserDB> requestEntity = new HttpEntity<>(userDB, headers);
+                        ResponseEntity<UserDB> responseEntity = restTemplate.postForEntity(url, requestEntity, UserDB.class);
+
+                        if(responseEntity.getStatusCode() == HttpStatus.OK) {
+                            HomeController.getHomeControllerInstance().startFromLogin(registrationActivity);
+                            registrationActivity.runOnUiThread(() -> Utilities.stampaToast(registrationActivity, "Benvenuto " + registrationActivity.getUsername()));
+                        }
+                        else
+                            registrationActivity.runOnUiThread(() -> Utilities.stampaToast(registrationActivity, "Si è verificato un errore"));
+                    } catch(HttpClientErrorException e) {
+                        e.printStackTrace();
+                    }
+                }
+                else
+                    registrationActivity.runOnUiThread(() -> Utilities.stampaToast(registrationActivity, "Si è verificato un errore"));
             }
         };
+    }
+
+    public boolean isUserAlreadyRegistered() {
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
+        String url = registrationActivity.getResources().getString(R.string.db_path) + "User/getById/{email}";
+        String email;
+
+        if(registrationActivity.getSocialRegistrationProvider().equals("facebook"))
+            email = Utilities.tryToGetFacebookEmail();
+        else
+            email = Utilities.tryToGetGoogleEmail(registrationActivity);
+
+        if(email == null) return false;
+
+        try {
+            UserDB userDB = restTemplate.getForObject(url, UserDB.class, email);
+            if(userDB != null)
+                return true;
+        }catch(HttpClientErrorException ignore){}
+
+        return false;
     }
 
     private boolean isInputValid(boolean isSocialRegistration) {
@@ -183,7 +249,6 @@ public class RegistrationController {
                                 }
                                 else email = "facebookUser@mail.com";
 
-                                //TODO: inviare informazioni user model dell'email e memorizzare image_url per S3
                                 registrationActivity.showHomeOrRegistrationPage(first_name, last_name);
                             } catch (JSONException e) {
                                 e.printStackTrace();
@@ -248,7 +313,11 @@ public class RegistrationController {
             // The ApiException status code indicates the detailed failure reason.
             // Please refer to the GoogleSignInStatusCodes class reference for more information.
             Log.w("GoogleLogin", "signInResult:failed code=" + e.getStatusCode());
-            registrationActivity.runOnUiThread(() -> Utilities.stampaToast(registrationActivity, "Si è verificato un errore:\n" + e.getStatusCode()));
+            if(e.getStatusCode() == SIGN_IN_CANCELLED)
+                registrationActivity.runOnUiThread(() -> Utilities.stampaToast(registrationActivity, "Login annullato"));
+            else
+                registrationActivity.runOnUiThread(() -> Utilities.stampaToast(registrationActivity, "Si è verificato un errore"));
+            registrationActivity.finish();
         }
     }
 

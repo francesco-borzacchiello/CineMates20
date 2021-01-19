@@ -38,6 +38,8 @@
     <string name="mostra_password_checkbox">Mostra password</string>
     <string name="cambia_password">Cambia password</string>
 
+    <string name="db_path">http://databasecinemates20-env.eba-itkikzsk.eu-west-3.elasticbeanstalk.com/ServerCineMates20/</string>
+
     <string name="facebook_app_id">1526900177515260</string>
     <string name="fb_login_protocol_scheme">fb1526900177515260</string>
     <string name="descrizione_cambio_password">Inserisci la tua mail e premere invio,\ndopodiché inserisci il codice di verifica\n ricevuto e la tua nuova password.</string>
@@ -45,7 +47,6 @@
     <string name="themoviedb_api_key">b3a2d6a56e6622052bbf6936ff2ace73</string>
 
     <string name="home">Home</string>
-    <string name="nome_cognome">Nome\nCognome</string>
     <string name="profile">Profilo</string>
     <string name="amici">Amici</string>
     <string name="preferiti">Preferiti</string>
@@ -63,8 +64,6 @@
     <string name="hamburgerMenu">Hamburger</string>
     <string name="schermata_di_ricerca">Schermata di ricerca</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="la_ricerca_non_ha_prodotto_risultati">La ricerca non ha\nprodotto risultati!!</string>
     <string name="title">Title</string>
     <string name="description_movie_result_search">Description</string>

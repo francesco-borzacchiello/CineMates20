@@ -11,8 +11,7 @@
         android:id="@+id/imageProfile"
         android:layout_width="75sp"
         android:layout_height="75sp"
-        android:layout_marginTop="30sp"
-        android:layout_marginEnd="120sp"
+        android:layout_marginTop="30dp"
         android:scaleType="centerCrop"
         android:src="@drawable/fake_profile_picture"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -20,19 +19,39 @@
         app:layout_constraintTop_toTopOf="parent"
         app:riv_oval="true" />
 
-    <TextView
-        android:id="@+id/nomeCognome"
-        android:layout_width="0dp"
+    <LinearLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="12sp"
-        android:layout_marginTop="30sp"
-        android:text="@string/nome_cognome"
-        android:textColor="@color/white"
-        android:textSize="22sp"
-        android:textStyle="bold"
+        android:orientation="vertical"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="30dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/imageProfile"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/nomeUtenteNavMenu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxEms="14"
+            android:maxLines="1"
+            android:text="@string/prompt_nome"
+            android:textColor="@color/white"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/cognomeUtenteNavMenu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxEms="14"
+            android:maxLines="1"
+            android:text="@string/prompt_cognome"
+            android:textColor="@color/white"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
