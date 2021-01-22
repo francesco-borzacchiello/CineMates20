@@ -20,6 +20,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.navigation.NavigationView;
 
+import java.util.List;
+
 import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.controller.HomeController;
 import it.unina.ingSw.cineMates20.controller.MoviesListController;
@@ -29,7 +31,6 @@ public class MoviesListActivity extends AppCompatActivity {
     private MoviesListController moviesListController;
     private DrawerLayout moviesListDrawerLayout;
     private NavigationView navigationView;
-    private Toolbar toolbar;
     private ProgressBar progressBar;
     private RecyclerView moviesListRecyclerView;
     private TextView emptyListTextView;
@@ -63,10 +64,10 @@ public class MoviesListActivity extends AppCompatActivity {
 
     private void initializeGraphicsComponents() {
         setContentView(R.layout.activity_movies_list);
-        setMoviesListToolbar();
+        setToolbar();
 
         Spinner listType = findViewById(R.id.moviesListSpinner);
-        listType.setOnItemSelectedListener(moviesListController.getSpinnerOnItemSelectedListener());
+        listType.setOnItemSelectedListener(moviesListController.getMoviesListActivitySpinnerListener());
 
         boolean isFavourites = getIntentExtra();
         if(!isFavourites)
@@ -89,8 +90,8 @@ public class MoviesListActivity extends AppCompatActivity {
         return false;
     }
 
-    private void setMoviesListToolbar() {
-        toolbar = findViewById(R.id.toolbarHeader);
+    private void setToolbar() {
+        Toolbar toolbar = findViewById(R.id.toolbarHeader);
         setSupportActionBar(toolbar);
         ActionBar ab = getSupportActionBar();
         if(ab != null) {
@@ -104,6 +105,16 @@ public class MoviesListActivity extends AppCompatActivity {
         moviesListDrawerLayout = findViewById(R.id.moviesListDrawerLayout);
         navigationView = findViewById(R.id.moviesListNavigationView);
         navigationView.setItemIconTintList(null);
+
+        TextView nomeTextView = navigationView.getHeaderView(0).findViewById(R.id.nomeUtenteNavMenu);
+        TextView cognomeTextView = navigationView.getHeaderView(0).findViewById(R.id.cognomeUtenteNavMenu);
+        List<String> info = Utilities.getCurrentUserInformations(this);
+
+        if(info.size() > 0)
+            runOnUiThread(() -> {
+                nomeTextView.setText(info.get(0));
+                cognomeTextView.setText(info.get(1));
+            });
     }
 
     @Override
@@ -156,17 +167,16 @@ public class MoviesListActivity extends AppCompatActivity {
     public void setMoviesListRecyclerView(RecyclerView.Adapter<RecyclerView.ViewHolder> adapter) {
         moviesListRecyclerView.setAdapter(adapter);
 
-        moviesListRecyclerView.setHasFixedSize(true);
         moviesListRecyclerView.setItemViewCacheSize(30);
 
         moviesListRecyclerView.setLayoutManager(new GridLayoutManager(this, 3));
     }
 
-    public void hideMoviesListProgressBar() {
+    public void hideProgressBar() {
         progressBar.setVisibility(View.INVISIBLE);
     }
 
-    public void showMoviesListProgressBar() {
+    public void showProgressBar() {
         progressBar.setVisibility(View.VISIBLE);
     }
 

@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.text.TextWatcher;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -53,7 +54,7 @@ public class RegistrationFragment extends Fragment {
         OnBackPressedCallback callback = new OnBackPressedCallback(true ) {
             @Override
             public void handleOnBackPressed() {
-                new AlertDialog.Builder(getContext())
+                AlertDialog alertDialog = new AlertDialog.Builder(getContext())
                         .setMessage("Sei sicuro di voler annullare?")
                         .setCancelable(false)
                         .setPositiveButton("Si", (dialog, id) ->  {
@@ -64,6 +65,13 @@ public class RegistrationFragment extends Fragment {
                          })
                         .setNegativeButton("No", null)
                         .show();
+
+                alertDialog.setOnKeyListener((arg0, keyCode, event) -> {
+                    if (keyCode == KeyEvent.KEYCODE_BACK) {
+                        alertDialog.dismiss();
+                    }
+                    return true;
+                });
             }
         };
         requireActivity().getOnBackPressedDispatcher().addCallback(this, callback);

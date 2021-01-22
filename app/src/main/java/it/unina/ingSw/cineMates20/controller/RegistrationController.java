@@ -30,17 +30,13 @@ import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.StringHttpMessageConverter;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -55,6 +51,7 @@ public class RegistrationController {
     private static RegistrationController instance;
     private RegistrationActivity registrationActivity;
     private CallbackManager facebookCallbackManager;
+
     private RegistrationController() {}
 
     public static RegistrationController getRegistrationControllerInstance() {
@@ -72,7 +69,7 @@ public class RegistrationController {
         return ()-> {
             boolean isSocialRegistration = registrationActivity.getLoginOrRegistrationType();
             Context context = registrationActivity.getApplicationContext();
-            if(context != null && !Utilities.isOnline(context)) {
+            if(context != null && !Utilities.isOnline()) {
                 registrationActivity.runOnUiThread(() -> Utilities.stampaToast(registrationActivity, "Connessione ad internet non disponibile!"));
                 return;
             }
@@ -80,9 +77,7 @@ public class RegistrationController {
             boolean inputIsValid = isInputValid(isSocialRegistration);
 
             if(!isSocialRegistration && inputIsValid) {
-                /*TODO: Se non è stata modificata foto, passare url foto default a Cognito.
-                 *      Procedere con la registrazione (dire a RegistrationActivity di mostrare
-                 *      ConfirmRegistrationCodeFragment)*/
+                //TODO: Se non è stata modificata foto, passare url foto default a Cognito.
                 //Si procede con la registrazione interna
                 ArrayList<AuthUserAttribute> attributes = new ArrayList<>();
                 attributes.add(new AuthUserAttribute(AuthUserAttributeKey.email(), registrationActivity.getEmail()));
@@ -112,7 +107,7 @@ public class RegistrationController {
                 String url = registrationActivity.getResources().getString(R.string.db_path) + "User/add";
                 String email;
 
-                //TODO: memorizzare image_url per S3
+                //TODO: memorizzare image_url per S3 nel nostro DB
 
                 if(registrationActivity.getSocialRegistrationProvider().equals("facebook"))
                     email = Utilities.tryToGetFacebookEmail();
@@ -132,7 +127,8 @@ public class RegistrationController {
                             registrationActivity.runOnUiThread(() -> Utilities.stampaToast(registrationActivity, "Benvenuto " + registrationActivity.getUsername()));
                         }
                         else
-                            registrationActivity.runOnUiThread(() -> Utilities.stampaToast(registrationActivity, "Si è verificato un errore"));
+                            registrationActivity.runOnUiThread(() -> Utilities.stampaToast(registrationActivity,
+                                    "L'utente esiste già oppure uno o più dei dati\ninseriti corrispondono ad un utente già registrato."));
                     } catch(HttpClientErrorException e) {
                         e.printStackTrace();
                     }
@@ -157,9 +153,20 @@ public class RegistrationController {
         if(email == null) return false;
 
         try {
-            UserDB userDB = restTemplate.getForObject(url, UserDB.class, email);
-            if(userDB != null)
-                return true;
+            boolean [] ret = new boolean[1];
+
+            Thread t = new Thread(()-> {
+                UserDB userDB = restTemplate.getForObject(url, UserDB.class, email);
+                if(userDB != null)
+                    ret[0] = true;
+            });
+            t.start();
+
+            try {
+                t.join();
+            }catch(InterruptedException ignore){}
+
+            return ret[0];
         }catch(HttpClientErrorException ignore){}
 
         return false;
@@ -213,15 +220,7 @@ public class RegistrationController {
 
     public View.OnClickListener getMostraPasswordCheckBoxListener() {
         return listener -> {
-            //Se la CheckBox è selezionata
-            if (registrationActivity.isMostraPasswordChecked()) {
-                // mostra password
-                registrationActivity.showOrHidePassword(true);
-            } else {
-                // nascondi password
-                registrationActivity.showOrHidePassword(false);
-            }
-
+            registrationActivity.showOrHidePassword(registrationActivity.isMostraPasswordChecked());
             registrationActivity.updatePasswordFocus();
         };
     }
@@ -237,17 +236,10 @@ public class RegistrationController {
                                 /*Log.d("TESTLOGFB", "fb json object: " + object);
                                   Log.d("TESTLOGFB", "fb graph response: " + response);*/
 
-                                String id = object.getString("id");
                                 String first_name = object.getString("first_name");
                                 String last_name = object.getString("last_name");
-                                String image_url = "http://graph.facebook.com/" + id + "/picture?type=large";
-
-                                String email;
-                                if (object.has("email")) {
-                                    email = object.getString("email");
-                                    //Log.i("TESTLOGFB", email);
-                                }
-                                else email = "facebookUser@mail.com";
+                                //String id = object.getString("id");
+                                //String image_url = "http://graph.facebook.com/" + id + "/picture?type=large";
 
                                 registrationActivity.showHomeOrRegistrationPage(first_name, last_name);
                             } catch (JSONException e) {
@@ -257,7 +249,7 @@ public class RegistrationController {
                 Bundle parameters = new Bundle();
                 parameters.putString("fields", "id,first_name,last_name,email,picture.type(large)"); // id,first_name,last_name,email,gender,birthday,cover,picture.type(large)
                 request.setParameters(parameters);
-                request.executeAsync();
+                request.executeAndWait();
             }
 
             @Override
@@ -280,6 +272,7 @@ public class RegistrationController {
 
     public void startFacebookLogin() {
         facebookCallbackManager = CallbackManager.Factory.create();
+        //LoginManager.getInstance().setLoginBehavior(LoginBehavior.WEB_ONLY);
         LoginManager facebookLoginManager = LoginManager.getInstance();
         facebookLoginManager.registerCallback(facebookCallbackManager, getFacebookCallback());
         facebookLoginManager.logInWithReadPermissions(registrationActivity, Arrays.asList("public_profile", "email"));

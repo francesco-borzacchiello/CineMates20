@@ -7,34 +7,33 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.google.android.material.navigation.NavigationView;
+
+import java.util.List;
 
 import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.controller.FriendsController;
 import it.unina.ingSw.cineMates20.controller.HomeController;
-import it.unina.ingSw.cineMates20.view.adapter.FriendsAdapter;
 import it.unina.ingSw.cineMates20.view.util.Utilities;
 
 public class FriendsActivity extends AppCompatActivity {
     private FriendsController friendsController;
     private NavigationView navigationView;
     private DrawerLayout friendsDrawerLayout;
-    private Toolbar toolbar;
     private SearchView searchView;
     private Menu menu;
     private ProgressBar progressBar;
@@ -64,7 +63,7 @@ public class FriendsActivity extends AppCompatActivity {
 
     private void initializeGraphicsComponents() {
         setContentView(R.layout.activity_friends);
-        setFriendsToolbar();
+        setToolbar();
 
         progressBar = findViewById(R.id.progressBarFriends);
         friendsRecyclerView = findViewById(R.id.friendsRecyclerView);
@@ -72,8 +71,8 @@ public class FriendsActivity extends AppCompatActivity {
         friendsController.initializeActivityFriends();
     }
 
-    private void setFriendsToolbar() {
-        toolbar = findViewById(R.id.toolbarHeader);
+    private void setToolbar() {
+        Toolbar toolbar = findViewById(R.id.toolbarHeader);
         setSupportActionBar(toolbar);
         ActionBar ab = getSupportActionBar();
         if(ab != null) {
@@ -87,6 +86,16 @@ public class FriendsActivity extends AppCompatActivity {
         friendsDrawerLayout = findViewById(R.id.friendsDrawerLayout);
         navigationView = findViewById(R.id.friendsNavigationView);
         navigationView.setItemIconTintList(null);
+
+        TextView nomeTextView = navigationView.getHeaderView(0).findViewById(R.id.nomeUtenteNavMenu);
+        TextView cognomeTextView = navigationView.getHeaderView(0).findViewById(R.id.cognomeUtenteNavMenu);
+        List<String> info = Utilities.getCurrentUserInformations(this);
+
+        if(info.size() > 0)
+            runOnUiThread(() -> {
+                nomeTextView.setText(info.get(0));
+                cognomeTextView.setText(info.get(1));
+            });
     }
 
     @Override
@@ -135,12 +144,11 @@ public class FriendsActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void hideFriendsProgressBar() {
-        progressBar.setVisibility(View.INVISIBLE);
-    }
-
-    public void showFriendsProgressBar() {
-        progressBar.setVisibility(View.VISIBLE);
+    public void showFriendsProgressBar(boolean show) {
+        if(show)
+            progressBar.setVisibility(View.VISIBLE);
+        else
+            progressBar.setVisibility(View.INVISIBLE);
     }
 
     public void keepSearchViewExpanded() {
@@ -156,11 +164,11 @@ public class FriendsActivity extends AppCompatActivity {
 
         if(searchIsExpanded) {
             ll.setVisibility(View.INVISIBLE);
-            cl.setBackgroundColor(getResources().getColor(R.color.lightGray));
+            cl.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.lightGray));
         }
         else {
             ll.setVisibility(View.VISIBLE);
-            cl.setBackgroundColor(getResources().getColor(R.color.white));
+            cl.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.white));
         }
     }
 
@@ -177,7 +185,6 @@ public class FriendsActivity extends AppCompatActivity {
     public void setFriendsRecyclerView(RecyclerView.Adapter<RecyclerView.ViewHolder> adapter) {
         friendsRecyclerView.setAdapter(adapter);
 
-        friendsRecyclerView.setHasFixedSize(true);
         friendsRecyclerView.setItemViewCacheSize(30);
 
         friendsRecyclerView.setLayoutManager(new GridLayoutManager(this, 3));

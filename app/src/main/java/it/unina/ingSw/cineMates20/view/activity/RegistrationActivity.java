@@ -13,6 +13,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.tasks.Task;
 
+import java.util.List;
+
 import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.controller.HomeController;
 import it.unina.ingSw.cineMates20.controller.RegistrationController;
@@ -85,7 +87,10 @@ public class RegistrationActivity extends AppCompatActivity {
             registrationController.handleGoogleSignInResult(task);
         }
         else { //Se non è google, allora dev'essere sicuramente facebook
-            registrationController.getFacebookCallbackManager().onActivityResult(requestCode, resultCode, data);
+            if (registrationController.getFacebookCallbackManager().onActivityResult(requestCode, resultCode, data)) {
+                List<String> info = Utilities.getCurrentUserInformations(this);
+                showHomeOrRegistrationPage(info.get(0), info.get(1));
+            }
         }
     }
 
@@ -100,7 +105,7 @@ public class RegistrationActivity extends AppCompatActivity {
                     getAbilitaRegistrazioneTextWatcher());
         } else { //Si deallocano le activity e si mostra la home
             Utilities.stampaToast(this, "Login effettuato con successo");
-            HomeController.getHomeControllerInstance().start(this);
+            HomeController.getHomeControllerInstance().startFromLogin(this);
         }
     }
 
@@ -113,10 +118,6 @@ public class RegistrationActivity extends AppCompatActivity {
         FragmentTransaction transaction = manager.beginTransaction();
         transaction.add(R.id.frameLayoutFragmentRegistrazione, fragment);
         transaction.commit();
-    }
-
-    public boolean allEditTextAreNotEmpty() {
-        return registrationFragment.allEditTextAreNotEmpty();
     }
 
     @Override

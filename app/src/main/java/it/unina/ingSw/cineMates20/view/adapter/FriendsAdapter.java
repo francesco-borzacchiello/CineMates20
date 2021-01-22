@@ -17,17 +17,21 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 import it.unina.ingSw.cineMates20.R;
+import it.unina.ingSw.cineMates20.model.UserDB;
 
 public class FriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final Context context;
-    private final List<String> names, usernames, linkImage;
+    private final List<String> names, usernames, email, linkImage;
     private final List<Runnable> showUserListeners;
+    private UserDB lastClickedUser;
+    private int lastClickedItemPosition;
 
     public FriendsAdapter(Context context, List<String> names, List<String> usernames,
-                          List<String> linkImage, List<Runnable> showUserListeners) {
+                          List<String> email, List<String> linkImage, List<Runnable> showUserListeners) {
         this.context = context;
         this.names = names;
         this.usernames = usernames;
+        this.email = email;
         this.linkImage = linkImage;
         this.showUserListeners = showUserListeners;
     }
@@ -74,18 +78,42 @@ public class FriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         return listener -> {
             try{
                 showUserListeners.get(position).run();
+                lastClickedItemPosition = position;
+                lastClickedUser = new UserDB(usernames.get(position),
+                        names.get(position), names.get(position),
+                        email.get(position), "utente");
             } catch(NullPointerException ignore) {}
         };
     }
 
     @Override
     public long getItemId(int position) {
-        return names.get(position).hashCode();
+        return showUserListeners.get(position).hashCode();
     }
 
     @Override
     public int getItemCount() {
-        return names.size();
+        return showUserListeners.size();
+    }
+
+    //Si occupa soltanto dell'eliminazione grafica, non di quella concreta
+    public void deleteLastClickedItem() {
+        if(names.size() == 0 || lastClickedItemPosition == -1) return;
+
+        names.remove(lastClickedItemPosition);
+        usernames.remove(lastClickedItemPosition);
+        linkImage.remove(lastClickedItemPosition);
+        showUserListeners.remove(lastClickedItemPosition);
+        email.remove(lastClickedItemPosition);
+
+        notifyItemRemoved(lastClickedItemPosition);
+        notifyItemRangeChanged(lastClickedItemPosition, names.size());
+
+        lastClickedItemPosition = -1; //Reset
+    }
+
+    public UserDB getLastClickedUser() {
+        return lastClickedUser;
     }
 
     private static class UserHolder extends RecyclerView.ViewHolder{

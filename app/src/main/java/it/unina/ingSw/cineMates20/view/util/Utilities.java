@@ -3,11 +3,7 @@ package it.unina.ingSw.cineMates20.view.util;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.os.StrictMode;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -31,8 +27,9 @@ import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -112,29 +109,26 @@ public class Utilities {
 
     /* Metodo per determinare se l'applicazione dispone di una connessione
        Mobile o WIFI, prima di inviare qualunque richiesta internet al server. */
-    public static boolean isOnline(@NotNull Context context) {
-        ConnectivityManager cm = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+    public static boolean isOnline() {
+        boolean [] ret = new boolean[1];
 
-        if (activeNetwork != null && activeNetwork.isAvailable() && activeNetwork.isConnected()) {
-            StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectNetwork().penaltyDialog()
-                    .permitNetwork() //permit Network access
-                    .build());
-
+        Thread t = new Thread(()-> {
             try {
-                HttpURLConnection urlc = (HttpURLConnection)
-                        (new URL("https://clients3.google.com/generate_204") //Oppure https://aws.amazon.com/ (da testare)
-                                .openConnection());
-                urlc.setRequestProperty("User-Agent", "Android");
-                urlc.setRequestProperty("Connection", "close");
-                urlc.setConnectTimeout(2000);
-                urlc.connect();
+                Socket socket = new Socket();
+                socket.connect(new InetSocketAddress("8.8.8.8", 53), 3000);
+                socket.close();
+                ret[0] = true;
+            } catch (IOException e) {
+                ret[0] = false;
+            }
+        });
+        t.start();
 
-                return (urlc.getResponseCode() == 204 &&
-                        urlc.getContentLength() == 0);
-            } catch (Exception ignored) {}
-        }
-        return false;
+        try {
+            t.join();
+        }catch (InterruptedException ignore) {}
+
+        return ret[0];
     }
 
     public static void hideKeyboard(@NotNull Activity activity, MotionEvent event) {
@@ -170,7 +164,7 @@ public class Utilities {
             //....
             return true; //null activity
 
-        if(!Utilities.isOnline(activity)) {
+        if(!Utilities.isOnline()) {
             activity.runOnUiThread(() -> Utilities.stampaToast(activity, activity.getApplicationContext().getResources().getString(R.string.networkNotAvailable)));
             return true; //no connection
         }
@@ -183,87 +177,83 @@ public class Utilities {
      * attualmente loggato in una lista in cui:
      *   - alla prima posizione si trova il nome
      *   - alla seconda il cognome,
-     *   - alla terza ed ultima posizione si trova l'username
+     *   - alla terza l'username,
+     *   - alla quarta ed ultima posizione si trova l'email
      * Nota: nome e cognome riguardano i dati nel Database di
      *       Cognito o in quello interno, non sono quelli associati all'account social
      */
     @NotNull
     public static List<String> getCurrentUserInformations(Activity activity) {
         final List<String> informations = new ArrayList<>();
-        AtomicBoolean done = new AtomicBoolean(false);
+        if(Amplify.Auth.getPlugins().size() == 0) {
+            try {
+                Amplify.addPlugin(new AWSCognitoAuthPlugin());
+                AmplifyConfiguration config = AmplifyConfiguration.builder
+                        (activity.getApplicationContext()).devMenuEnabled(false).build();
+                Amplify.configure(config, activity.getApplicationContext());
+            } catch (AmplifyException ignore) {}
+        }
 
-        new Thread (() -> {
-            if(Amplify.Auth.getPlugins().size() == 0) {
-                try {
-                    Amplify.addPlugin(new AWSCognitoAuthPlugin());
-                    AmplifyConfiguration config = AmplifyConfiguration.builder
-                            (activity.getApplicationContext()).devMenuEnabled(false).build();
-                    Amplify.configure(config, activity.getApplicationContext());
-                } catch (AmplifyException e) { done.set(true); }
-            }
-
-            AuthUser user = Amplify.Auth.getCurrentUser();
-            if(user != null) {
+        AuthUser user = Amplify.Auth.getCurrentUser();
+        if(user != null) {
+            AtomicBoolean done = new AtomicBoolean(false);
+            Thread t = new Thread(()->
                 Amplify.Auth.fetchUserAttributes(
-                        attributes -> {
-                            if(attributes.size() > 5) {
-                                String nomeCompleto = attributes.get(4).getValue(); //In posizione 4 c'è l'informazione del nome e del cognome concatenati
-                                int idx = nomeCompleto.lastIndexOf(' ');
-                                String nome = nomeCompleto.substring(0, idx);
-                                String cognome = nomeCompleto.substring(idx + 1);
-                                informations.add(nome);
-                                informations.add(cognome);
-                                informations.add(attributes.get(3).getValue()); //In posizione 3 c'è l'informazione dell'username
+                    attributes -> {
+                        if(attributes.size() > 5) {
+                            String nomeCompleto = attributes.get(4).getValue(); //In posizione 4 c'è l'informazione del nome e del cognome concatenati
+                            int idx = nomeCompleto.lastIndexOf(' ');
+                            String nome = nomeCompleto.substring(0, idx);
+                            String cognome = nomeCompleto.substring(idx + 1);
+                            informations.add(nome);
+                            informations.add(cognome);
+                            informations.add(attributes.get(3).getValue()); //In posizione 3 c'è l'informazione dell'username
+                            informations.add(attributes.get(5).getValue()); //In posizione 4 c'è l'informazione dell'email
 
-                                done.set(true);
-                                synchronized(informations) {
-                                    informations.notifyAll();
-                                }
-                            }
-                        },
-                        error -> {
                             done.set(true);
-                            synchronized(informations) {
-                                informations.notifyAll();
+                            synchronized(done){
+                                done.notifyAll();
                             }
                         }
-                );
+                    },
+                    error -> {}
+                ));
+            t.start();
+
+            while(!done.get()){
+                synchronized(done){
+                    try {
+                        done.wait();
+                    }catch (InterruptedException ignore){}
+                }
             }
-            //TODO: da testare questo ramo dell'if
-            else { //L'utente è loggato con un social, per cui i dati vanno ricercati nel DB interno
-                RestTemplate restTemplate = new RestTemplate();
-                restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
-                String url = activity.getResources().getString(R.string.db_path) + "User/getById/{email}";
+        }
+        else { //L'utente è loggato con un social, per cui i dati vanno ricercati nel DB interno
+            RestTemplate restTemplate = new RestTemplate();
+            restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
+            String url = activity.getResources().getString(R.string.db_path) + "User/getById/{email}";
 
-                String email = tryToGetFacebookEmail();
-                if(email == null || email.equals(""))
-                    email = tryToGetGoogleEmail(activity);
+            String[] email = new String[1];
+            email[0] = tryToGetFacebookEmail();
+            if(email[0] == null || email[0].equals(""))
+                email[0] = tryToGetGoogleEmail(activity);
 
-                try {
-                    UserDB userDB = restTemplate.getForObject(url, UserDB.class, email);
+            try {
+                Thread t = new Thread(()-> {
+                    //Usa l'email social per identificare l'utente nel Database interno
+                    UserDB userDB = restTemplate.getForObject(url, UserDB.class, email[0]);
                     informations.add(userDB.getNome());
                     informations.add(userDB.getCognome());
                     informations.add(userDB.getUsername());
+                    informations.add(email[0]);
+                });
+                t.start();
 
-                    done.set(true);
-                    synchronized(informations) {
-                        informations.notifyAll();
-                    }
-                }catch(HttpClientErrorException e){
-                    done.set(true);
-                    synchronized(informations) {
-                        informations.notifyAll();
-                    }
-                }
-            }
-        }).start();
-
-        while(!done.get()) {
-            synchronized (informations) {
                 try {
-                    informations.wait();
-                } catch (InterruptedException ignore) {}
-            }
+                    t.join();
+                }catch(InterruptedException ignore){}
+
+            }catch(HttpClientErrorException ignore){}
         }
 
         return informations;

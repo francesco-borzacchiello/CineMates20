@@ -29,7 +29,7 @@ public class EntryPoint extends AppCompatActivity {
         initActivity();
 
         MainController mainController = new MainController(this);
-        if(Utilities.isOnline(getApplicationContext()))
+        if(Utilities.isOnline())
             mainController.start();
         else {
             Utilities.stampaToast(this, getApplicationContext().getResources().getString(R.string.networkNotAvailable));
@@ -52,10 +52,12 @@ public class EntryPoint extends AppCompatActivity {
 
     //region Configurazione di amplify, per poter interagire con Cognito nell'applicativo
     private void configureAmplify() throws AmplifyException {
-        Amplify.addPlugin(new AWSCognitoAuthPlugin());
+        if(Amplify.Auth.getPlugins().size() == 0) {
+            Amplify.addPlugin(new AWSCognitoAuthPlugin());
 
-        AmplifyConfiguration config = AmplifyConfiguration.builder(getApplicationContext()).devMenuEnabled(false).build();
-        Amplify.configure(config, getApplicationContext());
+            AmplifyConfiguration config = AmplifyConfiguration.builder(getApplicationContext()).devMenuEnabled(false).build();
+            Amplify.configure(config, getApplicationContext());
+        }
     }
     //endregion
 }

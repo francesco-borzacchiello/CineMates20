@@ -5,39 +5,27 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
-import android.widget.Toast;
 
 import androidx.appcompat.widget.SearchView;
 
 import com.amplifyframework.core.Amplify;
 import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
-import com.facebook.GraphResponse;
 import com.facebook.HttpMethod;
 import com.facebook.login.LoginManager;
-import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.common.api.GoogleApi;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Status;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.springframework.http.converter.StringHttpMessageConverter;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
 
 import info.movito.themoviedbapi.TmdbApi;
 import info.movito.themoviedbapi.TmdbMovies;
@@ -45,10 +33,10 @@ import info.movito.themoviedbapi.model.MovieDb;
 import info.movito.themoviedbapi.model.core.MovieResultsPage;
 import it.unina.ingSw.cineMates20.EntryPoint;
 import it.unina.ingSw.cineMates20.R;
-import it.unina.ingSw.cineMates20.model.UserDB;
 import it.unina.ingSw.cineMates20.view.activity.FriendsActivity;
 import it.unina.ingSw.cineMates20.view.activity.HomeActivity;
 import it.unina.ingSw.cineMates20.view.activity.MoviesListActivity;
+import it.unina.ingSw.cineMates20.view.activity.PersonalProfileActivity;
 import it.unina.ingSw.cineMates20.view.activity.SearchMovieActivity;
 import it.unina.ingSw.cineMates20.view.adapter.HomeStyleMovieAdapter;
 import it.unina.ingSw.cineMates20.view.util.Utilities;
@@ -60,6 +48,7 @@ public class HomeController {
     private SearchMovieActivity searchMovieActivity;
     private FriendsActivity friendsActivity;
     private MoviesListActivity moviesListActivity;
+    private PersonalProfileActivity personalProfileActivity;
     private TmdbMovies tmdbMovies;
     //endregion
 
@@ -72,7 +61,14 @@ public class HomeController {
         Intent intent = new Intent(activity, HomeActivity.class);
         activity.startActivity(intent);
         activity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-        tmdbMovies = new TmdbMovies(new TmdbApi(activity.getResources().getString(R.string.themoviedb_api_key)));
+
+        Thread t = new Thread(()->
+                tmdbMovies = new TmdbMovies(new TmdbApi(activity.getResources().getString(R.string.themoviedb_api_key))));
+        t.start();
+
+        try {
+            t.join();
+        }catch(InterruptedException ignore){}
     }
     //endregion
 
@@ -81,7 +77,13 @@ public class HomeController {
         Utilities.clearBackStack(intent);
         activity.startActivity(intent);
         activity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-        tmdbMovies = new TmdbMovies(new TmdbApi(activity.getResources().getString(R.string.themoviedb_api_key)));
+
+        Thread t = new Thread(()-> tmdbMovies = new TmdbMovies(new TmdbApi(activity.getResources().getString(R.string.themoviedb_api_key))));
+        t.start();
+
+        try{
+            t.join();
+        }catch(InterruptedException ignore){}
     }
 
     //region getInstance() per il pattern singleton
@@ -94,8 +96,7 @@ public class HomeController {
 
     //region Setter del riferimento alle Activity gestite da questo controller
     public void setHomeActivity(@NotNull HomeActivity homeActivity) {
-        if(this.homeActivity == null)
-            this.homeActivity = homeActivity;
+        this.homeActivity = homeActivity;
     }
 
     public void setSearchMovieActivity(@NotNull SearchMovieActivity searchMovieActivity) {
@@ -109,61 +110,77 @@ public class HomeController {
     public void setMoviesListActivity(MoviesListActivity moviesListActivity) {
         this.moviesListActivity = moviesListActivity;
     }
+
+    public void setUserProfileActivity(PersonalProfileActivity personalProfileActivity) {
+        this.personalProfileActivity = personalProfileActivity;
+    }
     //endregion
 
     //Costruisce e setta gli adapter per i RecyclerView che andranno a mostrare i film sulla home
     public void setHomeActivityMovies() {
         if(tmdbMovies == null) return;
 
-        MovieResultsPage upcomingUsa = tmdbMovies.getUpcoming("it", 1, "US");           //Prossime uscite USA
-        MovieResultsPage upcomingIt = tmdbMovies.getUpcoming("it", 1, "IT");           //Prossime uscite Italia
-        MovieResultsPage nowPlaying = tmdbMovies.getNowPlayingMovies("it", 1, "IT"); //Ora in sala
-        MovieResultsPage popular = tmdbMovies.getPopularMovies("it", 1);                    //Di tendenza
-        MovieResultsPage topRated = tmdbMovies.getTopRatedMovies("it",1);                   //I più votati
+        Thread t = new Thread(()-> {
+            MovieResultsPage upcomingUsa = tmdbMovies.getUpcoming("it", 1, "US");           //Prossime uscite USA
+            MovieResultsPage upcomingIt = tmdbMovies.getUpcoming("it", 1, "IT");           //Prossime uscite Italia
+            MovieResultsPage nowPlaying = tmdbMovies.getNowPlayingMovies("it", 1, "IT"); //Ora in sala
+            MovieResultsPage popular = tmdbMovies.getPopularMovies("it", 1);                    //Di tendenza
+            MovieResultsPage topRated = tmdbMovies.getTopRatedMovies("it",1);                   //I più votati
 
-        //Nota: ad ogni adapter occorre un ArrayList diverso
-        ArrayList<String> upcomingTitles = new ArrayList<>(),
-                nowPlayingTitles = new ArrayList<>(),
-                popularTitles = new ArrayList<>(),
-                topRatedTitles = new ArrayList<>(),
-                upcomingImagesUrl = new ArrayList<>(),
-                nowPlayingImagesUrl = new ArrayList<>(),
-                popularImagesUrl = new ArrayList<>(),
-                topRatedImagesUrl = new ArrayList<>();
-        ArrayList<Runnable> upcomingMoviesCardViewListeners = new ArrayList<>(),
-                nowPlayingMoviesCardViewListeners = new ArrayList<>(),
-                popularMoviesCardViewListeners = new ArrayList<>(),
-                topRatedMoviesCardViewListeners = new ArrayList<>();
+            //Nota: ad ogni adapter occorre un ArrayList diverso
+            ArrayList<String> upcomingTitles = new ArrayList<>(),
+                    nowPlayingTitles = new ArrayList<>(),
+                    popularTitles = new ArrayList<>(),
+                    topRatedTitles = new ArrayList<>(),
+                    upcomingImagesUrl = new ArrayList<>(),
+                    nowPlayingImagesUrl = new ArrayList<>(),
+                    popularImagesUrl = new ArrayList<>(),
+                    topRatedImagesUrl = new ArrayList<>();
+            ArrayList<Runnable> upcomingMoviesCardViewListeners = new ArrayList<>(),
+                    nowPlayingMoviesCardViewListeners = new ArrayList<>(),
+                    popularMoviesCardViewListeners = new ArrayList<>(),
+                    topRatedMoviesCardViewListeners = new ArrayList<>();
 
-        initializeListsForHomeMovieAdapter(upcomingIt, upcomingTitles, upcomingImagesUrl, upcomingMoviesCardViewListeners);
-        if(upcomingIt.getTotalResults() < 20) //Se sono stati trovati meno di 20 risultati per la regione italiana, si aggiungono quelli USA
-            initializeListsForHomeMovieAdapter(upcomingUsa, upcomingTitles, upcomingImagesUrl, upcomingMoviesCardViewListeners);
+            initializeListsForHomeMovieAdapter(upcomingIt, upcomingTitles, upcomingImagesUrl, upcomingMoviesCardViewListeners);
+            if(upcomingIt.getTotalResults() < 20) //Se sono stati trovati meno di 20 risultati per la regione italiana, si aggiungono quelli USA
+                initializeListsForHomeMovieAdapter(upcomingUsa, upcomingTitles, upcomingImagesUrl, upcomingMoviesCardViewListeners);
 
-        HomeStyleMovieAdapter upcomingAdapter = getHomeMoviesRecyclerViewAdapter
-                (upcomingIt.getTotalResults() + upcomingUsa.getTotalResults(),
-                        upcomingTitles, upcomingImagesUrl, upcomingMoviesCardViewListeners);
-        if(upcomingAdapter != null)
-            homeActivity.setUpcomingHomeMoviesRecyclerView(upcomingAdapter);
+            HomeStyleMovieAdapter upcomingAdapter = getHomeMoviesRecyclerViewAdapter
+                    (upcomingIt.getTotalResults() + upcomingUsa.getTotalResults(),
+                            upcomingTitles, upcomingImagesUrl, upcomingMoviesCardViewListeners);
+            if(upcomingAdapter != null)
+                homeActivity.setUpcomingHomeMoviesRecyclerView(upcomingAdapter);
 
-        initializeListsForHomeMovieAdapter(nowPlaying, nowPlayingTitles, nowPlayingImagesUrl, nowPlayingMoviesCardViewListeners);
-        HomeStyleMovieAdapter nowPlayingAdapter = getHomeMoviesRecyclerViewAdapter
-                (nowPlaying.getTotalResults(), nowPlayingTitles, nowPlayingImagesUrl, nowPlayingMoviesCardViewListeners);
-        if(nowPlayingAdapter != null)
-            homeActivity.setNowPlayingHomeMoviesRecyclerView(nowPlayingAdapter);
+            
+            initializeListsForHomeMovieAdapter(nowPlaying, nowPlayingTitles, nowPlayingImagesUrl, nowPlayingMoviesCardViewListeners);
+            HomeStyleMovieAdapter nowPlayingAdapter = getHomeMoviesRecyclerViewAdapter
+                    (nowPlaying.getTotalResults(), nowPlayingTitles, nowPlayingImagesUrl, nowPlayingMoviesCardViewListeners);
+            if(nowPlayingAdapter != null)
+                homeActivity.setNowPlayingHomeMoviesRecyclerView(nowPlayingAdapter);
 
-        initializeListsForHomeMovieAdapter(popular, popularTitles, popularImagesUrl, popularMoviesCardViewListeners);
-        HomeStyleMovieAdapter popularAdapter = getHomeMoviesRecyclerViewAdapter
-                (popular.getTotalResults(), popularTitles, popularImagesUrl, popularMoviesCardViewListeners);
-        if(popularAdapter != null)
-            homeActivity.setMostPopularHomeMoviesRecyclerView(popularAdapter);
 
-        initializeListsForHomeMovieAdapter(topRated, topRatedTitles, topRatedImagesUrl, topRatedMoviesCardViewListeners);
-        HomeStyleMovieAdapter topRatedAdapter = getHomeMoviesRecyclerViewAdapter
-                (topRated.getTotalResults(), topRatedTitles, topRatedImagesUrl, topRatedMoviesCardViewListeners);
-        if(topRatedAdapter != null)
-            homeActivity.setTopRatedHomeMoviesRecyclerView(topRatedAdapter);
+            initializeListsForHomeMovieAdapter(popular, popularTitles, popularImagesUrl, popularMoviesCardViewListeners);
+            HomeStyleMovieAdapter popularAdapter = getHomeMoviesRecyclerViewAdapter
+                    (popular.getTotalResults(), popularTitles, popularImagesUrl, popularMoviesCardViewListeners);
+            if(popularAdapter != null)
+                homeActivity.setMostPopularHomeMoviesRecyclerView(popularAdapter);
 
-        homeActivity.showHomeTextViews();
+
+            initializeListsForHomeMovieAdapter(topRated, topRatedTitles, topRatedImagesUrl, topRatedMoviesCardViewListeners);
+            Collections.reverse(topRatedTitles); Collections.reverse(topRatedImagesUrl); Collections.reverse(topRatedMoviesCardViewListeners);
+
+            HomeStyleMovieAdapter topRatedAdapter = getHomeMoviesRecyclerViewAdapter
+                    (topRated.getTotalResults(), topRatedTitles, topRatedImagesUrl, topRatedMoviesCardViewListeners);
+            if(topRatedAdapter != null)
+                homeActivity.setTopRatedHomeMoviesRecyclerView(topRatedAdapter);
+
+            homeActivity.showHomeTextViews();
+        });
+        t.start();
+
+        try{
+            t.join();
+        }catch(InterruptedException ignore) {}
     }
 
     public void initializeListsForHomeMovieAdapter(@NotNull MovieResultsPage movieResultsPage,
@@ -208,7 +225,7 @@ public class HomeController {
 
             homeActivity.showMovieProgressBar();
             ShowDetailsMovieController.getShowDetailsMovieControllerInstance()
-                    .start(homeActivity, movie, "HomeActivity");
+                    .start(homeActivity, movie);
         };
     }
 
@@ -269,9 +286,18 @@ public class HomeController {
                 handleListMenuItem(activity, true);
             else if(itemId == R.id.menuToWatch)
                 handleListMenuItem(activity, false);
+            else if(itemId == R.id.menuProfile)
+                handleProfileMenuItem(activity);
 
             //TODO: aggiungere la gestione degli altri item del menu...
         };
+    }
+
+    private void handleProfileMenuItem(Activity activity) {
+        closeActivityNavigationView(activity);
+
+        new Handler(Looper.getMainLooper()).postDelayed(() ->
+                PersonalProfileController.getPersonalProfileControllerInstance().start(activity), 240);
     }
 
     private void handleListMenuItem(Activity activity, boolean isFavourites) {
@@ -327,31 +353,38 @@ public class HomeController {
             homeActivity.closeDrawerLayout();
         else if(activity.equals(searchMovieActivity))
             searchMovieActivity.closeDrawerLayout();
-        else if(activity.equals(friendsActivity)) {
+        else if(activity.equals(friendsActivity))
             friendsActivity.closeDrawerLayout();
-        }
-        else if(activity.equals(moviesListActivity)) {
+        else if(activity.equals(moviesListActivity))
             moviesListActivity.closeDrawerLayout();
-        }
+        else if(activity.equals(personalProfileActivity))
+            personalProfileActivity.closeDrawerLayout();
     }
 
     //region Gestore d'evento per il logout
     private void handleLogoutMenuItem(Activity activity) {
-        if(activity != null)
+        if(activity != null) {
             //Chiede all'utente se è sicuro di volersi disconnettersi (logout), in caso positivo si torna alla login
-            new AlertDialog.Builder(activity)
+            AlertDialog alertDialog = new AlertDialog.Builder(activity)
                     .setMessage("Sei sicuro di volerti disconnettere?")
                     .setCancelable(false)
                     .setPositiveButton("Si", (dialog, id) -> {
                         if (Utilities.checkNullActivityOrNoConnection(activity)) return;
-                        logOut();
+                        logOut(activity);
                     })
-                    .setNegativeButton("No", null)
-                    .show();
+                    .setNegativeButton("No", null).show();
+
+            alertDialog.setOnKeyListener((arg0, keyCode, event) -> {
+                if (keyCode == KeyEvent.KEYCODE_BACK) {
+                    alertDialog.dismiss();
+                }
+                return true;
+            });
+        }
     }
 
     //region Logica del logout
-    private void logOut() {
+    private void logOut(Activity activity) {
         GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(homeActivity);
         if (acct != null) { //Logout da google
             GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -360,30 +393,32 @@ public class HomeController {
 
             GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(homeActivity, gso);
             mGoogleSignInClient.signOut();
-            backToLogin();
+            backToLogin(activity);
         }
         else if(AccessToken.getCurrentAccessToken() != null) { //Logout da facebook
             new GraphRequest(AccessToken.getCurrentAccessToken(), "/me/permissions/", null, HttpMethod.DELETE,
-                    graphResponse -> {
-                        LoginManager.getInstance().logOut();
-                        backToLogin();
-                    }).executeAsync();
+                    graphResponse -> LoginManager.getInstance().logOut()).executeAndWait();
+
+            backToLogin(activity);
         }
         else { //Logout da Cognito
             Amplify.Auth.signOut(
-                    this::backToLogin,
+                    () -> backToLogin(activity),
                     error -> homeActivity.runOnUiThread(() -> Utilities.stampaToast(homeActivity, "Si è verificato un errore.\nRiprova tra qualche minuto."))
             );
         }
     }
 
-    private void backToLogin() {
-        //Mostra schermata home con un intent, passando inizialmente homeActivity come parent e poi distruggendo tutte le activity create
-        Intent intent = new Intent(homeActivity, EntryPoint.class);
-        homeActivity.runOnUiThread(() -> Utilities.clearBackStack(intent));
-        homeActivity.startActivity(intent);
-        homeActivity.finish();
-        homeActivity.runOnUiThread(() -> Utilities.stampaToast(homeActivity, "Logout effettuato."));
+    private void backToLogin(Activity activity) {
+        closeActivityNavigationView(activity);
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            //Mostra schermata home con un intent, passando inizialmente homeActivity come parent e poi distruggendo tutte le activity create
+            Intent intent = new Intent(activity, EntryPoint.class);
+            activity.runOnUiThread(() -> Utilities.stampaToast(activity, "Logout effettuato."));
+            activity.startActivity(intent);
+            activity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+            activity.finish();
+        }, 240);
     }
 
     //endregion
@@ -404,29 +439,5 @@ public class HomeController {
             if(view.getId() == R.id.searchItem)
                 homeActivity.setLayoutsForHome(true);
         };
-    }
-
-    public void setCurrentUserInformations() {
-        /*new Thread (() -> {
-            RestTemplate restTemplate = new RestTemplate();
-            restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
-
-            String url = homeActivity.getResources().getString(R.string.db_path) + "ServerCineMates20/User/getById/{id}";
-            Log.i("HTTPProvaURL", url);
-            UserDB userDB = null;
-            try {
-                userDB = restTemplate.getForObject(url, UserDB.class, "CarmineAdmin");
-            }catch(HttpClientErrorException e) {
-                Log.i("HTTPProvaError", "L'utente non esiste!");
-            }
-
-            if(userDB != null)
-                Log.i("HTTPProva", "UTENTE: " + userDB.getNome()+", " + userDB.getCognome() + ", " + userDB.getUsername() + ", " + userDB.getTipoUtente());
-        }).start();*/
-
-        List<String> informations = Utilities.getCurrentUserInformations(homeActivity);
-
-        if(informations.size() > 0)
-            homeActivity.setCurrentUserDrawerInformations(informations.get(0), informations.get(1));
     }
 }

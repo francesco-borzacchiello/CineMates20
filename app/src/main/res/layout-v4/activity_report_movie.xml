@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:context=".view.activity.ReportActivity">
+
+    <include
+        layout="@layout/background_toolbar_header" />
+
+    <LinearLayout
+        android:id="@+id/linearLayoutReportMovie"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="?actionBarSize"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginTop="20dp"
+            app:cardBackgroundColor="@color/lightGray"
+            app:cardCornerRadius="13dp"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <com.makeramen.roundedimageview.RoundedImageView
+                    android:id="@+id/cover_movie_report"
+                    android:layout_width="100dp"
+                    android:layout_height="132dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:adjustViewBounds="true"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/not_found"
+                    app:riv_corner_radius="10dp"
+                    android:contentDescription="@string/description_cover_film" />
+
+                <TextView
+                    android:id="@+id/title_movie_report"
+                    android:layout_width="200dp"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="10dp"
+                    android:text="@string/title"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toEndOf="@id/cover_movie_report"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/description_movie_report"
+                    android:layout_width="230dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/description_movie_result_search"
+                    android:ellipsize="end"
+                    android:maxLines="5"
+                    app:layout_constraintStart_toStartOf="@id/title_movie_report"
+                    app:layout_constraintTop_toBottomOf="@id/title_movie_report" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.cardview.widget.CardView>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="20dp"
+            android:background="@color/black" />
+
+        <TextView
+            android:id="@+id/reasonWhyReportLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="10dp"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
+            android:text="@string/ExplainUsWhyReportLabel"
+            android:textColor="@color/black"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <RadioGroup
+            android:id="@+id/reportRadioGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp">
+
+            <RadioButton
+                android:id="@+id/reportRadioButton1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="13dp"
+                android:text="@string/reasonReportMovie1"
+                android:textColor="@color/black"
+                android:textSize="16sp" />
+
+            <RadioButton
+                android:layout_marginTop="5dp"
+                android:id="@+id/reportRadioButton2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="13dp"
+                android:text="@string/reasonReportMovie2"
+                android:textColor="@color/black"
+                android:textSize="16sp" />
+
+            <RadioButton
+                android:layout_marginTop="5dp"
+                android:id="@+id/reportRadioButton3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="13dp"
+                android:text="@string/reasonReportMovie3"
+                android:textColor="@color/black"
+                android:textSize="16sp" />
+
+            <RadioButton
+                android:layout_marginTop="5dp"
+                android:id="@+id/otherReasonReportRadioButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="13dp"
+                android:text="@string/otherReasonReport"
+                android:textColor="@color/black"
+                android:textSize="16sp" />
+
+        </RadioGroup>
+
+        <EditText
+            android:id="@+id/otherReasonReportEditText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="42dp"
+            android:layout_marginEnd="20dp"
+            android:hint="@string/describeReasonReportHint"
+            android:textSize="16sp"
+            android:visibility="invisible"
+            android:maxLength="1000"
+            android:importantForAutofill="no"
+            android:inputType="text"
+            android:gravity="top|start"
+            android:scrollbars="vertical" />
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/reportButton"
+        android:backgroundTint="@color/color_states_materialbutton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:enabled="false"
+        android:text="@string/action_report"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/linearLayoutReportMovie" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

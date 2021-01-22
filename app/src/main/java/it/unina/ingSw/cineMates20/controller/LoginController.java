@@ -153,15 +153,7 @@ public class LoginController {
 
     public View.OnClickListener getMostraPasswordCheckBoxListener() {
         return listener -> {
-            //Se la CheckBox è selezionata
-            if (loginActivity.isCheckBoxMostraPasswordEnabled()) {
-                // mostra password
-                loginActivity.showOrHidePassword(true);
-            } else {
-                // nascondi password
-                loginActivity.showOrHidePassword(false);
-            }
-
+            loginActivity.showOrHidePassword(loginActivity.isCheckBoxMostraPasswordEnabled());
             loginActivity.updatePasswordFocus();
         };
     }

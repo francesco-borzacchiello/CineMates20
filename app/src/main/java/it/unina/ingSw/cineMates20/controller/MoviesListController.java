@@ -59,12 +59,12 @@ public class MoviesListController {
     }
     //endregion
 
-
-    public AdapterView.OnItemSelectedListener getSpinnerOnItemSelectedListener() {
+    public AdapterView.OnItemSelectedListener getMoviesListActivitySpinnerListener() {
         return new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                initializeActivityMovies(parent.getItemAtPosition(position).toString().equals("Preferiti"));
+                String[] spinnerArray = moviesListActivity.getResources().getStringArray(R.array.movies_list_tag);
+                initializeActivityMovies(parent.getItemAtPosition(position).toString().equals(spinnerArray[0])); //"Preferiti"
             }
 
             @Override
@@ -96,21 +96,28 @@ public class MoviesListController {
                 moviesListActivity.setEmptyMovieListTextViewVisibility(false);
             }
 
-            TmdbMovies tmdbMovies = new TmdbMovies(new TmdbApi(moviesListActivity.getResources().getString(R.string.themoviedb_api_key)));
-            MovieResultsPage upcomingUsa = tmdbMovies.getUpcoming("it", 1, "US");
-            ArrayList<String> upcomingTitles = new ArrayList<>(),
-                              upcomingImagesUrl = new ArrayList<>();
-            ArrayList<Runnable> upcomingMoviesCardViewListeners = new ArrayList<>();
-            ArrayList<Integer> moviesIds = new ArrayList<>();
+            Thread t = new Thread(()-> {
+                TmdbMovies tmdbMovies = new TmdbMovies(new TmdbApi(moviesListActivity.getResources().getString(R.string.themoviedb_api_key)));
+                MovieResultsPage upcomingUsa = tmdbMovies.getUpcoming("it", 1, "US");
+                ArrayList<String> upcomingTitles = new ArrayList<>(),
+                        upcomingImagesUrl = new ArrayList<>();
+                ArrayList<Runnable> upcomingMoviesCardViewListeners = new ArrayList<>();
+                ArrayList<Integer> moviesIds = new ArrayList<>();
 
-            initializeListsForMoviesListAdapter(upcomingUsa, upcomingTitles,
-                            upcomingImagesUrl, upcomingMoviesCardViewListeners, moviesIds);
+                initializeListsForMoviesListAdapter(upcomingUsa, upcomingTitles,
+                        upcomingImagesUrl, upcomingMoviesCardViewListeners, moviesIds);
 
-            actualAdapter = getMoviesListRecyclerViewAdapter
-                    (upcomingUsa, upcomingTitles, upcomingImagesUrl, upcomingMoviesCardViewListeners, moviesIds);
+                actualAdapter = getMoviesListRecyclerViewAdapter
+                        (upcomingUsa, upcomingTitles, upcomingImagesUrl, upcomingMoviesCardViewListeners, moviesIds);
 
-            if(actualAdapter != null)
-                moviesListActivity.setMoviesListRecyclerView(actualAdapter);
+                if(actualAdapter != null)
+                    moviesListActivity.setMoviesListRecyclerView(actualAdapter);
+            });
+            t.start();
+
+            try {
+                t.join();
+            }catch(InterruptedException ignore) {}
         }
         else {
             moviesListActivity.setMoviesVisibility(false);
@@ -119,16 +126,15 @@ public class MoviesListController {
 
     }
 
-    //Non occorre eliminare questo metodo
     public void showEmptyMovieList() {
         moviesListActivity.setMoviesVisibility(false);
         moviesListActivity.setEmptyMovieListTextViewVisibility(true);
     }
 
-    public void initializeListsForMoviesListAdapter(@NotNull MovieResultsPage movieResultsPage,
-                                                   @NotNull ArrayList<String> titles, @NotNull ArrayList<String> moviesImagesUrl,
-                                                   @NotNull ArrayList<Runnable> movieCardViewListeners,
-                                                   @NotNull ArrayList<Integer> moviesIds) {
+    private void initializeListsForMoviesListAdapter(@NotNull MovieResultsPage movieResultsPage,
+                                                    @NotNull ArrayList<String> titles, @NotNull ArrayList<String> moviesImagesUrl,
+                                                    @NotNull ArrayList<Runnable> movieCardViewListeners,
+                                                    @NotNull ArrayList<Integer> moviesIds) {
         for (MovieDb movie : movieResultsPage) {
             moviesIds.add(movie.getId());
             movieCardViewListeners.add(getMovieCardViewListener(movie));
@@ -151,9 +157,9 @@ public class MoviesListController {
         return ()-> {
             if(Utilities.checkNullActivityOrNoConnection(moviesListActivity)) return;
 
-            moviesListActivity.showMoviesListProgressBar();
+            moviesListActivity.showProgressBar();
             ShowDetailsMovieController.getShowDetailsMovieControllerInstance()
-                    .start(moviesListActivity, movie, "MoviesListActivity");
+                    .start(moviesListActivity, movie);
         };
     }
 
@@ -186,7 +192,7 @@ public class MoviesListController {
 
     public void hideMoviesListProgressBar() {
         if(moviesListActivity != null)
-            moviesListActivity.hideMoviesListProgressBar();
+            moviesListActivity.hideProgressBar();
     }
 
     public RecyclerView getMoviesRecyclerView() {
@@ -199,6 +205,7 @@ public class MoviesListController {
     }
 
     public boolean isDeleteEnabled() {
+        if(actualAdapter == null) return false;
         return actualAdapter.isDeleteEnabled();
     }
 

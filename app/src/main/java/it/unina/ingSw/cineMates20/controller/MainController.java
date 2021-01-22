@@ -88,8 +88,15 @@ public class MainController {
         if(email == null) return false;
 
         try {
-            UserDB userDB = restTemplate.getForObject(url, UserDB.class, email);
-            if(userDB != null)
+            final UserDB[] userDB = new UserDB[1];
+            Thread t = new Thread(()-> userDB[0] = restTemplate.getForObject(url, UserDB.class, email));
+            t.start();
+
+            try{
+                t.join();
+            }catch(InterruptedException ignore){}
+
+            if(userDB[0] != null)
                 return true;
         }catch(HttpClientErrorException ignore){}
 

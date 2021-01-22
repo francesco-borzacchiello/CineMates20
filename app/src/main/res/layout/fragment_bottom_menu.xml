@@ -128,7 +128,7 @@
             android:layout_height="25dp"
             android:layout_marginStart="10dp"
             android:contentDescription="@string/segnala_film_icon"
-            android:src="@drawable/segnala_film" />
+            android:src="@drawable/report_movie_icon" />
 
         <TextView
             android:layout_width="match_parent"

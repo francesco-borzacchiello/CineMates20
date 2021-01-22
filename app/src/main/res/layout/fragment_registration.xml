@@ -29,7 +29,7 @@
             android:layout_height="140dp"
             android:contentDescription="@string/avatarDescr"
             android:src="@mipmap/avatar_foreground"
-            app:layout_constraintBottom_toTopOf="@+id/nomeRegistrazione"
+            app:layout_constraintBottom_toTopOf="@id/nomeRegistrazione"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/registrazioneLabel" />
@@ -55,7 +55,7 @@
             android:background="@drawable/round_rect_shape"
             android:ems="10"
             android:hint="@string/prompt_nome"
-            android:imeOptions="actionDone"
+            android:imeOptions="actionNext"
             android:inputType="textPersonName"
             android:maxLength="15"
             android:paddingLeft="14dp"
@@ -76,7 +76,7 @@
             android:background="@drawable/round_rect_shape"
             android:ems="10"
             android:hint="@string/prompt_cognome"
-            android:imeOptions="actionDone"
+            android:imeOptions="actionNext"
             android:inputType="textPersonName"
             android:maxLength="15"
             android:paddingLeft="14dp"
@@ -97,7 +97,7 @@
             android:background="@drawable/round_rect_shape"
             android:ems="10"
             android:hint="@string/prompt_username"
-            android:imeOptions="actionDone"
+            android:imeOptions="actionNext"
             android:inputType="text"
             android:maxLength="15"
             android:paddingLeft="14dp"
@@ -118,7 +118,7 @@
             android:background="@drawable/round_rect_shape"
             android:ems="10"
             android:hint="@string/prompt_email"
-            android:imeOptions="actionDone"
+            android:imeOptions="actionNext"
             android:inputType="textEmailAddress"
             android:maxLength="320"
             android:paddingLeft="14dp"
@@ -139,7 +139,7 @@
             android:background="@drawable/round_rect_shape"
             android:ems="10"
             android:hint="@string/prompt_password"
-            android:imeOptions="actionDone"
+            android:imeOptions="actionNext"
             android:inputType="textPassword"
             android:maxLength="100"
             android:paddingLeft="14dp"
@@ -203,140 +203,4 @@
             app:layout_constraintTop_toBottomOf="@+id/mostraPswRegistrazione" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-
 </FrameLayout>
-
-<!--
-<?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".view.fragment.RegistrationFragment">
-
-    <EditText
-        android:id="@+id/nomeRegistrazione"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="0dp"
-        android:layout_marginEnd="24dp"
-        android:autofillHints=""
-        android:background="@drawable/round_rect_shape"
-        android:ems="10"
-        android:hint="@string/prompt_nome"
-        android:imeOptions="actionDone"
-        android:inputType="textPersonName"
-        android:maxLength="15"
-        android:paddingLeft="14dp"
-        android:paddingRight="14dp"
-        android:selectAllOnFocus="false"
-        android:textColor="@color/black" />
-
-    <EditText
-        android:id="@+id/cognomeRegistrazione"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:background="@drawable/round_rect_shape"
-        android:ems="10"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="60dp"
-        android:layout_marginEnd="24dp"
-        android:autofillHints=""
-        android:hint="@string/prompt_cognome"
-        android:imeOptions="actionDone"
-        android:inputType="textPersonName"
-        android:selectAllOnFocus="false"
-        android:textColor="@color/black"
-        android:paddingLeft="14dp"
-        android:paddingRight="14dp"
-        android:maxLength="15" />
-
-    <EditText
-        android:id="@+id/usernameRegistrazione"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:background="@drawable/round_rect_shape"
-        android:ems="10"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="120dp"
-        android:layout_marginEnd="24dp"
-        android:autofillHints=""
-        android:hint="@string/prompt_username"
-        android:imeOptions="actionDone"
-        android:inputType="text"
-        android:selectAllOnFocus="false"
-        android:textColor="@color/black"
-        android:paddingLeft="14dp"
-        android:paddingRight="14dp"
-        android:maxLength="15" />
-
-    <EditText
-        android:id="@+id/emailRegistrazione"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:background="@drawable/round_rect_shape"
-        android:ems="10"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="180dp"
-        android:layout_marginEnd="24dp"
-        android:autofillHints=""
-        android:hint="@string/prompt_email"
-        android:imeOptions="actionDone"
-        android:inputType="textEmailAddress"
-        android:selectAllOnFocus="false"
-        android:textColor="@color/black"
-        android:paddingLeft="14dp"
-        android:paddingRight="14dp"
-        android:maxLength="320" />
-
-    <EditText
-        android:id="@+id/passwordRegistrazione"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:background="@drawable/round_rect_shape"
-        android:ems="10"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="240dp"
-        android:layout_marginEnd="24dp"
-        android:autofillHints=""
-        android:imeOptions="actionDone"
-        android:hint="@string/prompt_password"
-        android:inputType="textPassword"
-        android:selectAllOnFocus="false"
-        android:textColor="@color/black"
-        android:paddingLeft="14dp"
-        android:paddingRight="14dp"
-        android:maxLength="100" />
-
-    <EditText
-        android:id="@+id/confermaPasswordRegistrazione"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:background="@drawable/round_rect_shape"
-        android:ems="10"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="300dp"
-        android:layout_marginEnd="24dp"
-        android:autofillHints=""
-        android:imeOptions="actionDone"
-        android:hint="@string/prompt_conferma_password"
-        android:inputType="textPassword"
-        android:selectAllOnFocus="false"
-        android:textColor="@color/black"
-        android:paddingLeft="14dp"
-        android:paddingRight="14dp"
-        android:maxLength="100" />
-
-    <Button
-        android:id="@+id/registratiButton"
-        style="@style/MaterialButtonStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="160dp"
-        android:layout_gravity="center"
-        android:enabled="false"
-        android:text="@string/action_sign_up"
-        android:textColor="@color/white" />
-
-</FrameLayout>-->

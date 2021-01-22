@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".view.activity.UserActivity">
+
+    <include
+        layout="@layout/background_toolbar_header" />
+
+    <LinearLayout
+        android:id="@+id/linearLayoutUserProfile"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="?actionBarSize"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <com.makeramen.roundedimageview.RoundedImageView
+                android:id="@+id/userProfilePicture"
+                android:layout_width="95dp"
+                android:layout_height="95dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="20dp"
+                android:adjustViewBounds="true"
+                android:contentDescription="@string/description_cover_actor"
+                android:scaleType="fitXY"
+                android:src="@drawable/profile_picture"
+                app:riv_oval="true" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="10dp">
+
+                <TextView
+                    android:id="@+id/user_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ems="11"
+                    android:maxLines="1"
+                    android:gravity="center"
+                    android:text="@string/nome_cognome"
+                    android:textColor="@color/lightBlue"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/user_username"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ems="11"
+                    android:maxLines="1"
+                    android:gravity="center"
+                    android:text="@string/prompt_username"
+                    android:textColor="@color/lightBlue"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_gravity="center">
+
+                    <androidx.appcompat.widget.AppCompatButton
+                        android:id="@+id/removeFriendButton"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:layout_marginTop="5dp"
+                        android:background="@drawable/remove_friend_button" />
+
+                    <androidx.appcompat.widget.AppCompatButton
+                        android:id="@+id/joinedMoviesButton"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:layout_marginStart="20dp"
+                        android:layout_marginTop="5dp"
+                        android:background="@drawable/same_friend_movies_button" />
+
+                    <androidx.appcompat.widget.AppCompatButton
+                        android:id="@+id/chatButton"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginStart="20dp"
+                        android:background="@drawable/message_button" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="20dp"
+            android:background="@color/black" />
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:src="@drawable/feed"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
+            android:contentDescription="@string/feed_example" />
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

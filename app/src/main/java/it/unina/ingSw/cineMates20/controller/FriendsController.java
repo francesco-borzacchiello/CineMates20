@@ -12,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 
 import it.unina.ingSw.cineMates20.R;
+import it.unina.ingSw.cineMates20.model.UserDB;
 import it.unina.ingSw.cineMates20.view.activity.FriendsActivity;
 import it.unina.ingSw.cineMates20.view.adapter.FriendsAdapter;
 import it.unina.ingSw.cineMates20.view.util.Utilities;
@@ -20,6 +21,7 @@ public class FriendsController {
     //region Attributi
     private static FriendsController instance;
     private FriendsActivity friendsActivity;
+    private FriendsAdapter friendsAdapter;
     //endregion
 
     //region Costruttore
@@ -52,6 +54,7 @@ public class FriendsController {
     public void initializeActivityFriends() {
         ArrayList<String> nomi = new ArrayList<>(),
                            username = new ArrayList<>(),
+                           email = new ArrayList<>(),
                            picturesUrl = new ArrayList<>();
 
         ArrayList<Runnable> usersLayoutListeners = new ArrayList<>();
@@ -60,13 +63,14 @@ public class FriendsController {
         for(int i = 0; i<30; i++) {
             nomi.add("Nome Cognome");
             username.add("Username");
-            //picturesUrl resta per ora null, usiamo foto default
+            picturesUrl.add(null); //Per ora non ci sono foto oltre a quella di default
+            email.add("test@gmail.com");
             usersLayoutListeners.add(getUserLayoutListener("Nome Cognome", "Username")); //getUserCardViewListener(utente);
         }
 
-        //if(friends.getCount() > 0) show emptyBoxPicture ... else setAdapter()
-        FriendsAdapter friendsAdapter = new FriendsAdapter(friendsActivity, nomi,
-                username, picturesUrl, usersLayoutListeners);
+        //if(friends.getCount() > 0) show emptyBoxPicture ... else setFriendsRecyclerView(friendsAdapter)
+        friendsAdapter = new FriendsAdapter(friendsActivity, nomi,
+                username, email, picturesUrl, usersLayoutListeners);
 
         friendsAdapter.setHasStableIds(true);
         friendsActivity.setFriendsRecyclerView(friendsAdapter);
@@ -75,13 +79,17 @@ public class FriendsController {
     //TODO: da modificare con utenti reali dopo aver completato applicativo server
     @NotNull
     @Contract(pure = true)
-    private Runnable getUserLayoutListener(String nome, String cognome) { //Utente utente
+    private Runnable getUserLayoutListener(String nome, String cognome) { //(UserDB user)
         return ()-> {
             if(Utilities.checkNullActivityOrNoConnection(friendsActivity)) return;
 
-            //friendsActivity.showFriendsProgressBar(); //Da nascondere poi all'interno dell'activity lanciata
-            //Si mostra pagina utente, probabile interazione con uno "UserController"
+            friendsActivity.showFriendsProgressBar(true);
+            UserController.getUserControllerInstance().start(friendsActivity); //start(friendsActivity, user);
         };
+    }
+
+    public void hideFriendsActivityProgressBar() {
+        friendsActivity.showFriendsProgressBar(false);
     }
 
     //Restituisce un listener le icone della toolbar in FriendsActivity
@@ -129,5 +137,16 @@ public class FriendsController {
                 return false;
             }
         };
+    }
+
+    public void removeSelectedFriend() {
+        if(friendsAdapter != null)
+            friendsAdapter.deleteLastClickedItem();
+    }
+
+    public UserDB getLastClickedUser() {
+        if(friendsAdapter != null)
+            return friendsAdapter.getLastClickedUser();
+        return null;
     }
 }

@@ -87,7 +87,7 @@
     <string name="ratingStarDescription">Stella valutazione del film</string>
     <string name="etaConsigliata">Età minima consigliata:\u0020</string>
     <string name="unavailable">Non disponibile</string>
-    <string name="nome_cognome_attore">Nome Cognome</string>
+    <string name="nome_cognome">Nome Cognome</string>
     <string name="description_cover_actor">Copertina attore</string>
     <string name="votoFilmLabel">Voto:</string>
     <string name="now_showing">Usciti di recente:</string>
@@ -98,6 +98,18 @@
     <string name="delete">Elimina</string>
     <string name="selectAll">Seleziona tutti</string>
     <string name="noDataFound">Nessun dato trovato</string>
+
+    <string name="ExplainUsWhyReportLabel">Spiegaci il motivo della tua segnalazione</string>
+    <string name="otherReasonReport">Altro</string>
+    <string name="describeReasonReportHint">Descrivi la natura della tua segnalazione</string>
+    <string name="action_report">Segnala</string>
+    <string name="reasonReportUser1">Questo è il mio profilo, ma non posso più accedervi</string>
+    <string name="reasonReportUser2">Foto profilo inappropriata</string>
+    <string name="reasonReportUser3">Informazioni profilo errate</string>
+    <string name="reasonReportMovie1">Contenuti non adatti ai minori</string>
+    <string name="reasonReportMovie2">Contenuti offensivi o irrispettosi</string>
+    <string name="reasonReportMovie3">Informazioni film non accurate</string>
+    <string name="feed_example">Feed fittizzi</string>
 
     <string-array name="movies_list_tag">
         <item>Preferiti</item>

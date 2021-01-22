@@ -14,12 +14,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.navigation.NavigationView;
+
+import java.util.List;
 
 import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.controller.HomeController;
@@ -30,11 +33,10 @@ public class HomeActivity extends AppCompatActivity {
     private NavigationView navigationView;
     private DrawerLayout homeDrawerLayout;
     private HomeController homeController;
-    private Toolbar toolbar;
     private SearchView searchView;
     private Menu menu;
     private ProgressBar progressBar;
-    private TextView nowShowingLabelHomeMoviesTextView,
+    private TextView nowPlayingLabelHomeMoviesTextView,
                      mostPopularMoviesTextView,
                      upcomingMoviesTextView,
                      topRatedMoviesTextView;
@@ -65,8 +67,8 @@ public class HomeActivity extends AppCompatActivity {
         topRatedHomeMoviesRecyclerView = findViewById(R.id.topRatedHomeMoviesRecyclerView);
 
         //Le seguenti TextView saranno rese visibili non appena la Home sarà pronta
-        nowShowingLabelHomeMoviesTextView = findViewById(R.id.nowShowingLabelHomeMovies);
-        nowShowingLabelHomeMoviesTextView.setVisibility(View.INVISIBLE);
+        nowPlayingLabelHomeMoviesTextView = findViewById(R.id.nowShowingLabelHomeMovies);
+        nowPlayingLabelHomeMoviesTextView.setVisibility(View.INVISIBLE);
 
         mostPopularMoviesTextView = findViewById(R.id.mostPopularMovies);
         mostPopularMoviesTextView.setVisibility(View.INVISIBLE);
@@ -84,7 +86,7 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void setHomeToolbar() {
-        toolbar = findViewById(R.id.toolbarHeader);
+        Toolbar toolbar = findViewById(R.id.toolbarHeader);
         setSupportActionBar(toolbar);
         ActionBar ab = getSupportActionBar();
         if(ab != null) {
@@ -94,22 +96,20 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
-
     private void configureNavigationDrawer() {
         homeDrawerLayout = findViewById(R.id.homeDrawerLayout);
         navigationView = findViewById(R.id.homeNavigationView);
         navigationView.setItemIconTintList(null);
-        homeController.setCurrentUserInformations();
-    }
 
-    public void setCurrentUserDrawerInformations(String nome, String cognome) {
         TextView nomeTextView = navigationView.getHeaderView(0).findViewById(R.id.nomeUtenteNavMenu);
         TextView cognomeTextView = navigationView.getHeaderView(0).findViewById(R.id.cognomeUtenteNavMenu);
+        List<String> info = Utilities.getCurrentUserInformations(this);
 
-        runOnUiThread(() -> {
-            nomeTextView.setText(nome);
-            cognomeTextView.setText(cognome);
-        });
+        if(info.size() > 0)
+            runOnUiThread(() -> {
+                nomeTextView.setText(info.get(0));
+                cognomeTextView.setText(info.get(1));
+            });
     }
 
     @Override
@@ -217,21 +217,33 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     public void showHomeTextViews() {
-        nowShowingLabelHomeMoviesTextView.setVisibility(View.VISIBLE);
-        nowShowingLabelHomeMoviesTextView.setAlpha(0.0f);
-        nowShowingLabelHomeMoviesTextView.animate().alpha(1.0f);
+        if(nowPlayingHomeMoviesRecyclerView.getAdapter() != null &&
+                nowPlayingHomeMoviesRecyclerView.getAdapter().getItemCount() > 0) {
+            nowPlayingLabelHomeMoviesTextView.setVisibility(View.VISIBLE);
+            nowPlayingLabelHomeMoviesTextView.setAlpha(0.0f);
+            nowPlayingLabelHomeMoviesTextView.animate().alpha(1.0f);
+        }
 
-        mostPopularMoviesTextView.setVisibility(View.VISIBLE);
-        mostPopularMoviesTextView.setAlpha(0.0f);
-        mostPopularMoviesTextView.animate().alpha(1.0f);
+        if(mostPopularHomeMoviesRecyclerView.getAdapter() != null &&
+                mostPopularHomeMoviesRecyclerView.getAdapter().getItemCount() > 0) {
+            mostPopularMoviesTextView.setVisibility(View.VISIBLE);
+            mostPopularMoviesTextView.setAlpha(0.0f);
+            mostPopularMoviesTextView.animate().alpha(1.0f);
+        }
 
-        upcomingMoviesTextView.setVisibility(View.VISIBLE);
-        upcomingMoviesTextView.setAlpha(0.0f);
-        upcomingMoviesTextView.animate().alpha(1.0f);
+        if(upcomingHomeMoviesRecyclerView.getAdapter() != null &&
+                upcomingHomeMoviesRecyclerView.getAdapter().getItemCount() > 0) {
+            upcomingMoviesTextView.setVisibility(View.VISIBLE);
+            upcomingMoviesTextView.setAlpha(0.0f);
+            upcomingMoviesTextView.animate().alpha(1.0f);
+        }
 
-        topRatedMoviesTextView.setVisibility(View.VISIBLE);
-        topRatedMoviesTextView.setAlpha(0.0f);
-        topRatedMoviesTextView.animate().alpha(1.0f);
+        if(topRatedHomeMoviesRecyclerView.getAdapter() != null &&
+                topRatedHomeMoviesRecyclerView.getAdapter().getItemCount() > 0) {
+            topRatedMoviesTextView.setVisibility(View.VISIBLE);
+            topRatedMoviesTextView.setAlpha(0.0f);
+            topRatedMoviesTextView.animate().alpha(1.0f);
+        }
     }
 
     public void resetRecyclersViewPosition() {
@@ -262,11 +274,11 @@ public class HomeActivity extends AppCompatActivity {
 
         if(searchIsExpanded) {
             ll.setVisibility(View.INVISIBLE);
-            cl.setBackgroundColor(getResources().getColor(R.color.lightGray));
+            cl.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.lightGray));
         }
         else {
             ll.setVisibility(View.VISIBLE);
-            cl.setBackgroundColor(getResources().getColor(R.color.white));
+            cl.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.white));
         }
     }
 }

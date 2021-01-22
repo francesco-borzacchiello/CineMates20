@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.drawerlayout.widget.DrawerLayout
+    android:id="@+id/userProfileDrawerLayout"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".view.activity.UserActivity"
+    android:fitsSystemWindows="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <include
+            layout="@layout/background_toolbar_header" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:id="@+id/profileAvatarMenu"
+                    android:layout_width="140dp"
+                    android:layout_height="140dp"
+                    android:layout_marginStart="5dp"
+                    android:contentDescription="@string/avatarDescr"
+                    android:src="@mipmap/avatar_foreground"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <ImageView
+                    android:id="@+id/editAvatarPencilMenu"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="@string/pencilDescr"
+                    app:layout_constraintBottom_toBottomOf="@id/profileAvatarMenu"
+                    app:layout_constraintEnd_toEndOf="@id/profileAvatarMenu"
+                    app:layout_constraintHorizontal_bias="0.850"
+                    app:layout_constraintStart_toStartOf="@id/profileAvatarMenu"
+                    app:layout_constraintTop_toTopOf="@id/profileAvatarMenu"
+                    app:layout_constraintVertical_bias="0.806"
+                    app:srcCompat="@android:drawable/ic_menu_edit" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginEnd="20dp"
+                android:layout_gravity="center">
+
+                <TextView
+                    android:id="@+id/name_personal_profile"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ems="11"
+                    android:maxLines="1"
+                    android:gravity="center"
+                    android:text="@string/nome_cognome"
+                    android:textColor="@color/lightBlue"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/username_personal_profile"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ems="11"
+                    android:maxLines="1"
+                    android:gravity="center"
+                    android:text="@string/prompt_username"
+                    android:textColor="@color/lightBlue"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/email_personal_profile"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ems="11"
+                    android:maxLines="1"
+                    android:gravity="center"
+                    android:text="@string/prompt_email"
+                    android:textColor="@color/lightBlue"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginStart="14dp"
+            android:layout_marginEnd="14dp"
+            android:background="@color/black" />
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/feed_example"
+            android:scaleType="fitXY"
+            android:src="@drawable/feed" />
+
+    </LinearLayout>
+
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/userProfileNavigationView"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        app:headerLayout="@layout/activity_home_navigation_header"
+        app:menu="@menu/navigation_menu" />
+
+</androidx.drawerlayout.widget.DrawerLayout>

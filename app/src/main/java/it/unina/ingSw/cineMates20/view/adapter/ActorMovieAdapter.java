@@ -1,6 +1,7 @@
 package it.unina.ingSw.cineMates20.view.adapter;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,7 +36,9 @@ public class ActorMovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(R.layout.movie_actor_container, parent, false);
-        return new ActorMovieAdapter.ActorHolder(view);
+        ActorMovieAdapter.ActorHolder holder = new ActorMovieAdapter.ActorHolder(view);
+        holder.setIsRecyclable(false);
+        return holder;
     }
 
     @Override
@@ -44,25 +47,29 @@ public class ActorMovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             throw new IllegalArgumentException("Holder non valido!");
 
         ActorHolder actorHolder = (ActorMovieAdapter.ActorHolder)holder;
-        actorHolder.nomeCognomeTextView.setText(nameAndSurname.get(position));
-        actorHolder.nomeCognomeFilmTextView.setText(movieNameAndSurname.get(position));
 
-        String firstPath = context.getResources().getString(R.string.first_path_poster_image);
-        if(linkImage.get(position) != null && !linkImage.get(position).equals(""))
-            Picasso.get().load(firstPath +
-                    linkImage.get(position)).resize(270, 360).noFade()
-                    .into(actorHolder.actorImageView,
-                    new Callback() {
-                        @Override
-                        public void onSuccess() {
-                            actorHolder.actorImageView.setAlpha(0f);
-                            actorHolder.actorImageView.animate().setDuration(300).alpha(1f).start();
-                        }
+        if(!actorHolder.isConfigured) {
+            actorHolder.nomeCognomeTextView.setText(nameAndSurname.get(position));
+            actorHolder.nomeCognomeFilmTextView.setText(movieNameAndSurname.get(position));
 
-                        @Override
-                        public void onError(Exception e) {
-                        }
-                    });
+            String firstPath = context.getResources().getString(R.string.first_path_poster_image);
+            if(linkImage.get(position) != null && !linkImage.get(position).equals(""))
+                Picasso.get().load(firstPath +
+                        linkImage.get(position)).resize(270, 360).noFade()
+                        .into(actorHolder.actorImageView,
+                                new Callback() {
+                                    @Override
+                                    public void onSuccess() {
+                                        actorHolder.actorImageView.setAlpha(0f);
+                                        actorHolder.actorImageView.animate().setDuration(300).alpha(1f).start();
+                                    }
+
+                                    @Override
+                                    public void onError(Exception e) {
+                                    }
+                                });
+            actorHolder.isConfigured = true;
+        }
     }
 
     @Override
@@ -81,6 +88,7 @@ public class ActorMovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                  nomeCognomeFilmTextView;
 
         ImageView actorImageView;
+        boolean isConfigured = false;
 
         private ActorHolder(@NonNull View itemView) {
             super(itemView);

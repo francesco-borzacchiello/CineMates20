@@ -3,6 +3,7 @@ package it.unina.ingSw.cineMates20.controller;
 import android.app.Activity;
 import android.content.Intent;
 import android.view.MenuItem;
+import android.view.View;
 
 import androidx.appcompat.widget.SearchView;
 
@@ -34,6 +35,14 @@ public class SearchMovieController {
     }
 
     public void start(Activity parent, String query) {
+        Thread t = new Thread(()->
+                tmdbApi = new TmdbApi(parent.getResources().getString(R.string.themoviedb_api_key)));
+        t.start();
+
+        try {
+            t.join();
+        }catch(InterruptedException ignore){}
+
         Intent intent = new Intent(parent, SearchMovieActivity.class);
         intent.putExtra("searchText", query); //Questa stringa verrà mostrata nella toolbar di SearchMovieActivity
         parent.startActivity(intent);
@@ -41,10 +50,7 @@ public class SearchMovieController {
     }
 
     public void setSearchMovieActivity(SearchMovieActivity searchMovieActivity) {
-        if(searchMovieActivity == null) return;
-
         this.searchMovieActivity = searchMovieActivity;
-        tmdbApi = new TmdbApi(searchMovieActivity.getResources().getString(R.string.themoviedb_api_key));
     }
 
     public Runnable getOnOptionsItemSelected(int itemId) {
@@ -94,16 +100,27 @@ public class SearchMovieController {
         searchMovieActivity.clearSearchViewFocus();
         searchMovieActivity.setSearchText(query);
 
-        //tmdbApi = new TmdbApi(searchMovieActivity.getResources().getString(R.string.themoviedb_api_key));
-        TmdbSearch search = tmdbApi.getSearch();
-        MovieResultsPage movieResults = search.searchMovie(searchMovieActivity.getSearchText(), 0, "it", true, 0);
+        Integer[] movieResultsCount = new Integer[1];
+        movieResultsCount[0] = 0;
 
-        initializerAdapterForSearchMovies(movieResults);
+        Thread t = new Thread(()-> {
+            TmdbSearch search = tmdbApi.getSearch();
+            MovieResultsPage movieResults = search.searchMovie(searchMovieActivity.getSearchText(), 0, "it", true, 0);
+            movieResultsCount[0] = movieResults.getTotalResults();
+
+            initializeAdapterForMovieSearch(movieResults);
+        });
+        t.start();
+
+        try {
+            t.join();
+        }catch(InterruptedException ignore){}
+
         //Se non sono stati trovati risultati, restituisce "false"
-        return movieResults.getTotalResults() > 0;
+        return movieResultsCount[0] > 0;
     }
 
-    private void initializerAdapterForSearchMovies(@NotNull MovieResultsPage movieResults) {
+    private void initializeAdapterForMovieSearch(@NotNull MovieResultsPage movieResults) {
         ArrayList<String> titles = new ArrayList<>(),
                           descriptions = new ArrayList<>(),
                           imagesUrl = new ArrayList<>();
@@ -147,7 +164,7 @@ public class SearchMovieController {
 
             searchMovieActivity.showSearchMovieProgressBar();
             ShowDetailsMovieController.getShowDetailsMovieControllerInstance()
-                    .start(searchMovieActivity, movie, "SearchMovieActivity");
+                    .start(searchMovieActivity, movie);
         };
     }
 
@@ -156,11 +173,18 @@ public class SearchMovieController {
     private Runnable getThreeDotsListener(MovieDb movie) {
         return ()-> {
             if(Utilities.checkNullActivityOrNoConnection(searchMovieActivity)) return;
-            searchMovieActivity.createAndShowBottomMenuFragment(movie.getPosterPath(), movie.getOriginalTitle());
+            searchMovieActivity.createAndShowBottomMenuFragment(movie);
         };
     }
 
     public void resetHomeRecyclerViewPosition() {
         HomeController.getHomeControllerInstance().resetHomeRecyclerViewPosition();
+    }
+
+    public View.OnClickListener getReportOnClickListener(MovieDb movie) {
+        return (view) -> {
+            searchMovieActivity.closeBottomMenu();
+            ReportController.getReportControllerInstance().startMovieReport(searchMovieActivity, movie);
+        };
     }
 }

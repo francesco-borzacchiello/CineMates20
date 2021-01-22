@@ -6,6 +6,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -26,8 +27,10 @@ import com.google.android.material.navigation.NavigationView;
 import com.squareup.picasso.Picasso;
 
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 
+import info.movito.themoviedbapi.model.MovieDb;
 import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.controller.HomeController;
 import it.unina.ingSw.cineMates20.controller.SearchMovieController;
@@ -81,6 +84,16 @@ public class SearchMovieActivity extends AppCompatActivity {
     private void configureNavigationDrawer() {
         navigationView = findViewById(R.id.navigationViewSearchMovies);
         navigationView.setItemIconTintList(null);
+
+        TextView nomeTextView = navigationView.getHeaderView(0).findViewById(R.id.nomeUtenteNavMenu);
+        TextView cognomeTextView = navigationView.getHeaderView(0).findViewById(R.id.cognomeUtenteNavMenu);
+        List<String> info = Utilities.getCurrentUserInformations(this);
+
+        if(info.size() > 0)
+            runOnUiThread(() -> {
+                nomeTextView.setText(info.get(0));
+                cognomeTextView.setText(info.get(1));
+            });
     }
 
     @Override
@@ -154,7 +167,7 @@ public class SearchMovieActivity extends AppCompatActivity {
     }
 
     //Crea una nuova istanza del fragment FragmentBottomMenu e la mostra
-    public void createAndShowBottomMenuFragment(String imagePath, String title) {
+    public void createAndShowBottomMenuFragment(MovieDb movie) {
         bottomMenuDialog = new BottomSheetDialog(
                 this, R.style.BottomSheetDialogTheme);
 
@@ -162,17 +175,22 @@ public class SearchMovieActivity extends AppCompatActivity {
                 .inflate(R.layout.fragment_bottom_menu,
                         findViewById(R.id.bottomMenuContainer));
 
-        //TODO: Set listener sui tasti attraverso controller lista film
-
         bottomMenuDialog.setContentView(bottomSheetView);
 
-        TextView titleTextView = bottomMenuDialog.findViewById(R.id.titoloBottomMenu);
-        if(titleTextView != null)
-            titleTextView.setText(title);
+        //TODO: Set listener sui tasti attraverso controller lista film
+        LinearLayout segnalaFilmLayout = bottomMenuDialog.findViewById(R.id.layoutSegnalazioneFilm);
+        if(segnalaFilmLayout == null) return;
+        segnalaFilmLayout.setOnClickListener(searchMovieController.getReportOnClickListener(movie));
 
-        if(imagePath != null) {
+        TextView titleTextView = bottomMenuDialog.findViewById(R.id.titoloBottomMenu);
+        if(titleTextView != null && movie.getTitle() != null)
+            titleTextView.setText(movie.getTitle());
+        else if(titleTextView != null)
+            titleTextView.setText(movie.getOriginalTitle());
+
+        if(movie.getPosterPath() != null) {
             ImageView coverImageView = bottomMenuDialog.findViewById(R.id.copertinaBottomMenu);
-            Picasso.get().load(getResources().getString(R.string.first_path_poster_image) + imagePath).
+            Picasso.get().load(getResources().getString(R.string.first_path_poster_image) + movie.getPosterPath()).
                     resize(270, 360)
                     .noFade().into(coverImageView);
         }
@@ -261,5 +279,9 @@ public class SearchMovieActivity extends AppCompatActivity {
 
     public void closeDrawerLayout() {
         drawerLayout.closeDrawer(GravityCompat.START);
+    }
+
+    public void closeBottomMenu() {
+        bottomMenuDialog.dismiss();
     }
 }

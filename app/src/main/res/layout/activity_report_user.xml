@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:context=".view.activity.ReportActivity">
+
+    <include
+        layout="@layout/background_toolbar_header" />
+
+    <LinearLayout
+        android:id="@+id/linearLayoutReportUser"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="?actionBarSize"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <com.makeramen.roundedimageview.RoundedImageView
+                android:id="@+id/reportedUserProfilePicture"
+                android:layout_width="95dp"
+                android:layout_height="95dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="20dp"
+                android:adjustViewBounds="true"
+                android:contentDescription="@string/description_cover_actor"
+                android:scaleType="fitXY"
+                android:src="@drawable/profile_picture"
+                app:riv_oval="true" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="30dp">
+
+                <TextView
+                    android:id="@+id/reportedName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="4dp"
+                    android:ems="11"
+                    android:maxLines="1"
+                    android:text="@string/nome_cognome"
+                    android:textColor="@color/lightBlue"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/reportedEmail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:ems="11"
+                    android:maxLines="1"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="4dp"
+                    android:text="@string/prompt_email"
+                    android:textColor="@color/lightBlue"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/reportedUsername"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="4dp"
+                    android:ems="11"
+                    android:maxLines="1"
+                    android:text="@string/prompt_username"
+                    android:textColor="@color/lightBlue"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="20dp"
+            android:background="@color/black" />
+
+        <TextView
+            android:id="@+id/reasonWhyReportLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="10dp"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
+            android:text="@string/ExplainUsWhyReportLabel"
+            android:textColor="@color/black"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <RadioGroup
+            android:id="@+id/reportRadioGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp">
+
+            <RadioButton
+                android:id="@+id/reportRadioButton1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="13dp"
+                android:layout_marginEnd="20dp"
+                android:text="@string/reasonReportUser1"
+                android:textColor="@color/black"
+                android:textSize="16sp" />
+
+            <RadioButton
+                android:layout_marginTop="5dp"
+                android:id="@+id/reportRadioButton2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="13dp"
+                android:text="@string/reasonReportUser2"
+                android:textColor="@color/black"
+                android:textSize="16sp" />
+
+            <RadioButton
+                android:layout_marginTop="5dp"
+                android:id="@+id/reportRadioButton3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="13dp"
+                android:text="@string/reasonReportUser3"
+                android:textColor="@color/black"
+                android:textSize="16sp" />
+
+            <RadioButton
+                android:layout_marginTop="5dp"
+                android:id="@+id/otherReasonReportRadioButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="13dp"
+                android:text="@string/otherReasonReport"
+                android:textColor="@color/black"
+                android:textSize="16sp" />
+
+        </RadioGroup>
+
+        <EditText
+            android:id="@+id/otherReasonReportEditText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="42dp"
+            android:layout_marginEnd="20dp"
+            android:hint="@string/describeReasonReportHint"
+            android:textSize="16sp"
+            android:maxLength="1000"
+            android:visibility="invisible"
+            android:importantForAutofill="no"
+            android:inputType="text"
+            android:gravity="top|start"
+            android:scrollbars="vertical" />
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/reportButton"
+        android:backgroundTint="@color/color_states_materialbutton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:enabled="false"
+        android:text="@string/action_report"
+        android:textColor="@color/white"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/linearLayoutReportUser"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

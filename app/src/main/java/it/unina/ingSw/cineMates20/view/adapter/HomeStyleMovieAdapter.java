@@ -120,17 +120,16 @@ public class HomeStyleMovieAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     @Override
     public long getItemId(int position) {
-        return title.get(position).hashCode();
+        return movieCardListeners.get(position).hashCode();
     }
 
     @Override
     public int getItemCount() {
-        return title.size();
+        return movieCardListeners.size();
     }
 
     public boolean isDeleteEnabled() {
         return visibilityCheckBox == View.VISIBLE;
-        //return isDeleteEnabled;
     }
 
     public void resetAllMoviesCheckBoxes() {

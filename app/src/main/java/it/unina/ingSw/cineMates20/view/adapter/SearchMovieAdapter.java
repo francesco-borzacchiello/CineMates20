@@ -101,12 +101,12 @@ public class SearchMovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     @Override
     public long getItemId(int position) {
-        return title.get(position).hashCode();
+        return showDetailsMovieListeners.get(position).hashCode();
     }
 
     @Override
     public int getItemCount() {
-        return title.size();
+        return showDetailsMovieListeners.size();
     }
 
 

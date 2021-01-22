@@ -56,14 +56,6 @@ public class ShowDetailsMovieActivity extends AppCompatActivity {
         showDetailsMovieController = ShowDetailsMovieController.getShowDetailsMovieControllerInstance();
         showDetailsMovieController.setShowDetailsMovieActivity(this);
 
-        String caller = getIntent().getStringExtra("caller");
-        if(caller != null && caller.equals("HomeActivity"))
-            showDetailsMovieController.hideHomeMovieProgressBar();
-        else if(caller.equals("SearchMovieActivity"))
-            showDetailsMovieController.hideSearchMovieProgressBar();
-        else //MoviesListActivity
-            showDetailsMovieController.hideMoviesListProgressBar();
-
         initializeGraphicsComponents();
     }
 
@@ -82,8 +74,6 @@ public class ShowDetailsMovieActivity extends AppCompatActivity {
         descrizioneTextView = findViewById(R.id.descriptionMovieShowDetails);
         actorsRecyclerView = findViewById(R.id.movieCastRecyclerView);
         castTextView = findViewById(R.id.castMovieShowDetails);
-
-        //TODO: aggiungere qui altri parametri e settarli in setMovieDetails
 
         showDetailsMovieController.initializeShowDetailsMovieActivity();
     }
@@ -133,7 +123,6 @@ public class ShowDetailsMovieActivity extends AppCompatActivity {
     public void setMovieCastRecyclerView(RecyclerView.Adapter<RecyclerView.ViewHolder> adapter) {
         actorsRecyclerView.setAdapter(adapter);
 
-        actorsRecyclerView.setHasFixedSize(true);
         actorsRecyclerView.setItemViewCacheSize(10);
 
         actorsRecyclerView.setLayoutManager(new LinearLayoutManager
