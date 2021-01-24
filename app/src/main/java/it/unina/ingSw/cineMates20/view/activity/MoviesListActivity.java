@@ -165,11 +165,13 @@ public class MoviesListActivity extends AppCompatActivity {
     }
 
     public void setMoviesListRecyclerView(RecyclerView.Adapter<RecyclerView.ViewHolder> adapter) {
-        moviesListRecyclerView.setAdapter(adapter);
+        runOnUiThread(() -> {
+            moviesListRecyclerView.setAdapter(adapter);
 
-        moviesListRecyclerView.setItemViewCacheSize(30);
+            moviesListRecyclerView.setItemViewCacheSize(30);
 
-        moviesListRecyclerView.setLayoutManager(new GridLayoutManager(this, 3));
+            moviesListRecyclerView.setLayoutManager(new GridLayoutManager(this, 3));
+        });
     }
 
     public void hideProgressBar() {
@@ -193,21 +195,25 @@ public class MoviesListActivity extends AppCompatActivity {
     }
 
     public void setMoviesVisibility(boolean show) {
-        if(show)
-            moviesListRecyclerView.setVisibility(View.VISIBLE);
-        else
-            moviesListRecyclerView.setVisibility(View.INVISIBLE);
+        runOnUiThread(() -> {
+            if (show)
+                moviesListRecyclerView.setVisibility(View.VISIBLE);
+            else
+                moviesListRecyclerView.setVisibility(View.INVISIBLE);
+        });
     }
 
     public void setEmptyMovieListTextViewVisibility(boolean show) {
-        if(show) {
-            emptyListTextView.setVisibility(View.VISIBLE);
-            menu.findItem(R.id.shareItem).setVisible(false);
-        }
-        else {
-            emptyListTextView.setVisibility(View.INVISIBLE);
-            menu.findItem(R.id.shareItem).setVisible(true);
-        }
+        runOnUiThread(() -> {
+            if(show) {
+                emptyListTextView.setVisibility(View.VISIBLE);
+                menu.findItem(R.id.shareItem).setVisible(false);
+            }
+            else {
+                emptyListTextView.setVisibility(View.INVISIBLE);
+                menu.findItem(R.id.shareItem).setVisible(true);
+            }
+        });
     }
 
     public RecyclerView getMoviesRecyclerView() {

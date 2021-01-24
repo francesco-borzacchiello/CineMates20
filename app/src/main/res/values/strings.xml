@@ -111,6 +111,11 @@
     <string name="reasonReportMovie3">Informazioni film non accurate</string>
     <string name="feed_example">Feed fittizzi</string>
 
+    <string name="removeFromFavourites">Rimuovi dalla lista dei \"Film preferiti\"</string>
+    <string name="removeFromToWatch">Rimuovi dalla lista dei \"Film da vedere\"</string>
+    <string name="favourites">Preferiti"</string>
+    <string name="toWatch">Da vedere"</string>
+
     <string-array name="movies_list_tag">
         <item>Preferiti</item>
         <item>Da vedere</item>

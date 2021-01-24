@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -12,6 +13,7 @@ import android.widget.Toast;
 
 import com.amplifyframework.AmplifyException;
 import com.amplifyframework.auth.AuthUser;
+import com.amplifyframework.auth.AuthUserAttribute;
 import com.amplifyframework.auth.cognito.AWSCognitoAuthPlugin;
 import com.amplifyframework.core.Amplify;
 import com.amplifyframework.core.AmplifyConfiguration;
@@ -199,23 +201,45 @@ public class Utilities {
             AtomicBoolean done = new AtomicBoolean(false);
             Thread t = new Thread(()->
                 Amplify.Auth.fetchUserAttributes(
-                    attributes -> {
-                        if(attributes.size() > 5) {
-                            String nomeCompleto = attributes.get(4).getValue(); //In posizione 4 c'è l'informazione del nome e del cognome concatenati
-                            int idx = nomeCompleto.lastIndexOf(' ');
-                            String nome = nomeCompleto.substring(0, idx);
-                            String cognome = nomeCompleto.substring(idx + 1);
-                            informations.add(nome);
-                            informations.add(cognome);
-                            informations.add(attributes.get(3).getValue()); //In posizione 3 c'è l'informazione dell'username
-                            informations.add(attributes.get(5).getValue()); //In posizione 4 c'è l'informazione dell'email
+                        attributes -> {
+                            Log.i("UtenteLoggato", attributes.size()+"");
+                            if(attributes.size() > 5) {
+                                String nome = "", cognome = "", username ="", email = "";
+                                for(AuthUserAttribute attr: attributes) {
+                                    Log.i("Attr", attr.getValue());
+                                    Log.i("Attr", attr.getKey()+"");
 
-                            done.set(true);
-                            synchronized(done){
-                                done.notifyAll();
+                                    if(attr.getKey().toString().contains("family_name"))
+                                        cognome = attr.getValue();
+                                    else if(attr.getKey().toString().contains("given_name"))
+                                        nome = attr.getValue();
+                                    else if(attr.getKey().toString().contains("email") && !attr.getKey().toString().contains("verified"))
+                                        email = attr.getValue();
+                                    else if(attr.getKey().toString().contains("preferred_username"))
+                                        username = attr.getValue();
+                                }
+                                //Log.i("UtenteLoggato", "Sono nell'if");
+                                //String nomeCompleto = attributes.get(4).getValue(); //In posizione 4 c'è l'informazione del nome e del cognome concatenati
+                                //Log.i("UtenteLoggato", "nome completo: "+nomeCompleto);
+                                //int idx = nomeCompleto.lastIndexOf(' ');
+                                //Log.i("UtenteLoggato", "nome completo: "+nomeCompleto);
+                                //nome = nomeCompleto.substring(0, idx);
+                                //cognome = nomeCompleto.substring(idx + 1);
+                                Log.i("UtenteLoggato", "informations.add()");
+                                informations.add(nome);
+                                informations.add(cognome);
+                                informations.add(username);
+                                informations.add(email);
+                                Log.i("Attr", nome+" "+cognome+" "+username+" "+email);
+                                done.set(true);
+                                Log.i("UtenteLoggato", "Prima di synchronized.notify");
+                                synchronized(done){
+                                    Log.i("UtenteLoggato", "Prima notify");
+                                    done.notifyAll();
+                                    Log.i("UtenteLoggato", "Dopo notify");
+                                }
                             }
-                        }
-                    },
+                        },
                     error -> {}
                 ));
             t.start();
@@ -223,7 +247,9 @@ public class Utilities {
             while(!done.get()){
                 synchronized(done){
                     try {
+                        Log.i("UtenteLoggato", "Prima wait");
                         done.wait();
+                        Log.i("UtenteLoggato", "Dopo wait");
                     }catch (InterruptedException ignore){}
                 }
             }

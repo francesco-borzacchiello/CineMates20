@@ -1,6 +1,5 @@
 package it.unina.ingSw.cineMates20.view.fragment;
 
-import android.app.AlertDialog;
 import android.os.Bundle;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -9,7 +8,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
-import androidx.activity.OnBackPressedCallback;
 import androidx.fragment.app.Fragment;
 
 import org.jetbrains.annotations.NotNull;

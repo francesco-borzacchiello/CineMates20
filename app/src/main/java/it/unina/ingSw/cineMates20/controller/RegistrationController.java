@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import it.unina.ingSw.cineMates20.R;
+import it.unina.ingSw.cineMates20.model.ListaFilmDB;
 import it.unina.ingSw.cineMates20.model.UserDB;
 import it.unina.ingSw.cineMates20.view.activity.RegistrationActivity;
 import it.unina.ingSw.cineMates20.view.util.Utilities;
@@ -92,11 +93,12 @@ public class RegistrationController {
                         registrationActivity.getPassword(),
                         AuthSignUpOptions.builder().userAttributes(attributes).build(),
                         result -> Log.i("signUp", "Result: " + result.toString()),
-                        error -> Amplify.Auth.resendSignUpCode(
+                        error -> Amplify.Auth.resendSignUpCode
+                                (
                                   registrationActivity.getUsername(),
                                   result2 -> Log.i("signUp", "Result: " + result2.toString()),
                                   error2 -> Log.e("signUp", "Result: " + error2.toString())
-                                 )
+                                )
                 );
 
                 registrationActivity.mostraFragmentConfermaCodice(); //TODO: questo va fatto solo se result è corretto, gestire caso dati già esistenti ma non confermati
@@ -125,6 +127,8 @@ public class RegistrationController {
                         if(responseEntity.getStatusCode() == HttpStatus.OK) {
                             HomeController.getHomeControllerInstance().startFromLogin(registrationActivity);
                             registrationActivity.runOnUiThread(() -> Utilities.stampaToast(registrationActivity, "Benvenuto " + registrationActivity.getUsername()));
+
+                            createMoviesLists(email);
                         }
                         else
                             registrationActivity.runOnUiThread(() -> Utilities.stampaToast(registrationActivity,
@@ -350,6 +354,8 @@ public class RegistrationController {
             //Reindirizzare a pagina login
             registrationActivity.returnToLogin();
             registrationActivity.runOnUiThread(() -> Utilities.stampaToast(registrationActivity, "Account creato con successo"));
+
+            createMoviesLists(registrationActivity.getEmail());
         }
         else {
             registrationActivity.runOnUiThread(() -> Utilities.stampaToast(registrationActivity, "Codice errato"));
@@ -362,5 +368,24 @@ public class RegistrationController {
                 result -> registrationActivity.runOnUiThread(() -> Utilities.stampaToast(registrationActivity, "Codice reinviato")),
                 error -> registrationActivity.runOnUiThread(() -> Utilities.stampaToast(registrationActivity, "L'email inserita non è valida oppure è già in uso."))
         );
+    }
+
+    private void createMoviesLists(String email) {
+        new Thread (() -> {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            ListaFilmDB listaFilmPreferiti = new ListaFilmDB(registrationActivity.getResources().getString(R.string.favourites), email);
+            ListaFilmDB listaFilmDaVedere = new ListaFilmDB(registrationActivity.getResources().getString(R.string.toWatch), email);
+
+            HttpEntity<ListaFilmDB> requestListaPreferitiEntity = new HttpEntity<>(listaFilmPreferiti, headers);
+            HttpEntity<ListaFilmDB> requestListaDaVedereEntity = new HttpEntity<>(listaFilmDaVedere, headers);
+
+            RestTemplate restTemplate = new RestTemplate();
+            restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
+            String url = registrationActivity.getResources().getString(R.string.db_path) + "ListaFilm/add";
+
+            restTemplate.postForEntity(url, requestListaPreferitiEntity, ListaFilmDB.class);
+            restTemplate.postForEntity(url, requestListaDaVedereEntity, ListaFilmDB.class);
+        }).start();
     }
 }

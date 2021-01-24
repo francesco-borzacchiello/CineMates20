@@ -99,7 +99,7 @@ public class UserDB {
         if (other == this) {
             return true;
         }
-        if ((other instanceof UserDB) == false) {
+        if (!(other instanceof UserDB)) {
             return false;
         }
         UserDB rhs = ((UserDB) other);

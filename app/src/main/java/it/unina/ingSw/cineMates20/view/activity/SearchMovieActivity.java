@@ -28,7 +28,6 @@ import com.squareup.picasso.Picasso;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 
 import info.movito.themoviedbapi.model.MovieDb;
 import it.unina.ingSw.cineMates20.R;
@@ -46,11 +45,10 @@ public class SearchMovieActivity extends AppCompatActivity {
     private FragmentSearchNotEmpty fragmentSearchNotEmpty;
     private FragmentSearchEmpty fragmentSearchEmpty;
     private FragmentManager manager;
-    private Toolbar toolbar;
     private String searchText;
     private SearchView searchView;
     private RecyclerView.Adapter<RecyclerView.ViewHolder> currentRecyclerViewAdapter;
-    private Queue<String> searchQueue;
+    private LinkedList<String> searchHistory;
     private ProgressBar progressBar;
 
     @Override
@@ -63,8 +61,8 @@ public class SearchMovieActivity extends AppCompatActivity {
         Bundle srcTxtBundle = getIntent().getExtras();
         if(srcTxtBundle != null) {
             searchText = srcTxtBundle.getString("searchText");
-            searchQueue = new LinkedList<>();
-            searchQueue.offer(searchText);
+            searchHistory = new LinkedList<>();
+            searchHistory.offer(searchText);
         }
         else {
             finish();
@@ -148,7 +146,7 @@ public class SearchMovieActivity extends AppCompatActivity {
     private void initializeGraphicsComponents() {
         drawerLayout = findViewById(R.id.searchMovieNavMenuDrawerLayout);
         progressBar = findViewById(R.id.progressBarSearchMovies);
-        toolbar = findViewById(R.id.toolbarHeader);
+        Toolbar toolbar = findViewById(R.id.toolbarHeader);
         setSupportActionBar(toolbar);
         ActionBar ab = getSupportActionBar();
         if(ab != null) {
@@ -172,14 +170,15 @@ public class SearchMovieActivity extends AppCompatActivity {
                 this, R.style.BottomSheetDialogTheme);
 
         View bottomSheetView = LayoutInflater.from(getApplicationContext())
-                .inflate(R.layout.fragment_bottom_menu,
-                        findViewById(R.id.bottomMenuContainer));
+                .inflate(R.layout.layout_bottom_menu, findViewById(R.id.bottomMenuContainer));
 
         bottomMenuDialog.setContentView(bottomSheetView);
 
-        //TODO: Set listener sui tasti attraverso controller lista film
+        LinearLayout preferitiLinearLayout = bottomMenuDialog.findViewById(R.id.layoutFilmPreferiti);
+        LinearLayout daVedereLinearLayout = bottomMenuDialog.findViewById(R.id.layoutFilmDaVedere);
         LinearLayout segnalaFilmLayout = bottomMenuDialog.findViewById(R.id.layoutSegnalazioneFilm);
-        if(segnalaFilmLayout == null) return;
+
+        if(preferitiLinearLayout == null || daVedereLinearLayout == null || segnalaFilmLayout == null) return;
         segnalaFilmLayout.setOnClickListener(searchMovieController.getReportOnClickListener(movie));
 
         TextView titleTextView = bottomMenuDialog.findViewById(R.id.titoloBottomMenu);
@@ -187,6 +186,13 @@ public class SearchMovieActivity extends AppCompatActivity {
             titleTextView.setText(movie.getTitle());
         else if(titleTextView != null)
             titleTextView.setText(movie.getOriginalTitle());
+
+        //TODO: Set listener sui tasti aggiungi/rimuovi da lista "da vedere" attraverso controller lista film
+
+        TextView addToFavouritesTextView = bottomMenuDialog.findViewById(R.id.addToFavouritesTextView);
+        TextView addToWatchTextView = bottomMenuDialog.findViewById(R.id.addToWatchTextView);
+
+        if(addToFavouritesTextView == null || addToWatchTextView == null) return;
 
         if(movie.getPosterPath() != null) {
             ImageView coverImageView = bottomMenuDialog.findViewById(R.id.copertinaBottomMenu);
@@ -196,16 +202,35 @@ public class SearchMovieActivity extends AppCompatActivity {
         }
 
         bottomMenuDialog.show();
+
+        if(searchMovieController.isSelectedMovieAlreadyInList(movie, true)) {
+            addToFavouritesTextView.setText(getResources().getString(R.string.removeFromFavourites));
+            preferitiLinearLayout.setOnClickListener(searchMovieController.getRimuoviPreferitiOnClickListner(movie));
+        } else
+            preferitiLinearLayout.setOnClickListener(searchMovieController.getAggiungiPreferitiOnClickListner(movie));
+
+
+        if(searchMovieController.isSelectedMovieAlreadyInList(movie, false)) {
+            addToWatchTextView.setText(getResources().getString(R.string.removeFromToWatch));
+            daVedereLinearLayout.setOnClickListener(searchMovieController.getRimuoviDaVedereOnClickListner(movie));
+        } else
+            daVedereLinearLayout.setOnClickListener(searchMovieController.getAggiungiDaVedereOnClickListner(movie));
     }
 
     public void showNextSearchFragment(boolean isEmptySearch) {
         if(!isEmptySearch) {
+            if(manager.getBackStackEntryCount() > 3) {
+                for(int i = 0; i < manager.getBackStackEntryCount(); ++i) {
+                    manager.popBackStack();
+                }
+                String head = searchHistory.getFirst();
+                searchHistory.clear();
+                searchHistory.add(head);
+            }
+
             FragmentTransaction transaction = manager.beginTransaction();
-            //transaction.setCustomAnimations(R.animator.fade_in, R.anim.fragment_fade_exit);
 
             fragmentSearchNotEmpty = new FragmentSearchNotEmpty(currentRecyclerViewAdapter);
-
-            //TODO: set listener dei fragment
 
             transaction.replace(R.id.showMoviesFrameLayout, fragmentSearchNotEmpty);
             transaction.addToBackStack(null);
@@ -247,8 +272,16 @@ public class SearchMovieActivity extends AppCompatActivity {
             overridePendingTransition(0,0);
         }
         else {
-            manager.popBackStack();
-            searchView.setQuery(searchQueue.poll(), false);
+            if(searchHistory.size() == 1) {
+                String head = searchHistory.pollLast();
+                manager.popBackStack();
+                searchView.setQuery(head, false);
+            }
+            else {
+                searchHistory.removeLast();
+                manager.popBackStack();
+                searchView.setQuery(searchHistory.getLast(), false);
+            }
         }
     }
 
@@ -266,7 +299,7 @@ public class SearchMovieActivity extends AppCompatActivity {
     }
 
     public void updateSearchQueue(String query) {
-        searchQueue.offer(query);
+        searchHistory.offer(query);
     }
 
     public void hideSearchMovieProgressBar() {

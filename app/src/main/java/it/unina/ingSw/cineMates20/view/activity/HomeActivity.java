@@ -1,5 +1,6 @@
 package it.unina.ingSw.cineMates20.view.activity;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -219,30 +220,46 @@ public class HomeActivity extends AppCompatActivity {
     public void showHomeTextViews() {
         if(nowPlayingHomeMoviesRecyclerView.getAdapter() != null &&
                 nowPlayingHomeMoviesRecyclerView.getAdapter().getItemCount() > 0) {
+
             nowPlayingLabelHomeMoviesTextView.setVisibility(View.VISIBLE);
-            nowPlayingLabelHomeMoviesTextView.setAlpha(0.0f);
-            nowPlayingLabelHomeMoviesTextView.animate().alpha(1.0f);
+
+            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
+                nowPlayingLabelHomeMoviesTextView.setAlpha(0.0f);
+                nowPlayingLabelHomeMoviesTextView.animate().alpha(1.0f);
+            }
         }
 
         if(mostPopularHomeMoviesRecyclerView.getAdapter() != null &&
                 mostPopularHomeMoviesRecyclerView.getAdapter().getItemCount() > 0) {
+
             mostPopularMoviesTextView.setVisibility(View.VISIBLE);
-            mostPopularMoviesTextView.setAlpha(0.0f);
-            mostPopularMoviesTextView.animate().alpha(1.0f);
+
+            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
+                mostPopularMoviesTextView.setAlpha(0.0f);
+                mostPopularMoviesTextView.animate().alpha(1.0f);
+            }
         }
 
         if(upcomingHomeMoviesRecyclerView.getAdapter() != null &&
                 upcomingHomeMoviesRecyclerView.getAdapter().getItemCount() > 0) {
+
             upcomingMoviesTextView.setVisibility(View.VISIBLE);
-            upcomingMoviesTextView.setAlpha(0.0f);
-            upcomingMoviesTextView.animate().alpha(1.0f);
+
+            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
+                upcomingMoviesTextView.setAlpha(0.0f);
+                upcomingMoviesTextView.animate().alpha(1.0f);
+            }
         }
 
         if(topRatedHomeMoviesRecyclerView.getAdapter() != null &&
                 topRatedHomeMoviesRecyclerView.getAdapter().getItemCount() > 0) {
+
             topRatedMoviesTextView.setVisibility(View.VISIBLE);
-            topRatedMoviesTextView.setAlpha(0.0f);
-            topRatedMoviesTextView.animate().alpha(1.0f);
+
+            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
+                topRatedMoviesTextView.setAlpha(0.0f);
+                topRatedMoviesTextView.animate().alpha(1.0f);
+            }
         }
     }
 

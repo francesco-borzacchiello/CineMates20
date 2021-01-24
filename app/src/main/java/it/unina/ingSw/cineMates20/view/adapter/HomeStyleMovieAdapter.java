@@ -18,7 +18,6 @@ import com.squareup.picasso.Picasso;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -29,14 +28,14 @@ import it.unina.ingSw.cineMates20.controller.MoviesListController;
 public class HomeStyleMovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final Context context;
     private final List<String> title, linkImage;
-    private final List<Integer> moviesIds;
+    private final List<Long> moviesIds;
     private final List<Runnable> movieCardListeners;
     private final SortedSet<Integer> deleteList;
 
     private int visibilityCheckBox = View.GONE;
 
     public HomeStyleMovieAdapter(Context context, List<String> title,
-                                 List<String> linkImage, List<Runnable> movieCardListeners, List<Integer> moviesIds) {
+                                 List<String> linkImage, List<Runnable> movieCardListeners, List<Long> moviesIds) {
         this.context = context;
         this.title = title;
         this.linkImage = linkImage;
@@ -68,20 +67,20 @@ public class HomeStyleMovieAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         movieHolder.titleTextView.setText(title.get(position));
 
         String firstPath = context.getResources().getString(R.string.first_path_poster_image);
-        if(linkImage.get(position) != null && !linkImage.get(position).equals(""))
+        if(linkImage.get(position) != null && !linkImage.get(position).equals("")) {
             Picasso.get().load(firstPath +
-                    linkImage.get(position)).resize(270,360).noFade().into(movieHolder.movieImageView,
-                    new Callback() {
-                        @Override
-                        public void onSuccess() {
-                            movieHolder.movieImageView.setAlpha(0f);
-                            movieHolder.movieImageView.animate().setDuration(300).alpha(1f).start();
-                        }
+                linkImage.get(position)).resize(270, 360).noFade().into(movieHolder.movieImageView,
+                new Callback() {
+                    @Override
+                    public void onSuccess() {
+                        movieHolder.movieImageView.setAlpha(0f);
+                        movieHolder.movieImageView.animate().setDuration(300).alpha(1f).start();
+                    }
 
-                        @Override
-                        public void onError(Exception e) {
-                        }
-                    });
+                    @Override
+                    public void onError(Exception e) {}
+                });
+        }
 
         movieHolder.movieCardView.setOnClickListener(addListenerForMovieCard(movieHolder));
 

@@ -111,12 +111,11 @@ public class JoinedMoviesController {
             joinedMoviesActivity.setEmptyMovieListTextViewVisibility(true);
             joinedMoviesActivity.hideProgressBar();
         }
-
     }
 
     private void initializeListsForJoinedMoviesAdapter(@NotNull MovieResultsPage movieResultsPage,
-                                                      @NotNull ArrayList<String> titles, @NotNull ArrayList<String> moviesImagesUrl,
-                                                      @NotNull ArrayList<Runnable> movieCardViewListeners) {
+                                                       @NotNull ArrayList<String> titles, @NotNull ArrayList<String> moviesImagesUrl,
+                                                       @NotNull ArrayList<Runnable> movieCardViewListeners) {
         for (MovieDb movie : movieResultsPage) {
             movieCardViewListeners.add(getMovieCardViewListener(movie));
 

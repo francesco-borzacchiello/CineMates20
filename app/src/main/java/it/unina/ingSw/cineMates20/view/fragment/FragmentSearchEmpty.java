@@ -17,8 +17,7 @@ import it.unina.ingSw.cineMates20.R;
 
 public class FragmentSearchEmpty extends Fragment {
 
-    public FragmentSearchEmpty() {
-    }
+    public FragmentSearchEmpty() {}
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

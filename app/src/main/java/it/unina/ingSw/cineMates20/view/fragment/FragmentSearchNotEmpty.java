@@ -17,8 +17,9 @@ import it.unina.ingSw.cineMates20.R;
 
 public class FragmentSearchNotEmpty extends Fragment {
 
-    private RecyclerView moviesRecyclerView;
-    private RecyclerView.Adapter<RecyclerView.ViewHolder> adapter;
+    private RecyclerView.Adapter<RecyclerView.ViewHolder> adapter = null;
+
+    public FragmentSearchNotEmpty() {}
 
     public FragmentSearchNotEmpty(RecyclerView.Adapter<RecyclerView.ViewHolder> adapter) {
         this.adapter = adapter;
@@ -39,7 +40,7 @@ public class FragmentSearchNotEmpty extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         if(adapter != null && isAdded() && getActivity() != null) {
-            moviesRecyclerView = view.findViewById(R.id.moviesRecyclerView);
+            RecyclerView moviesRecyclerView = view.findViewById(R.id.moviesRecyclerView);
             moviesRecyclerView.setAdapter(adapter);
 
             moviesRecyclerView.setHasFixedSize(true);

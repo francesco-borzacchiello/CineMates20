@@ -39,7 +39,6 @@
     </LinearLayout>
 
     <View
-        android:id="@+id/view1"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@color/gray" />
@@ -63,6 +62,7 @@
             android:src="@drawable/favourites" />
 
         <TextView
+            android:id="@+id/addToFavouritesTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="15dp"
@@ -73,7 +73,6 @@
     </LinearLayout>
 
     <View
-        android:id="@+id/view2"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@color/gray" />
@@ -97,6 +96,7 @@
             android:src="@drawable/towatch" />
 
         <TextView
+            android:id="@+id/addToWatchTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="15dp"
