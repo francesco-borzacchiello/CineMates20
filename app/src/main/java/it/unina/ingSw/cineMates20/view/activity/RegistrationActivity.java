@@ -18,6 +18,8 @@ import java.util.List;
 import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.controller.HomeController;
 import it.unina.ingSw.cineMates20.controller.RegistrationController;
+import it.unina.ingSw.cineMates20.model.User;
+import it.unina.ingSw.cineMates20.model.UserDB;
 import it.unina.ingSw.cineMates20.view.fragment.ConfirmRegistrationCodeFragment;
 import it.unina.ingSw.cineMates20.view.fragment.RegistrationFragment;
 import it.unina.ingSw.cineMates20.view.util.Utilities;
@@ -72,10 +74,6 @@ public class RegistrationActivity extends AppCompatActivity {
         }
     }
 
-    public String getSocialRegistrationProvider() {
-        return socialProviderRegistration;
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -88,8 +86,8 @@ public class RegistrationActivity extends AppCompatActivity {
         }
         else { //Se non è google, allora dev'essere sicuramente facebook
             if (registrationController.getFacebookCallbackManager().onActivityResult(requestCode, resultCode, data)) {
-                List<String> info = Utilities.getCurrentUserInformations(this);
-                showHomeOrRegistrationPage(info.get(0), info.get(1));
+                UserDB user = User.getUserInstance(this).getLoggedUser();
+                showHomeOrRegistrationPage(user.getNome(), user.getCognome());
             }
         }
     }

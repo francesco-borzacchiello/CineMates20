@@ -65,7 +65,7 @@
                 android:layout_marginTop="4dp"
                 android:maxEms="10"
                 android:maxLines="1"
-                android:paddingStart="4dp"
+                android:paddingStart="0dp"
                 android:paddingEnd="4dp"
                 android:text="@string/prompt_cognome"
                 android:textColor="@color/black"

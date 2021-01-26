@@ -27,14 +27,15 @@ import com.google.android.material.navigation.NavigationView;
 import com.squareup.picasso.Picasso;
 
 import java.util.LinkedList;
-import java.util.List;
 
 import info.movito.themoviedbapi.model.MovieDb;
 import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.controller.HomeController;
 import it.unina.ingSw.cineMates20.controller.SearchMovieController;
-import it.unina.ingSw.cineMates20.view.fragment.FragmentSearchEmpty;
-import it.unina.ingSw.cineMates20.view.fragment.FragmentSearchNotEmpty;
+import it.unina.ingSw.cineMates20.model.User;
+import it.unina.ingSw.cineMates20.model.UserDB;
+import it.unina.ingSw.cineMates20.view.fragment.EmptySearchFragment;
+import it.unina.ingSw.cineMates20.view.fragment.NotEmptySearchFragment;
 import it.unina.ingSw.cineMates20.view.util.Utilities;
 
 public class SearchMovieActivity extends AppCompatActivity {
@@ -42,8 +43,8 @@ public class SearchMovieActivity extends AppCompatActivity {
     private NavigationView navigationView;
     private BottomSheetDialog bottomMenuDialog;
     private DrawerLayout drawerLayout;
-    private FragmentSearchNotEmpty fragmentSearchNotEmpty;
-    private FragmentSearchEmpty fragmentSearchEmpty;
+    private NotEmptySearchFragment notEmptySearchFragment;
+    private EmptySearchFragment emptySearchFragment;
     private FragmentManager manager;
     private String searchText;
     private SearchView searchView;
@@ -74,7 +75,7 @@ public class SearchMovieActivity extends AppCompatActivity {
         HomeController.getHomeControllerInstance().setSearchMovieActivity(this);
 
         //Inizializzo l'unica istanza di FragmentSearchEmpty necessaria
-        fragmentSearchEmpty = new FragmentSearchEmpty();
+        emptySearchFragment = new EmptySearchFragment();
 
         configureNavigationDrawer();
     }
@@ -85,13 +86,12 @@ public class SearchMovieActivity extends AppCompatActivity {
 
         TextView nomeTextView = navigationView.getHeaderView(0).findViewById(R.id.nomeUtenteNavMenu);
         TextView cognomeTextView = navigationView.getHeaderView(0).findViewById(R.id.cognomeUtenteNavMenu);
-        List<String> info = Utilities.getCurrentUserInformations(this);
 
-        if(info.size() > 0)
-            runOnUiThread(() -> {
-                nomeTextView.setText(info.get(0));
-                cognomeTextView.setText(info.get(1));
-            });
+        runOnUiThread(() -> {
+            UserDB user = User.getUserInstance(this).getLoggedUser();
+            nomeTextView.setText(user.getNome());
+            cognomeTextView.setText(user.getCognome());
+        });
     }
 
     @Override
@@ -104,11 +104,11 @@ public class SearchMovieActivity extends AppCompatActivity {
 
         //La ricerca ha prodotto risultati
         if(searchMovieController.initializeMovieSearch(searchText)) {
-            fragmentSearchNotEmpty = new FragmentSearchNotEmpty(currentRecyclerViewAdapter);
-            createFirstFragment(fragmentSearchNotEmpty);
+            notEmptySearchFragment = new NotEmptySearchFragment(currentRecyclerViewAdapter);
+            createFirstFragment(notEmptySearchFragment);
         }
         else {
-            createFirstFragment(fragmentSearchEmpty);
+            createFirstFragment(emptySearchFragment);
         }
 
         //Espandi la searchView ed elimina il focus
@@ -179,15 +179,13 @@ public class SearchMovieActivity extends AppCompatActivity {
         LinearLayout segnalaFilmLayout = bottomMenuDialog.findViewById(R.id.layoutSegnalazioneFilm);
 
         if(preferitiLinearLayout == null || daVedereLinearLayout == null || segnalaFilmLayout == null) return;
-        segnalaFilmLayout.setOnClickListener(searchMovieController.getReportOnClickListener(movie));
+            segnalaFilmLayout.setOnClickListener(searchMovieController.getReportOnClickListener(movie));
 
         TextView titleTextView = bottomMenuDialog.findViewById(R.id.titoloBottomMenu);
         if(titleTextView != null && movie.getTitle() != null)
             titleTextView.setText(movie.getTitle());
         else if(titleTextView != null)
             titleTextView.setText(movie.getOriginalTitle());
-
-        //TODO: Set listener sui tasti aggiungi/rimuovi da lista "da vedere" attraverso controller lista film
 
         TextView addToFavouritesTextView = bottomMenuDialog.findViewById(R.id.addToFavouritesTextView);
         TextView addToWatchTextView = bottomMenuDialog.findViewById(R.id.addToWatchTextView);
@@ -205,16 +203,16 @@ public class SearchMovieActivity extends AppCompatActivity {
 
         if(searchMovieController.isSelectedMovieAlreadyInList(movie, true)) {
             addToFavouritesTextView.setText(getResources().getString(R.string.removeFromFavourites));
-            preferitiLinearLayout.setOnClickListener(searchMovieController.getRimuoviPreferitiOnClickListner(movie));
+            preferitiLinearLayout.setOnClickListener(searchMovieController.getRimuoviPreferitiOnClickListener(movie));
         } else
-            preferitiLinearLayout.setOnClickListener(searchMovieController.getAggiungiPreferitiOnClickListner(movie));
+            preferitiLinearLayout.setOnClickListener(searchMovieController.getAggiungiPreferitiOnClickListener(movie));
 
 
         if(searchMovieController.isSelectedMovieAlreadyInList(movie, false)) {
             addToWatchTextView.setText(getResources().getString(R.string.removeFromToWatch));
-            daVedereLinearLayout.setOnClickListener(searchMovieController.getRimuoviDaVedereOnClickListner(movie));
+            daVedereLinearLayout.setOnClickListener(searchMovieController.getRimuoviDaVedereOnClickListener(movie));
         } else
-            daVedereLinearLayout.setOnClickListener(searchMovieController.getAggiungiDaVedereOnClickListner(movie));
+            daVedereLinearLayout.setOnClickListener(searchMovieController.getAggiungiDaVedereOnClickListener(movie));
     }
 
     public void showNextSearchFragment(boolean isEmptySearch) {
@@ -230,15 +228,15 @@ public class SearchMovieActivity extends AppCompatActivity {
 
             FragmentTransaction transaction = manager.beginTransaction();
 
-            fragmentSearchNotEmpty = new FragmentSearchNotEmpty(currentRecyclerViewAdapter);
+            notEmptySearchFragment = new NotEmptySearchFragment(currentRecyclerViewAdapter);
 
-            transaction.replace(R.id.showMoviesFrameLayout, fragmentSearchNotEmpty);
+            transaction.replace(R.id.showMoviesFrameLayout, notEmptySearchFragment);
             transaction.addToBackStack(null);
             transaction.commit();
         }
-        else if(!fragmentSearchEmpty.isVisible()) {
+        else if(!emptySearchFragment.isVisible()) {
             FragmentTransaction transaction = manager.beginTransaction();
-            transaction.replace(R.id.showMoviesFrameLayout, fragmentSearchEmpty);
+            transaction.replace(R.id.showMoviesFrameLayout, emptySearchFragment);
             transaction.addToBackStack(null);
             transaction.commit();
         }

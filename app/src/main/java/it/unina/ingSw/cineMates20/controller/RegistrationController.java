@@ -42,6 +42,7 @@ import java.util.Arrays;
 
 import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.model.ListaFilmDB;
+import it.unina.ingSw.cineMates20.model.User;
 import it.unina.ingSw.cineMates20.model.UserDB;
 import it.unina.ingSw.cineMates20.view.activity.RegistrationActivity;
 import it.unina.ingSw.cineMates20.view.util.Utilities;
@@ -107,14 +108,10 @@ public class RegistrationController {
                 RestTemplate restTemplate = new RestTemplate();
                 restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
                 String url = registrationActivity.getResources().getString(R.string.db_path) + "User/add";
-                String email;
 
                 //TODO: memorizzare image_url per S3 nel nostro DB
 
-                if(registrationActivity.getSocialRegistrationProvider().equals("facebook"))
-                    email = Utilities.tryToGetFacebookEmail();
-                else
-                    email = Utilities.tryToGetGoogleEmail(registrationActivity);
+                String email = User.getUserInstance(registrationActivity).getLoggedUser().getEmail();
 
                 if(email != null) {
                     try {
@@ -147,12 +144,8 @@ public class RegistrationController {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
         String url = registrationActivity.getResources().getString(R.string.db_path) + "User/getById/{email}";
-        String email;
 
-        if(registrationActivity.getSocialRegistrationProvider().equals("facebook"))
-            email = Utilities.tryToGetFacebookEmail();
-        else
-            email = Utilities.tryToGetGoogleEmail(registrationActivity);
+        String email = User.getUserInstance(registrationActivity).getLoggedUser().getEmail();
 
         if(email == null) return false;
 

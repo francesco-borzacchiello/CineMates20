@@ -33,6 +33,7 @@ import info.movito.themoviedbapi.model.MovieDb;
 import info.movito.themoviedbapi.model.core.MovieResultsPage;
 import it.unina.ingSw.cineMates20.EntryPoint;
 import it.unina.ingSw.cineMates20.R;
+import it.unina.ingSw.cineMates20.model.User;
 import it.unina.ingSw.cineMates20.view.activity.FriendsActivity;
 import it.unina.ingSw.cineMates20.view.activity.HomeActivity;
 import it.unina.ingSw.cineMates20.view.activity.MoviesListActivity;
@@ -237,14 +238,14 @@ public class HomeController {
     //Restituisce un listener le icone della toolbar in HomeActivity
     public Runnable getOnOptionsItemSelected(int itemId) {
         return () -> {
-            //TODO: spostare negli handler concreti : if(Utilities.checkNullActivityOrNoConnection(homeActivity)) return;
+            if(Utilities.checkNullActivityOrNoConnection(homeActivity)) return;
 
-            //Nota: non è possibile fare switch case a causa del fatto che le risorse in id non sono più final
             if(itemId == android.R.id.home)
                 homeActivity.openDrawerLayout();
-            //else if(itemId == ...)
-
-            //TODO: aggiungere la gestione degli altri item del menu, come le notifiche
+            else if(itemId == R.id.notificationItem &&
+                    !Utilities.checkNullActivityOrNoConnection(homeActivity)) {
+                NotificationsController.getNotificationControllerInstance().start(homeActivity);
+            }
         };
     }
 
@@ -297,7 +298,7 @@ public class HomeController {
         closeActivityNavigationView(activity);
 
         new Handler(Looper.getMainLooper()).postDelayed(() ->
-                PersonalProfileController.getPersonalProfileControllerInstance().start(activity), 240);
+                PersonalProfileController.getPersonalProfileControllerInstance().startPersonalProfile(activity), 240);
     }
 
     private void handleListMenuItem(Activity activity, boolean isFavourites) {
@@ -407,6 +408,7 @@ public class HomeController {
                     error -> homeActivity.runOnUiThread(() -> Utilities.stampaToast(homeActivity, "Si è verificato un errore.\nRiprova tra qualche minuto."))
             );
         }
+        User.deleteUserInstance();
     }
 
     private void backToLogin(Activity activity) {

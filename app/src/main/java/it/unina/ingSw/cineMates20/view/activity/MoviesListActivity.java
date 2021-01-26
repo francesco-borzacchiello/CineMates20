@@ -20,11 +20,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.navigation.NavigationView;
 
-import java.util.List;
-
 import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.controller.HomeController;
 import it.unina.ingSw.cineMates20.controller.MoviesListController;
+import it.unina.ingSw.cineMates20.model.User;
+import it.unina.ingSw.cineMates20.model.UserDB;
 import it.unina.ingSw.cineMates20.view.util.Utilities;
 
 public class MoviesListActivity extends AppCompatActivity {
@@ -35,6 +35,7 @@ public class MoviesListActivity extends AppCompatActivity {
     private RecyclerView moviesListRecyclerView;
     private TextView emptyListTextView;
     private Menu menu;
+    private Spinner listTypeSpinner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,12 +67,12 @@ public class MoviesListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_movies_list);
         setToolbar();
 
-        Spinner listType = findViewById(R.id.moviesListSpinner);
-        listType.setOnItemSelectedListener(moviesListController.getMoviesListActivitySpinnerListener());
+        listTypeSpinner = findViewById(R.id.moviesListSpinner);
+        listTypeSpinner.setOnItemSelectedListener(moviesListController.getMoviesListActivitySpinnerListener());
 
         boolean isFavourites = getIntentExtra();
         if(!isFavourites)
-            listType.setSelection(1);
+            listTypeSpinner.setSelection(1);
 
         emptyListTextView = findViewById(R.id.emptyMovieListTextView);
         progressBar = findViewById(R.id.progressBarMoviesList);
@@ -108,13 +109,12 @@ public class MoviesListActivity extends AppCompatActivity {
 
         TextView nomeTextView = navigationView.getHeaderView(0).findViewById(R.id.nomeUtenteNavMenu);
         TextView cognomeTextView = navigationView.getHeaderView(0).findViewById(R.id.cognomeUtenteNavMenu);
-        List<String> info = Utilities.getCurrentUserInformations(this);
 
-        if(info.size() > 0)
-            runOnUiThread(() -> {
-                nomeTextView.setText(info.get(0));
-                cognomeTextView.setText(info.get(1));
-            });
+        runOnUiThread(() -> {
+            UserDB user = User.getUserInstance(this).getLoggedUser();
+            nomeTextView.setText(user.getNome());
+            cognomeTextView.setText(user.getCognome());
+        });
     }
 
     @Override
@@ -172,6 +172,10 @@ public class MoviesListActivity extends AppCompatActivity {
 
             moviesListRecyclerView.setLayoutManager(new GridLayoutManager(this, 3));
         });
+    }
+
+    public String getSelectedSpinnerItem() {
+        return listTypeSpinner.getSelectedItem().toString();
     }
 
     public void hideProgressBar() {

@@ -63,10 +63,19 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             app:layout_constraintStart_toStartOf="parent"
-            android:visibility="invisible"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/emptyFriendsListTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text="@string/prompt_nessun_amico"
+            android:textSize="30sp"
+            android:textColor="@color/black"
+            android:visibility="gone"
+            android:layout_centerInParent="true"
+            app:drawableBottomCompat="@drawable/empty_box"/>
     </RelativeLayout>
 
     <com.google.android.material.navigation.NavigationView

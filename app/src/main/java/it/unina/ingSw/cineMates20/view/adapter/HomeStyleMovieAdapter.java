@@ -45,6 +45,15 @@ public class HomeStyleMovieAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         deleteList = new TreeSet<>();
     }
 
+    public SortedSet<Long> getDeleteList() {
+        SortedSet<Long> moviesId = new TreeSet<>();
+
+        for(Integer position : deleteList)
+            moviesId.add(moviesIds.get(position));
+
+        return moviesId;
+    }
+
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -107,7 +116,7 @@ public class HomeStyleMovieAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     @NotNull
     @Contract(pure = true)
     private View.OnClickListener addListenerForMovieCard(MovieHolder movieHolder) {
-        return listener -> {
+        return v -> {
             if (!isDeleteEnabled()) {
                 try {
                     movieCardListeners.get(movieHolder.getLayoutPosition()).run();

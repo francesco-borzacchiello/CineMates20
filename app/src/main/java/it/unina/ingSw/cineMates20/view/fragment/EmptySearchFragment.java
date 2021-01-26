@@ -15,9 +15,9 @@ import org.jetbrains.annotations.NotNull;
 import it.unina.ingSw.cineMates20.R;
 
 
-public class FragmentSearchEmpty extends Fragment {
+public class EmptySearchFragment extends Fragment {
 
-    public FragmentSearchEmpty() {}
+    public EmptySearchFragment() {}
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

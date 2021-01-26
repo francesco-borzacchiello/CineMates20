@@ -52,8 +52,7 @@ public class UserActivity extends AppCompatActivity {
             nome = findViewById(R.id.user_name);
             username = findViewById(R.id.user_username);
 
-            //String fullName = user.getNome() + " " + user.getCognome();
-            String fullName = user.getNome();
+            String fullName = user.getNome() + " " + user.getCognome();
             nome.setText(fullName);
 
             username.setText(user.getUsername());

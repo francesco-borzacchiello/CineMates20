@@ -82,7 +82,7 @@ public class SearchMovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     @NotNull
     @Contract(pure = true)
     private View.OnClickListener addListenerForThreeDots(int position) {
-        return listener -> {
+        return v -> {
             try{
                 threeDotsListeners.get(position).run();
             } catch(NullPointerException ignore) {}

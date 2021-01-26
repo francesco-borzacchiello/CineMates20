@@ -19,23 +19,27 @@
         android:uiOptions="splitActionBarWhenNarrow"
         tools:ignore="AllowBackup">
         <activity
-            android:name=".view.activity.PersonalProfileActivity"
+            android:name=".view.activity.NotificationsActivity"
             android:screenOrientation="portrait"
+            android:theme="@style/HomeTheme" />
+        <activity
+            android:name=".view.activity.PersonalProfileActivity"
             android:launchMode="singleTask"
-            android:theme="@style/HomeTheme"/>
+            android:screenOrientation="portrait"
+            android:theme="@style/HomeTheme" />
         <activity
             android:name=".view.activity.JoinedMoviesActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/HomeTheme"/>
+            android:theme="@style/HomeTheme" />
         <activity
             android:name=".view.activity.UserActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/HomeTheme"/>
+            android:theme="@style/HomeTheme" />
         <activity
             android:name=".view.activity.ReportActivity"
             android:screenOrientation="portrait"
             android:theme="@style/HomeTheme"
-            android:windowSoftInputMode="adjustPan"/>
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".view.activity.MoviesListActivity"
             android:screenOrientation="portrait"
@@ -71,8 +75,8 @@
             android:theme="@style/HomeTheme" />
         <activity
             android:name=".view.activity.FriendsActivity"
-            android:screenOrientation="portrait"
             android:launchMode="singleTask"
+            android:screenOrientation="portrait"
             android:theme="@style/HomeTheme" />
         <activity
             android:name=".view.activity.RegistrationActivity"

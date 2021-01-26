@@ -1,6 +1,9 @@
 package it.unina.ingSw.cineMates20.controller;
 
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.net.Uri;
+import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -8,6 +11,11 @@ import com.denzcoskun.imageslider.constants.ScaleTypes;
 import com.denzcoskun.imageslider.models.SlideModel;
 
 import org.jetbrains.annotations.NotNull;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,9 +33,12 @@ import info.movito.themoviedbapi.model.MovieDb;
 import info.movito.themoviedbapi.model.MovieImages;
 import info.movito.themoviedbapi.model.ReleaseDate;
 import info.movito.themoviedbapi.model.ReleaseInfo;
+import info.movito.themoviedbapi.model.Video;
 import info.movito.themoviedbapi.model.people.PersonCast;
 import info.movito.themoviedbapi.model.people.PersonCrew;
 import it.unina.ingSw.cineMates20.R;
+import it.unina.ingSw.cineMates20.model.ListaFilmDB;
+import it.unina.ingSw.cineMates20.model.User;
 import it.unina.ingSw.cineMates20.view.activity.HomeActivity;
 import it.unina.ingSw.cineMates20.view.activity.JoinedMoviesActivity;
 import it.unina.ingSw.cineMates20.view.activity.MoviesListActivity;
@@ -41,7 +52,9 @@ public class ShowDetailsMovieController {
     private static TmdbMovies tmdbMovies;
     private ShowDetailsMovieActivity showDetailsMovieActivity;
     private MovieDb actualMovie;
+    private String actualMovieKeyTrailer;
     private AppCompatActivity activityParent;
+    private boolean isParentMoviesListActivity;
 
     private ShowDetailsMovieController() {}
 
@@ -51,17 +64,59 @@ public class ShowDetailsMovieController {
         return instance;
     }
 
+    public void start(AppCompatActivity activityParent, MovieDb movie) {
+        isParentMoviesListActivity = activityParent instanceof MoviesListActivity;
+        actualMovie = movie;
+
+        Intent intent = new Intent(activityParent, ShowDetailsMovieActivity.class);
+        //Utilizzato per comunicare a ShowDetailsMovieActivity se il suo chiamante non è SearchMovieActivity
+        this.activityParent = activityParent;
+
+        activityParent.startActivity(intent);
+        activityParent.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+    }
+
+    public boolean isParentMoviesListActivity() {
+        return isParentMoviesListActivity;
+    }
+
     public void setShowDetailsMovieActivity(@NotNull ShowDetailsMovieActivity activity) {
         showDetailsMovieActivity = activity;
         hideProgressBar();
 
         Thread t = new Thread(()->
-                tmdbMovies = new TmdbMovies(new TmdbApi(activity.getResources().getString(R.string.themoviedb_api_key))));
+            tmdbMovies = new TmdbMovies(new TmdbApi(activity.getResources().getString(R.string.themoviedb_api_key))));
         t.start();
 
         try {
             t.join();
         }catch(InterruptedException ignore){}
+
+        new Thread(()-> {
+            List<Video> videos = tmdbMovies.getVideos(actualMovie.getId(), "it");
+
+            if(videos.size() == 0) {
+                videos = tmdbMovies.getVideos(actualMovie.getId(), "en");
+                if(videos.size() == 0) {
+                    actualMovieKeyTrailer = null;
+                    return;
+                }
+
+                for(Video video: videos) {
+                    if(video.getSite().equals("YouTube")) {
+                        actualMovieKeyTrailer = video.getKey();
+                        break;
+                    }
+                }
+            } else {
+                for(Video video: videos) {
+                    if(video.getSite().equals("YouTube")) {
+                        actualMovieKeyTrailer = video.getKey();
+                        break;
+                    }
+                }
+            }
+        }).start();
     }
 
     public void initializeShowDetailsMovieActivity() {
@@ -153,8 +208,8 @@ public class ShowDetailsMovieController {
         return imageBackground;
     }
 
-    /* Restituisce la data di uscita italiana di un film in formato europeo, nel caso non disponibile
-       prova a restituire la data di uscita americana */
+    /* Restituisce la data di uscita italiana di un film in formato europeo,
+       nel caso non disponibile prova a restituire la data di uscita americana */
     private String getEuropeanFormatMovieReleaseDate(@NotNull MovieDb movie) {
         //tmdbMovies.getReleaseInfo(movie.getId(),"it");
         String[] movieReleaseDate = new String[1];
@@ -292,16 +347,6 @@ public class ShowDetailsMovieController {
         return certification[0];
     }
 
-    public void start(AppCompatActivity activityParent, MovieDb movie) {
-        actualMovie = movie;
-        Intent intent = new Intent(activityParent, ShowDetailsMovieActivity.class);
-        //Utilizzato per comunicare a ShowDetailsMovieActivity se il suo chiamante non è SearchMovieActivity
-        this.activityParent = activityParent;
-
-        activityParent.startActivity(intent);
-        activityParent.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-    }
-
     public void hideProgressBar() {
         if(activityParent != null) {
             if(activityParent instanceof HomeActivity)
@@ -314,4 +359,129 @@ public class ShowDetailsMovieController {
                 JoinedMoviesController.getJoinedMoviesControllerInstance().hideJoinedMoviesProgressBar();
         }
     }
+
+    public boolean isSelectedMovieAlreadyInList(boolean isFavouritesList) {
+        if(actualMovie == null) return false;
+
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
+
+        String email = User.getUserInstance(showDetailsMovieActivity).getLoggedUser().getEmail();
+        boolean[] contains = new boolean[1];
+
+        Thread t = new Thread(()-> {
+            String url;
+            if(isFavouritesList)
+                url = showDetailsMovieActivity.getResources().getString(R.string.db_path) + "ListaFilm/getPreferitiByPossessore/{FK_Possessore}";
+            else
+                url = showDetailsMovieActivity.getResources().getString(R.string.db_path) + "ListaFilm/getDaVedereByPossessore/{FK_Possessore}";
+
+            ListaFilmDB listaFilm = restTemplate.getForObject(url, ListaFilmDB.class, email);
+
+            url = showDetailsMovieActivity.getResources().getString(R.string.db_path) + "ListaFilm/containsFilm/{id}/{FK_Film}";
+
+            contains[0] = restTemplate.getForObject(url, boolean.class, listaFilm.getId(), actualMovie.getId());
+        });
+        t.start();
+
+        try {
+            t.join();
+        }catch(InterruptedException ignore){}
+
+        return contains[0];
+    }
+
+
+    //region Listener pulsanti per l'aggiunta/rimozione da una lista
+    public View.OnClickListener getAggiungiPreferitiOnClickListener() {
+        return v -> {
+            if(actualMovie != null && showDetailsMovieActivity != null) {
+                showDetailsMovieActivity.temporarilyDisableFavouritesButton();
+                getListenerForManageListOfFavourites("addFilmToListaFilm");
+                showDetailsMovieActivity.changeAddFavouritesButtonToRemove();
+            }
+        };
+    }
+
+    public View.OnClickListener getRimuoviPreferitiOnClickListener() {
+        return v -> {
+            if(actualMovie != null && showDetailsMovieActivity != null) {
+                showDetailsMovieActivity.temporarilyDisableFavouritesButton();
+                getListenerForManageListOfFavourites("removeFilmFromListaFilm");
+                showDetailsMovieActivity.changeRemoveFavouritesButtonToAdd();
+            }
+        };
+    }
+
+    public View.OnClickListener getAggiungiDaVedereOnClickListener() {
+        return v -> {
+            if(actualMovie != null && showDetailsMovieActivity != null) {
+                showDetailsMovieActivity.temporarilyDisableToWatchButton();
+                getListenerForManageListToWatch("addFilmToListaFilm");
+                showDetailsMovieActivity.changeAddToWatchButtonToRemove();
+            }
+        };
+    }
+
+    public View.OnClickListener getRimuoviDaVedereOnClickListener() {
+        return v -> {
+            if(actualMovie != null && showDetailsMovieActivity != null) {
+                showDetailsMovieActivity.temporarilyDisableToWatchButton();
+                getListenerForManageListToWatch("removeFilmFromListaFilm");
+                showDetailsMovieActivity.changeRemoveToWatchButtonToAdd();
+            }
+        };
+    }
+
+    private void getListenerForManageListOfFavourites(String methodForEditingList) {
+        getListenerForSendRequestsToTheServer("getPreferitiByPossessore", methodForEditingList);
+    }
+
+    private void getListenerForManageListToWatch(String methodForEditingList) {
+        getListenerForSendRequestsToTheServer("getDaVedereByPossessore", methodForEditingList);
+    }
+
+    private void getListenerForSendRequestsToTheServer(String methodToRetrieveList, String methodForEditingList) {
+        Thread t = new Thread(()-> {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            RestTemplate restTemplate = new RestTemplate();
+            restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
+
+            String url = showDetailsMovieActivity.getResources().getString(R.string.db_path) + "ListaFilm/" + methodToRetrieveList + "/{FK_Possessore}";
+
+            String email = User.getUserInstance(showDetailsMovieActivity).getLoggedUser().getEmail();
+
+            ListaFilmDB listaFilmPreferiti = restTemplate.getForObject(url, ListaFilmDB.class, email);
+            HttpEntity<ListaFilmDB> requestListaPreferitiEntity = new HttpEntity<>(listaFilmPreferiti, headers);
+
+            url = showDetailsMovieActivity.getResources().getString(R.string.db_path) + "ListaFilm/" + methodForEditingList + "/{FK_Film}";
+            restTemplate.postForEntity(url, requestListaPreferitiEntity, ListaFilmDB.class, actualMovie.getId());
+        });
+
+        t.start();
+        try {
+            t.join();
+        }catch (InterruptedException ignore) {}
+    }
+
+    public View.OnClickListener getYoutubeImageViewOnClickListener() {
+        return v -> {
+            if(actualMovieKeyTrailer != null) {
+                Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + actualMovieKeyTrailer));
+                Intent webIntent = new Intent(Intent.ACTION_VIEW,
+                        Uri.parse("http://www.youtube.com/watch?v=" + actualMovieKeyTrailer));
+                try {
+                    showDetailsMovieActivity.startActivity(appIntent);
+                } catch (ActivityNotFoundException ex) {
+                    showDetailsMovieActivity.startActivity(webIntent);
+                }
+            }
+        };
+    }
+
+    public boolean isTrailerAvailable() {
+        return actualMovieKeyTrailer != null;
+    }
+    //endregion
 }

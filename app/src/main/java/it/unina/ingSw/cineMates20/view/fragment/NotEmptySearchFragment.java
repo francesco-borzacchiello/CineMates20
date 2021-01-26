@@ -15,13 +15,13 @@ import org.jetbrains.annotations.NotNull;
 
 import it.unina.ingSw.cineMates20.R;
 
-public class FragmentSearchNotEmpty extends Fragment {
+public class NotEmptySearchFragment extends Fragment {
 
     private RecyclerView.Adapter<RecyclerView.ViewHolder> adapter = null;
 
-    public FragmentSearchNotEmpty() {}
+    public NotEmptySearchFragment() {}
 
-    public FragmentSearchNotEmpty(RecyclerView.Adapter<RecyclerView.ViewHolder> adapter) {
+    public NotEmptySearchFragment(RecyclerView.Adapter<RecyclerView.ViewHolder> adapter) {
         this.adapter = adapter;
     }
 

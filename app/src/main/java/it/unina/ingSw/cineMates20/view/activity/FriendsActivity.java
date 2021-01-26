@@ -23,11 +23,11 @@ import android.widget.TextView;
 
 import com.google.android.material.navigation.NavigationView;
 
-import java.util.List;
-
 import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.controller.FriendsController;
 import it.unina.ingSw.cineMates20.controller.HomeController;
+import it.unina.ingSw.cineMates20.model.User;
+import it.unina.ingSw.cineMates20.model.UserDB;
 import it.unina.ingSw.cineMates20.view.util.Utilities;
 
 public class FriendsActivity extends AppCompatActivity {
@@ -38,7 +38,7 @@ public class FriendsActivity extends AppCompatActivity {
     private Menu menu;
     private ProgressBar progressBar;
     private RecyclerView friendsRecyclerView;
-    //Nota: tasto "aggiungi amico" verrà probabilmente rimosso dal mockup
+    private TextView emptyFriendsListTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,8 +67,9 @@ public class FriendsActivity extends AppCompatActivity {
 
         progressBar = findViewById(R.id.progressBarFriends);
         friendsRecyclerView = findViewById(R.id.friendsRecyclerView);
+        emptyFriendsListTextView = findViewById(R.id.emptyFriendsListTextView);
 
-        friendsController.initializeActivityFriends();
+        friendsController.initializeActivityFriendsAdapter();
     }
 
     private void setToolbar() {
@@ -89,13 +90,12 @@ public class FriendsActivity extends AppCompatActivity {
 
         TextView nomeTextView = navigationView.getHeaderView(0).findViewById(R.id.nomeUtenteNavMenu);
         TextView cognomeTextView = navigationView.getHeaderView(0).findViewById(R.id.cognomeUtenteNavMenu);
-        List<String> info = Utilities.getCurrentUserInformations(this);
 
-        if(info.size() > 0)
-            runOnUiThread(() -> {
-                nomeTextView.setText(info.get(0));
-                cognomeTextView.setText(info.get(1));
-            });
+        runOnUiThread(() -> {
+            UserDB user = User.getUserInstance(this).getLoggedUser();
+            nomeTextView.setText(user.getNome());
+            cognomeTextView.setText(user.getCognome());
+        });
     }
 
     @Override
@@ -118,15 +118,15 @@ public class FriendsActivity extends AppCompatActivity {
     private void setNavigationViewActionListener() {
         //Listener per icone del NavigationView
         navigationView.setNavigationItemSelectedListener(
-                item -> {
-                    Runnable r = HomeController.getHomeControllerInstance().getNavigationViewOnOptionsItemSelected(this, item.getItemId());
-                    try {
-                        r.run();
-                    }catch(NullPointerException e){
-                        Utilities.stampaToast(FriendsActivity.this, "Si è verificato un errore.\nRiprova tra qualche minuto");
-                    }
-                    return false;
+            item -> {
+                Runnable r = HomeController.getHomeControllerInstance().getNavigationViewOnOptionsItemSelected(this, item.getItemId());
+                try {
+                    r.run();
+                }catch(NullPointerException e){
+                    Utilities.stampaToast(FriendsActivity.this, "Si è verificato un errore.\nRiprova tra qualche minuto");
                 }
+                return false;
+            }
         );
     }
 
@@ -196,5 +196,12 @@ public class FriendsActivity extends AppCompatActivity {
 
     public void openDrawerLayout() {
         friendsDrawerLayout.openDrawer(GravityCompat.START);
+    }
+
+    public void showEmptyFriendsLayout(boolean show) {
+        if(show)
+            emptyFriendsListTextView.setVisibility(View.VISIBLE);
+        else
+            emptyFriendsListTextView.setVisibility(View.GONE);
     }
 }

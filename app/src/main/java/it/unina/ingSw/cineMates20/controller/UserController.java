@@ -34,7 +34,7 @@ public class UserController {
     //endregion
 
     //region Lancio dell'Activity
-    public void start(@NotNull AppCompatActivity activityParent) { //TODO: da prendere in input anche un UserDB
+    public void start(@NotNull AppCompatActivity activityParent) {
         Intent intent = new Intent(activityParent, UserActivity.class);
         activityParent.startActivity(intent);
         activityParent.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);

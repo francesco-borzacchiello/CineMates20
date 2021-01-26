@@ -113,11 +113,17 @@
 
     <string name="removeFromFavourites">Rimuovi dalla lista dei \"Film preferiti\"</string>
     <string name="removeFromToWatch">Rimuovi dalla lista dei \"Film da vedere\"</string>
-    <string name="favourites">Preferiti"</string>
-    <string name="toWatch">Da vedere"</string>
+    <string name="favourites">Preferiti</string>
+    <string name="toWatch">Da vedere</string>
+    <string name="showDetailsMovieButtonsLabel">Aggiungi o rimuovi film da una lista</string>
+    <string name="watchTrailer">Guarda trailer</string>
 
     <string-array name="movies_list_tag">
         <item>Preferiti</item>
         <item>Da vedere</item>
     </string-array>
+
+    <string name="noFriendRequestsAvailable">Non sono presenti richieste di amicizia</string>
+    <string name="noNotificationsAvailable">Non sono presenti notifiche</string>
+    <string name="prompt_nessun_amico">Non sono presenti amici</string>
 </resources>

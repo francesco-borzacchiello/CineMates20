@@ -23,10 +23,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.navigation.NavigationView;
 
-import java.util.List;
-
 import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.controller.HomeController;
+import it.unina.ingSw.cineMates20.model.User;
+import it.unina.ingSw.cineMates20.model.UserDB;
 import it.unina.ingSw.cineMates20.view.util.Utilities;
 
 public class HomeActivity extends AppCompatActivity {
@@ -104,13 +104,12 @@ public class HomeActivity extends AppCompatActivity {
 
         TextView nomeTextView = navigationView.getHeaderView(0).findViewById(R.id.nomeUtenteNavMenu);
         TextView cognomeTextView = navigationView.getHeaderView(0).findViewById(R.id.cognomeUtenteNavMenu);
-        List<String> info = Utilities.getCurrentUserInformations(this);
 
-        if(info.size() > 0)
-            runOnUiThread(() -> {
-                nomeTextView.setText(info.get(0));
-                cognomeTextView.setText(info.get(1));
-            });
+        runOnUiThread(() -> {
+            UserDB user = User.getUserInstance(this).getLoggedUser();
+            nomeTextView.setText(user.getNome());
+            cognomeTextView.setText(user.getCognome());
+        });
     }
 
     @Override

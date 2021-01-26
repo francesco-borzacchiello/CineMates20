@@ -17,22 +17,19 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 import it.unina.ingSw.cineMates20.R;
+import it.unina.ingSw.cineMates20.controller.FriendsController;
 import it.unina.ingSw.cineMates20.model.UserDB;
 
 public class FriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final Context context;
-    private final List<String> names, usernames, email, linkImage;
+    private final List<UserDB> friends;
     private final List<Runnable> showUserListeners;
     private UserDB lastClickedUser;
     private int lastClickedItemPosition;
 
-    public FriendsAdapter(Context context, List<String> names, List<String> usernames,
-                          List<String> email, List<String> linkImage, List<Runnable> showUserListeners) {
+    public FriendsAdapter(Context context, List<UserDB> friends, List<Runnable> showUserListeners) {
         this.context = context;
-        this.names = names;
-        this.usernames = usernames;
-        this.email = email;
-        this.linkImage = linkImage;
+        this.friends = friends;
         this.showUserListeners = showUserListeners;
     }
 
@@ -50,8 +47,9 @@ public class FriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             throw new IllegalArgumentException("Holder non valido!");
 
         FriendsAdapter.UserHolder userHolder = (FriendsAdapter.UserHolder)holder;
-        userHolder.nameTextView.setText(names.get(position));
-        userHolder.usernameTextView.setText(usernames.get(position));
+        userHolder.nameTextView.setText(friends.get(position).getNome());
+        userHolder.surnameTextView.setText(friends.get(position).getCognome());
+        userHolder.usernameTextView.setText(friends.get(position).getUsername());
 
         //TODO: adattare questa parte per il recupero dell'immagine da Amazon S3
         /*String firstPath = context.getResources().getString(R.string.first_path_poster_image);
@@ -68,20 +66,19 @@ public class FriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                         public void onError(Exception e) {}
                     });*/
 
-        //Set action listener
         userHolder.userConstraintLayout.setOnClickListener(addListenerForUserLayout(position));
     }
 
     @NotNull
     @Contract(pure = true)
     private View.OnClickListener addListenerForUserLayout(int position) {
-        return listener -> {
+        return v -> {
             try{
                 showUserListeners.get(position).run();
                 lastClickedItemPosition = position;
-                lastClickedUser = new UserDB(usernames.get(position),
-                        names.get(position), names.get(position),
-                        email.get(position), "utente");
+                lastClickedUser = new UserDB(friends.get(position).getUsername(),
+                        friends.get(position).getNome(), friends.get(position).getCognome(),
+                        friends.get(position).getEmail(), "utente");
             } catch(NullPointerException ignore) {}
         };
     }
@@ -98,16 +95,16 @@ public class FriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     //Si occupa soltanto dell'eliminazione grafica, non di quella concreta
     public void deleteLastClickedItem() {
-        if(names.size() == 0 || lastClickedItemPosition == -1) return;
+        if(friends.size() == 0 || lastClickedItemPosition == -1) return;
 
-        names.remove(lastClickedItemPosition);
-        usernames.remove(lastClickedItemPosition);
-        linkImage.remove(lastClickedItemPosition);
+        friends.remove(lastClickedItemPosition);
         showUserListeners.remove(lastClickedItemPosition);
-        email.remove(lastClickedItemPosition);
 
         notifyItemRemoved(lastClickedItemPosition);
-        notifyItemRangeChanged(lastClickedItemPosition, names.size());
+        notifyItemRangeChanged(lastClickedItemPosition, friends.size());
+
+        if(friends.size() == 0)
+            FriendsController.getFriendsControllerInstance().showEmptyFriendsLayout(true);
 
         lastClickedItemPosition = -1; //Reset
     }
@@ -119,7 +116,8 @@ public class FriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private static class UserHolder extends RecyclerView.ViewHolder{
 
         TextView nameTextView,
-                usernameTextView;
+                 surnameTextView,
+                 usernameTextView;
 
         ImageView profilePictureImageView;
         ConstraintLayout userConstraintLayout;
@@ -127,6 +125,7 @@ public class FriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         private UserHolder(@NonNull View itemView) {
             super(itemView);
             nameTextView = itemView.findViewById(R.id.friend_name);
+            surnameTextView = itemView.findViewById(R.id.friend_surname);
             usernameTextView = itemView.findViewById(R.id.friend_username);
             profilePictureImageView = itemView.findViewById(R.id.friend_profile_picture);
             userConstraintLayout = itemView.findViewById(R.id.friendsConstraintLayout);

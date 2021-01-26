@@ -2,7 +2,6 @@ package it.unina.ingSw.cineMates20.controller;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -24,14 +23,14 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
+import java.util.SortedSet;
 
 import info.movito.themoviedbapi.TmdbApi;
 import info.movito.themoviedbapi.TmdbMovies;
 import info.movito.themoviedbapi.model.MovieDb;
-import info.movito.themoviedbapi.model.core.MovieResultsPage;
 import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.model.ListaFilmDB;
+import it.unina.ingSw.cineMates20.model.User;
 import it.unina.ingSw.cineMates20.view.activity.MoviesListActivity;
 import it.unina.ingSw.cineMates20.view.adapter.HomeStyleMovieAdapter;
 import it.unina.ingSw.cineMates20.view.util.Utilities;
@@ -76,8 +75,6 @@ public class MoviesListController {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String[] spinnerArray = moviesListActivity.getResources().getStringArray(R.array.movies_list_tag);
                 Thread t = new Thread(()-> {
-                    HttpHeaders headers = new HttpHeaders();
-                    headers.setContentType(MediaType.APPLICATION_JSON);
                     RestTemplate restTemplate = new RestTemplate();
                     restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
 
@@ -85,8 +82,7 @@ public class MoviesListController {
                     String methodToRetrieveList = (parent.getItemAtPosition(position).toString().equals(spinnerArray[0]) ? "getPreferitiByPossessore" : "getDaVedereByPossessore");
                     url = moviesListActivity.getResources().getString(R.string.db_path) + "ListaFilm/" + methodToRetrieveList + "/{FK_Possessore}";
 
-                    List<String> info = Utilities.getCurrentUserInformations(moviesListActivity);
-                    String email = info.get(3);
+                    String email = User.getUserInstance(moviesListActivity).getLoggedUser().getEmail();
 
                     ListaFilmDB listaFilmPreferiti = restTemplate.getForObject(url, ListaFilmDB.class, email);
                     initializeActivityMovies(listaFilmPreferiti);
@@ -104,19 +100,7 @@ public class MoviesListController {
         };
     }
 
-    //TODO: da modificare con film reali della lista dell'utente dopo aver completato applicativo server
     public void initializeActivityMovies(ListaFilmDB list) {
-        //if(!listaSelezionata(isFavourites).isEmpty())
-             /*if(moviesListActivity.areMoviesHidden()) {
-                  moviesListActivity.setMoviesVisibility(true);
-                  moviesListActivity.setEmptyMovieListTextViewVisibility(false);
-               }
-              */
-              //...recupero film dal nostro DB, poi da TMDB, e infine creazione e set adapter per il RecyclerView
-        /*else {
-              moviesListActivity.setMoviesVisibility(false);
-              moviesListActivity.setEmptyMovieListTextViewVisibility(true);
-         */
         Thread t = new Thread(()-> {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -146,46 +130,54 @@ public class MoviesListController {
         try {
             t.join();
         } catch (InterruptedException ignore) {}
+    }
 
-        //TODO: rimuovere questo codice temporaneo successivamente e sostituirlo con quello sopra
-        /*Random rd = new Random();
-        boolean tmp = rd.nextBoolean();
+    public void aggiungiFilmAPreferiti(@NotNull MovieDb movie, Activity activity) {
+        getListenerForManageListOfFavourites(movie.getId(), "addFilmToListaFilm", activity);
+    }
 
-        if(!tmp) { //if(!listaVuota)
-            if(moviesListActivity.areMoviesHidden()) {
-                moviesListActivity.setMoviesVisibility(true);
-                moviesListActivity.setEmptyMovieListTextViewVisibility(false);
-            }
+    public void rimuoviFilmDaPreferiti(@NotNull MovieDb movie, Activity activity) {
+        getListenerForManageListOfFavourites(movie.getId(), "removeFilmFromListaFilm", activity);
+    }
 
-            Thread t = new Thread(()-> {
-                TmdbMovies tmdbMovies = new TmdbMovies(new TmdbApi(moviesListActivity.getResources().getString(R.string.themoviedb_api_key)));
-                MovieResultsPage upcomingUsa = tmdbMovies.getUpcoming("it", 1, "US");
-                ArrayList<String> upcomingTitles = new ArrayList<>(),
-                        upcomingImagesUrl = new ArrayList<>();
-                ArrayList<Runnable> upcomingMoviesCardViewListeners = new ArrayList<>();
-                ArrayList<Integer> moviesIds = new ArrayList<>();
-                //TODO: tmdbMovies.getMovie(1, "it");
-                initializeListsForMoviesListAdapter(upcomingUsa, upcomingTitles,
-                        upcomingImagesUrl, upcomingMoviesCardViewListeners, moviesIds);
+    public void aggiungiFilmInDaVedere(@NotNull MovieDb movie, Activity activity) {
+        getListenerForManageListToWatch(movie.getId(), "addFilmToListaFilm", activity);
+    }
 
-                actualAdapter = getMoviesListRecyclerViewAdapter
-                        (upcomingUsa, upcomingTitles, upcomingImagesUrl, upcomingMoviesCardViewListeners, moviesIds);
+    public void rimuoviFilmDaVedere(@NotNull MovieDb movie, Activity activity) {
+        getListenerForManageListToWatch(movie.getId(), "removeFilmFromListaFilm", activity);
+    }
 
-                if(actualAdapter != null)
-                    moviesListActivity.setMoviesListRecyclerView(actualAdapter);
-            });
+    private void getListenerForManageListOfFavourites(int idMovie, String methodForEditingList, Activity activity) {
+        getListenerForSendRequestsToTheServer(idMovie, "getPreferitiByPossessore", methodForEditingList, activity);
+    }
 
-            t.start();
+    private void getListenerForManageListToWatch(int idMovie, String methodForEditingList, Activity activity) {
+        getListenerForSendRequestsToTheServer(idMovie, "getDaVedereByPossessore", methodForEditingList, activity);
+    }
 
-            try {
-                t.join();
-            }catch(InterruptedException ignore) {}
-        }
-        else {
-            moviesListActivity.setMoviesVisibility(false);
-            moviesListActivity.setEmptyMovieListTextViewVisibility(true);
-        }*/
+    private void getListenerForSendRequestsToTheServer(int idFilm, String methodToRetrieveList, String methodForEditingList, Activity activity) {
+        Thread t = new Thread(()-> {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            RestTemplate restTemplate = new RestTemplate();
+            restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
 
+            String url = activity.getResources().getString(R.string.db_path) + "ListaFilm/" + methodToRetrieveList + "/{FK_Possessore}";
+
+            String email = User.getUserInstance(activity).getLoggedUser().getEmail();
+
+            ListaFilmDB listaFilmPreferiti = restTemplate.getForObject(url, ListaFilmDB.class, email);
+            HttpEntity<ListaFilmDB> requestListaPreferitiEntity = new HttpEntity<>(listaFilmPreferiti, headers);
+
+            url = activity.getResources().getString(R.string.db_path) + "ListaFilm/" + methodForEditingList + "/{FK_Film}";
+            restTemplate.postForEntity(url, requestListaPreferitiEntity, ListaFilmDB.class, idFilm);
+        });
+
+        t.start();
+        try {
+            t.join();
+        }catch (InterruptedException ignore) {}
     }
 
     public void showEmptyMovieList() {
@@ -279,6 +271,7 @@ public class MoviesListController {
             if(Utilities.checkNullActivityOrNoConnection(moviesListActivity)) return true;
 
             if(actualAdapter.isDeleteEnabled()) {
+                deleteMovieFromDatabase(actualAdapter.getDeleteList());
                 actualAdapter.deleteSelectedItem();
 
                 moviesListActivity.getMoviesRecyclerView().getRecycledViewPool().clear();
@@ -286,6 +279,19 @@ public class MoviesListController {
             updateAllMoviesCheckBoxesVisibility();
             return true;
         };
+    }
+
+    private void deleteMovieFromDatabase(@NotNull SortedSet<Long> deleteList) {
+        new Thread(() -> {
+            TmdbMovies tmdbMovies = new TmdbMovies(new TmdbApi(moviesListActivity.getResources().getString(R.string.themoviedb_api_key)));
+            String[] spinnerArray = moviesListActivity.getResources().getStringArray(R.array.movies_list_tag);
+
+            for(Long id : deleteList)
+                if(moviesListActivity.getSelectedSpinnerItem().equals(spinnerArray[0]))
+                    rimuoviFilmDaPreferiti(tmdbMovies.getMovie(id.intValue(), "it"), moviesListActivity);
+                else
+                    rimuoviFilmDaVedere(tmdbMovies.getMovie(id.intValue(), "it"), moviesListActivity);
+        }).start();
     }
 
     public void resetAllMoviesCheckBoxes() {

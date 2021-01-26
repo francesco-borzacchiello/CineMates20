@@ -9,8 +9,8 @@
 
     <com.makeramen.roundedimageview.RoundedImageView
         android:id="@+id/imageProfile"
-        android:layout_width="75sp"
-        android:layout_height="75sp"
+        android:layout_width="75dp"
+        android:layout_height="75dp"
         android:layout_marginTop="30dp"
         android:scaleType="centerCrop"
         android:src="@drawable/fake_profile_picture"

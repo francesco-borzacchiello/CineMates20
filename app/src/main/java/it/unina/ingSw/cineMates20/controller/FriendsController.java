@@ -51,40 +51,35 @@ public class FriendsController {
     //endregion
 
     //TODO: da modificare con utenti reali dopo aver completato applicativo server
-    public void initializeActivityFriends() {
-        ArrayList<String> nomi = new ArrayList<>(),
-                           username = new ArrayList<>(),
-                           email = new ArrayList<>(),
-                           picturesUrl = new ArrayList<>();
+    public void initializeActivityFriendsAdapter() {
+        ArrayList<UserDB> users = new ArrayList<>();
 
         ArrayList<Runnable> usersLayoutListeners = new ArrayList<>();
 
         //Popolamento temporaneo con dati fittizzi:
-        for(int i = 0; i<30; i++) {
-            nomi.add("Nome Cognome");
-            username.add("Username");
-            picturesUrl.add(null); //Per ora non ci sono foto oltre a quella di default
-            email.add("test@gmail.com");
-            usersLayoutListeners.add(getUserLayoutListener("Nome Cognome", "Username")); //getUserCardViewListener(utente);
+        for(int i = 0; i<4; i++) {
+            users.add(new UserDB("Username", "Nome", "Cognome", "email@gmail.com", "utente"));
+            usersLayoutListeners.add(getUserLayoutListener()); //getUserCardViewListener(utente);
         }
 
-        //if(friends.getCount() > 0) show emptyBoxPicture ... else setFriendsRecyclerView(friendsAdapter)
-        friendsAdapter = new FriendsAdapter(friendsActivity, nomi,
-                username, email, picturesUrl, usersLayoutListeners);
+        if(users.size() == 0)
+            showEmptyFriendsLayout(true);
+        else {
+            friendsAdapter = new FriendsAdapter(friendsActivity, users, usersLayoutListeners);
 
-        friendsAdapter.setHasStableIds(true);
-        friendsActivity.setFriendsRecyclerView(friendsAdapter);
+            friendsAdapter.setHasStableIds(true);
+            friendsActivity.setFriendsRecyclerView(friendsAdapter);
+        }
     }
 
-    //TODO: da modificare con utenti reali dopo aver completato applicativo server
     @NotNull
     @Contract(pure = true)
-    private Runnable getUserLayoutListener(String nome, String cognome) { //(UserDB user)
+    private Runnable getUserLayoutListener() {
         return ()-> {
             if(Utilities.checkNullActivityOrNoConnection(friendsActivity)) return;
 
             friendsActivity.showFriendsProgressBar(true);
-            UserController.getUserControllerInstance().start(friendsActivity); //start(friendsActivity, user);
+            UserController.getUserControllerInstance().start(friendsActivity);
         };
     }
 
@@ -95,13 +90,12 @@ public class FriendsController {
     //Restituisce un listener le icone della toolbar in FriendsActivity
     public Runnable getOnOptionsItemSelected(int itemId) {
         return () -> {
-            //TODO: spostare negli handler concreti : if(Utilities.checkNullActivityOrNoConnection(homeActivity)) return;
-
             if(itemId == android.R.id.home)
                 friendsActivity.openDrawerLayout();
-            //else if(itemId == ...)
-
-            //TODO: aggiungere la gestione degli altri item del menu, come la search (invio richiesta al nostro DB)...
+            else if(itemId == R.id.notificationItem &&
+                    !Utilities.checkNullActivityOrNoConnection(friendsActivity)) {
+                NotificationsController.getNotificationControllerInstance().start(friendsActivity);
+            }
         };
     }
 
@@ -148,5 +142,10 @@ public class FriendsController {
         if(friendsAdapter != null)
             return friendsAdapter.getLastClickedUser();
         return null;
+    }
+
+    public void showEmptyFriendsLayout(boolean show) {
+        if(friendsActivity != null)
+            friendsActivity.showEmptyFriendsLayout(show);
     }
 }

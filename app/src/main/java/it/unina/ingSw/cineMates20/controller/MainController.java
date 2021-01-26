@@ -12,8 +12,8 @@ import org.springframework.web.client.RestTemplate;
 
 import it.unina.ingSw.cineMates20.EntryPoint;
 import it.unina.ingSw.cineMates20.R;
+import it.unina.ingSw.cineMates20.model.User;
 import it.unina.ingSw.cineMates20.model.UserDB;
-import it.unina.ingSw.cineMates20.view.util.Utilities;
 
 /**
  * Verifica se l'utente è loggato comunicando con cognito,
@@ -77,12 +77,8 @@ public class MainController {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
         String url = activity.getResources().getString(R.string.db_path) + "User/getById/{email}";
-        String email;
 
-        if(AccessToken.getCurrentAccessToken() != null)
-            email = Utilities.tryToGetFacebookEmail();
-        else
-            email = Utilities.tryToGetGoogleEmail(activity);
+        String email = User.getUserInstance(activity).getLoggedUser().getEmail();
 
         if(email == null) return false;
 
