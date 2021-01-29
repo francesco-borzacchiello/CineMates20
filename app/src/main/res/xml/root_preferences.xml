@@ -1,0 +1,40 @@
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory app:title="@string/adult_filter">
+
+        <ListPreference
+            app:key="adult_filter"
+            app:defaultValue="Disabilita"
+            app:entries="@array/enable_options"
+            app:entryValues="@array/enable_options"
+            app:title="@string/filter_title"
+            app:useSimpleSummaryProvider="true" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="@string/sync_header">
+
+        <SwitchPreferenceCompat
+            app:key="sync_notification"
+            app:title="@string/sync_title"
+            app:singleLineTitle="false"
+            app:defaultValue="true"/>
+
+    </PreferenceCategory>
+    <PreferenceCategory
+        app:title="@string/messages_header"
+        app:enabled="false">
+
+        <EditTextPreference
+            app:key="signature"
+            app:title="@string/signature_title"
+            app:defaultValue="Non impostato"
+            app:useSimpleSummaryProvider="true" />
+
+        <SwitchPreferenceCompat
+            app:key="send_message_key"
+            app:title="@string/send_messages_title"/>
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

@@ -84,7 +84,7 @@ public class ReportActivity extends AppCompatActivity {
         description.setText(movie.getOverview());
 
         if(movie.getPosterPath() != null) {
-            String firstPath = getResources().getString(R.string.first_path_poster_image);
+            String firstPath = getResources().getString(R.string.first_path_image);
             Picasso.get().load(firstPath + movie.getPosterPath()).resize(270, 360).
                     noFade().into(poster,
                     new Callback() {
@@ -106,7 +106,8 @@ public class ReportActivity extends AppCompatActivity {
         TextView username = findViewById(R.id.reportedUsername);
         //ImageView profilePicture = findViewById(R.id.reportedUserProfilePicture);
 
-        name.setText(user.getNome());
+        String fullName = user.getNome() + " " + user.getCognome();
+        name.setText(fullName);
         email.setText(user.getEmail());
         username.setText(user.getUsername());
         //profilePicture set immagine tramite Picasso
@@ -162,15 +163,17 @@ public class ReportActivity extends AppCompatActivity {
     public void showOtherReasonEditText(boolean show) {
         if(reportSent) return;
 
-        if(show) {
-            otherReasonEditText.setVisibility(View.VISIBLE);
-            if(otherReasonEditText.requestFocus()) {
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.showSoftInput(otherReasonEditText, InputMethodManager.SHOW_IMPLICIT);
+        runOnUiThread(()-> {
+            if(show) {
+                otherReasonEditText.setVisibility(View.VISIBLE);
+                if(otherReasonEditText.requestFocus()) {
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.showSoftInput(otherReasonEditText, InputMethodManager.SHOW_IMPLICIT);
+                }
             }
-        }
-        else
-            otherReasonEditText.setVisibility(View.INVISIBLE);
+            else
+                otherReasonEditText.setVisibility(View.INVISIBLE);
+        });
     }
 
     @Override
@@ -182,7 +185,7 @@ public class ReportActivity extends AppCompatActivity {
 
     public void enableReportButton(boolean enable) {
         if(!reportSent)
-            reportButton.setEnabled(enable);
+            runOnUiThread(()-> reportButton.setEnabled(enable));
     }
 
     public boolean otherReasonEditTextIsEmpty() {
@@ -194,14 +197,16 @@ public class ReportActivity extends AppCompatActivity {
     }
 
     public void disableReportComponents() {
-        otherReasonEditText.setEnabled(false);
-        RadioButton button1 = findViewById(R.id.reportRadioButton1);
-        RadioButton button2 = findViewById(R.id.reportRadioButton2);
-        RadioButton button3 = findViewById(R.id.reportRadioButton3);
-        RadioButton button4 = findViewById(R.id.otherReasonReportRadioButton);
-        button1.setEnabled(false);
-        button2.setEnabled(false);
-        button3.setEnabled(false);
-        button4.setEnabled(false);
+        runOnUiThread(()-> {
+            otherReasonEditText.setEnabled(false);
+            RadioButton button1 = findViewById(R.id.reportRadioButton1);
+            RadioButton button2 = findViewById(R.id.reportRadioButton2);
+            RadioButton button3 = findViewById(R.id.reportRadioButton3);
+            RadioButton button4 = findViewById(R.id.otherReasonReportRadioButton);
+            button1.setEnabled(false);
+            button2.setEnabled(false);
+            button3.setEnabled(false);
+            button4.setEnabled(false);
+        });
     }
 }

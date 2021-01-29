@@ -13,14 +13,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import org.jetbrains.annotations.NotNull;
 
 import it.unina.ingSw.cineMates20.R;
-import it.unina.ingSw.cineMates20.view.activity.NotificationsActivity;
+import it.unina.ingSw.cineMates20.view.activity.NotificationActivity;
 
-public class PendingFriendsNotificationsFragment extends Fragment {
+public class PendingFriendsNotificationFragment extends Fragment {
 
     private RecyclerView friendsNotificationsRecyclerView;
     private TextView noNotificationsAvailable;
 
-    public PendingFriendsNotificationsFragment() {}
+    public PendingFriendsNotificationFragment() {}
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -39,24 +39,29 @@ public class PendingFriendsNotificationsFragment extends Fragment {
         friendsNotificationsRecyclerView = view.findViewById(R.id.friendsNotificationsRecyclerView);
         noNotificationsAvailable = view.findViewById(R.id.noFriendsNotificationsAvailable);
 
-        if(getActivity() instanceof NotificationsActivity) {
-            NotificationsActivity notificationsActivity = (NotificationsActivity) getActivity();
-            notificationsActivity.initializeNotificationsFriendRequestsAdapter(this);
+        if(getActivity() instanceof NotificationActivity) {
+            NotificationActivity notificationActivity = (NotificationActivity) getActivity();
+            notificationActivity.initializeFriendRequestsNotificationAdapter(this);
         }
     }
 
-    public void setFriendsNotificationsRecyclerView(RecyclerView.Adapter<RecyclerView.ViewHolder> adapter) {
+    public void setFriendsNotificationRecyclerView(RecyclerView.Adapter<RecyclerView.ViewHolder> adapter) {
         if(!isAdded() || getActivity() == null) return;
 
-        friendsNotificationsRecyclerView.setAdapter(adapter);
+        getActivity().runOnUiThread(()-> {
+            friendsNotificationsRecyclerView.setAdapter(adapter);
 
-        friendsNotificationsRecyclerView.setItemViewCacheSize(30);
+            friendsNotificationsRecyclerView.setItemViewCacheSize(30);
 
-        friendsNotificationsRecyclerView.setLayoutManager(new LinearLayoutManager
-                (getActivity().getApplicationContext(), LinearLayoutManager.VERTICAL, false));
+            friendsNotificationsRecyclerView.setLayoutManager(new LinearLayoutManager
+                    (getActivity().getApplicationContext(), LinearLayoutManager.VERTICAL, false));
+        });
     }
 
-    public void showEmptyNotificationsPage() {
-        noNotificationsAvailable.setVisibility(View.VISIBLE);
+    public void showEmptyNotificationsPage(boolean show) {
+        if(show && getActivity() != null)
+            getActivity().runOnUiThread(()-> noNotificationsAvailable.setVisibility(View.VISIBLE));
+        else if(getActivity() != null)
+            getActivity().runOnUiThread(()-> noNotificationsAvailable.setVisibility(View.GONE));
     }
 }

@@ -5,12 +5,12 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
-import it.unina.ingSw.cineMates20.view.fragment.PendingFriendsNotificationsFragment;
-import it.unina.ingSw.cineMates20.view.fragment.ReportNotificationsFragment;
+import it.unina.ingSw.cineMates20.view.fragment.PendingFriendsNotificationFragment;
+import it.unina.ingSw.cineMates20.view.fragment.ReportNotificationFragment;
 
-public class NotificationsPagerAdapter extends FragmentStateAdapter {
+public class NotificationPagerAdapter extends FragmentStateAdapter {
 
-    public NotificationsPagerAdapter(@NonNull FragmentActivity fragmentActivity) {
+    public NotificationPagerAdapter(@NonNull FragmentActivity fragmentActivity) {
         super(fragmentActivity);
     }
 
@@ -18,9 +18,9 @@ public class NotificationsPagerAdapter extends FragmentStateAdapter {
     @Override
     public Fragment createFragment(int position) {
         if (position == 0) {
-            return new PendingFriendsNotificationsFragment();
+            return new PendingFriendsNotificationFragment();
         }
-        return new ReportNotificationsFragment();
+        return new ReportNotificationFragment();
     }
 
     @Override

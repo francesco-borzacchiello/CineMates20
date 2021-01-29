@@ -1,15 +1,23 @@
 package it.unina.ingSw.cineMates20.view.activity;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
+import android.graphics.Point;
+import android.graphics.Rect;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Button;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.content.res.AppCompatResources;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -17,6 +25,8 @@ import com.abdulhakeem.seemoretextview.SeeMoreTextView;
 import com.denzcoskun.imageslider.ImageSlider;
 import com.denzcoskun.imageslider.constants.ScaleTypes;
 import com.denzcoskun.imageslider.models.SlideModel;
+import com.getbase.floatingactionbutton.FloatingActionButton;
+import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import com.squareup.picasso.Picasso;
 
 import org.jetbrains.annotations.NotNull;
@@ -42,11 +52,16 @@ public class ShowDetailsMovieActivity extends AppCompatActivity {
                      ratingTextView,
                      etaMinimaTextView,
                      castTextView;
-    private Button addToFavouritesButton,
-                   addToWatchButton;
-    private ImageView coverImageView;
+    private ImageView coverImageView,
+                      expandedCoverImageView,
+                      expandedCoverBackgroundImageView;
     private SeeMoreTextView descrizioneTextView;
     private RecyclerView actorsRecyclerView;
+    private FloatingActionsMenu floatingActionsMenu;
+    private FloatingActionButton favouritesActionButton,
+                                 toWatchActionButton;
+    private Animator currentAnimator;
+    private int shortAnimationDuration;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,8 +70,14 @@ public class ShowDetailsMovieActivity extends AppCompatActivity {
         OnBackPressedCallback callback = new OnBackPressedCallback(true ) {
             @Override
             public void handleOnBackPressed() {
-                finish();
-                overridePendingTransition(0,0);
+                if (floatingActionsMenu.isExpanded())
+                    floatingActionsMenu.collapse();
+                else if(expandedCoverImageView.getVisibility() == View.VISIBLE)
+                    expandedCoverImageView.performClick();
+                else {
+                    finish();
+                    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                }
             }
         };
         getOnBackPressedDispatcher().addCallback(this, callback);
@@ -65,9 +86,6 @@ public class ShowDetailsMovieActivity extends AppCompatActivity {
         showDetailsMovieController.setShowDetailsMovieActivity(this);
 
         initializeGraphicsComponents();
-
-        if(showDetailsMovieController.isParentMoviesListActivity())
-            removeUnnecessaryViews();
     }
 
     private void initializeGraphicsComponents() {
@@ -82,28 +100,55 @@ public class ShowDetailsMovieActivity extends AppCompatActivity {
         ratingTextView = findViewById(R.id.ratingValue);
         etaMinimaTextView = findViewById(R.id.ageMovieShowDetails);
         coverImageView = findViewById(R.id.details_cover_movie);
+        expandedCoverImageView = findViewById(R.id.expanded_cover);
+        expandedCoverBackgroundImageView = findViewById(R.id.expanded_cover_background);
         descrizioneTextView = findViewById(R.id.descriptionMovieShowDetails);
         actorsRecyclerView = findViewById(R.id.movieCastRecyclerView);
+
         castTextView = findViewById(R.id.castMovieTextView);
 
         showDetailsMovieController.initializeShowDetailsMovieActivity();
 
-        addToFavouritesButton = findViewById(R.id.addToFavouritesButton);
-        addToWatchButton = findViewById(R.id.addToWatchButton);
+        floatingActionsMenu = findViewById(R.id.movieDetailsFloatingActionsMenu);
+        favouritesActionButton = findViewById(R.id.favouritesFloatingActionButton);
+        toWatchActionButton = findViewById(R.id.toWatchFloatingActionButton);
+        FloatingActionButton homepageActionButton = findViewById(R.id.homepageFloatingActionButton);
 
-        if(!showDetailsMovieController.isParentMoviesListActivity()) {
+        if(showDetailsMovieController.parentIsMoviesListActivity()) {
+            if(showDetailsMovieController.isHomePageAvailable()) {
+                homepageActionButton.setOnClickListener(showDetailsMovieController.getHomePageOnClickListener());
+                favouritesActionButton.setVisibility(View.GONE);
+                toWatchActionButton.setVisibility(View.GONE);
+            }
+            else
+                floatingActionsMenu.setVisibility(View.GONE);
+        }
+        else {
+            favouritesActionButton = findViewById(R.id.favouritesFloatingActionButton);
+            toWatchActionButton = findViewById(R.id.toWatchFloatingActionButton);
+
+            if(showDetailsMovieController.isHomePageAvailable())
+                homepageActionButton.setOnClickListener(showDetailsMovieController.getHomePageOnClickListener());
+            else
+                homepageActionButton.setVisibility(View.GONE);
+
             if (showDetailsMovieController.isSelectedMovieAlreadyInList(true)) {
-                addToFavouritesButton.setBackgroundTintList(AppCompatResources.getColorStateList(getApplicationContext(), R.color.red));
-                addToFavouritesButton.setOnClickListener(showDetailsMovieController.getRimuoviPreferitiOnClickListener());
+                favouritesActionButton.setColorNormalResId(R.color.red);
+                favouritesActionButton.setColorPressedResId(R.color.darkRed);
+                favouritesActionButton.setOnClickListener(showDetailsMovieController.getRimuoviPreferitiOnClickListener());
+                favouritesActionButton.setTitle("Rimuovi dai film \"Preferiti\"");
             } else
-                addToFavouritesButton.setOnClickListener(showDetailsMovieController.getAggiungiPreferitiOnClickListener());
+                favouritesActionButton.setOnClickListener(showDetailsMovieController.getAggiungiPreferitiOnClickListener());
 
             if (showDetailsMovieController.isSelectedMovieAlreadyInList(false)) {
-                addToWatchButton.setBackgroundTintList(AppCompatResources.getColorStateList(getApplicationContext(), R.color.red));
-                addToWatchButton.setOnClickListener(showDetailsMovieController.getRimuoviDaVedereOnClickListener());
+                toWatchActionButton.setColorNormalResId(R.color.red);
+                toWatchActionButton.setColorPressedResId(R.color.darkRed);
+                toWatchActionButton.setOnClickListener(showDetailsMovieController.getRimuoviDaVedereOnClickListener());
+                toWatchActionButton.setTitle("Rimuovi dai film \"Da vedere\"");
             } else
-                addToWatchButton.setOnClickListener(showDetailsMovieController.getAggiungiDaVedereOnClickListener());
+                toWatchActionButton.setOnClickListener(showDetailsMovieController.getAggiungiDaVedereOnClickListener());
         }
+
 
         if(showDetailsMovieController.isTrailerAvailable()) {
             ImageView youtubeImageView = findViewById(R.id.youtubePlayImageView);
@@ -120,13 +165,19 @@ public class ShowDetailsMovieActivity extends AppCompatActivity {
         }
     }
 
-    private void removeUnnecessaryViews() {
-        TextView label = findViewById(R.id.showDetailsMovieButtonsLabel);
-        label.setVisibility(View.GONE);
-        LinearLayout buttonsLayout = findViewById(R.id.buttonsMovieDetailsLinearLayout);
-        buttonsLayout.setVisibility(View.GONE);
-        View bottomViewMovieDetails = findViewById(R.id.bottomViewMovieDetails);
-        bottomViewMovieDetails.setVisibility(View.GONE);
+    @Override
+    public boolean dispatchTouchEvent(@NotNull MotionEvent event){
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            if (floatingActionsMenu.isExpanded()) {
+                Rect outRect = new Rect();
+                floatingActionsMenu.getGlobalVisibleRect(outRect);
+                if(!outRect.contains((int)event.getRawX(), (int)event.getRawY())) {
+                    floatingActionsMenu.collapse();
+                    return false;
+                }
+            }
+        }
+        return super.dispatchTouchEvent(event);
     }
 
     public void setBackgroundImageSlider(@NotNull List<SlideModel> backgroundImage){
@@ -146,7 +197,7 @@ public class ShowDetailsMovieActivity extends AppCompatActivity {
         lengthTextView.setText(length);
         etaMinimaTextView.setText(age);
 
-        if(rating.equals("0.0")) {
+        if(rating != null && rating.equals("0.0")) {
             ratingTextView.setText(getResources().getString(R.string.unavailable));
             ImageView ratingStar = findViewById(R.id.ratingStar);
             ratingStar.setVisibility(View.GONE);
@@ -155,7 +206,6 @@ public class ShowDetailsMovieActivity extends AppCompatActivity {
             ratingTextView.setText(rating);
 
         if(description != null && !description.equals("")) {
-            //seemoreTv.setTextMaxLength(300) //Default è 250
             descrizioneTextView.setSeeMoreText("Mostra altro", "Mostra meno");
             descrizioneTextView.setSeeMoreTextColor(R.color.lightBlueVariant);
             descrizioneTextView.setElegantTextHeight(false);
@@ -164,75 +214,208 @@ public class ShowDetailsMovieActivity extends AppCompatActivity {
         else
             descrizioneTextView.setContent(getResources().getString(R.string.unavailable));
 
-        if(coverUrl != null)
-            Picasso.get().load(getResources().getString(R.string.first_path_poster_image) + coverUrl).
+        if(coverUrl != null && !coverUrl.equals("")) {
+            Picasso.get().load(getResources().getString(R.string.first_path_image) + coverUrl).
                     noFade().into(coverImageView);
+
+            Picasso.get().load(getResources().getString(R.string.first_path_image_original) + coverUrl).
+                    noFade().into(expandedCoverImageView);
+
+            coverImageView.setOnClickListener(view ->
+                    zoomImageFromThumb(coverUrl));
+
+            // Recupera e memorizza il tempo di animazione "short" del sistema.
+            shortAnimationDuration = getResources().getInteger(android.R.integer.config_shortAnimTime);
+        }
     }
 
     public void setMovieCastRecyclerView(RecyclerView.Adapter<RecyclerView.ViewHolder> adapter) {
-        actorsRecyclerView.setAdapter(adapter);
+        new Handler(Looper.getMainLooper()).postAtFrontOfQueue(()-> runOnUiThread(()-> {
+            actorsRecyclerView.setAdapter(adapter);
 
-        actorsRecyclerView.setItemViewCacheSize(10);
+            actorsRecyclerView.setItemViewCacheSize(10);
 
-        actorsRecyclerView.setLayoutManager(new LinearLayoutManager
-                (this, LinearLayoutManager.HORIZONTAL, false));
+            actorsRecyclerView.setLayoutManager(new LinearLayoutManager
+                    (this, LinearLayoutManager.HORIZONTAL, false));
+        }));
     }
 
     public void hideCastTextView() {
-        castTextView.setVisibility(View.GONE);
+        runOnUiThread(()-> castTextView.setVisibility(View.GONE));
     }
 
     public void changeAddFavouritesButtonToRemove() {
         runOnUiThread(()-> {
-            addToFavouritesButton.setBackgroundTintList(AppCompatResources.getColorStateList(getApplicationContext(), R.color.red));
-            addToFavouritesButton.setOnClickListener(showDetailsMovieController.getRimuoviPreferitiOnClickListener());
+            favouritesActionButton.setColorNormalResId(R.color.red);
+            favouritesActionButton.setColorPressedResId(R.color.darkRed);
+            favouritesActionButton.setOnClickListener(showDetailsMovieController.getRimuoviPreferitiOnClickListener());
+            favouritesActionButton.setTitle("Rimuovi dai film \"Preferiti\"");
         });
-        Utilities.stampaToast(this, "Film aggiunto alla lista dei preferiti");
+        Utilities.stampaToast(this, "Aggiunto ai film \"Preferiti\"");
     }
 
     public void changeAddToWatchButtonToRemove() {
         runOnUiThread(()-> {
-            addToWatchButton.setBackgroundTintList(AppCompatResources.getColorStateList(getApplicationContext(), R.color.red));
-            addToWatchButton.setOnClickListener(showDetailsMovieController.getRimuoviDaVedereOnClickListener());
+            toWatchActionButton.setColorNormalResId(R.color.red);
+            toWatchActionButton.setColorPressedResId(R.color.darkRed);
+            toWatchActionButton.setOnClickListener(showDetailsMovieController.getRimuoviDaVedereOnClickListener());
+            toWatchActionButton.setTitle("Rimuovi dai film \"Da vedere\"");
         });
-        Utilities.stampaToast(this, "Film aggiunto alla lista da vedere");
+        Utilities.stampaToast(this, "Aggiunto ai film \"Da vedere\"");
     }
 
     public void changeRemoveFavouritesButtonToAdd() {
         runOnUiThread(()-> {
-            addToFavouritesButton.setBackgroundTintList(AppCompatResources.getColorStateList(getApplicationContext(), R.color.lightBlueVariant));
-            addToFavouritesButton.setOnClickListener(showDetailsMovieController.getAggiungiPreferitiOnClickListener());
+            favouritesActionButton.setColorNormalResId(R.color.lightBlueButton);
+            favouritesActionButton.setColorPressedResId(R.color.lightBlue);
+            favouritesActionButton.setOnClickListener(showDetailsMovieController.getAggiungiPreferitiOnClickListener());
+            favouritesActionButton.setTitle("Aggiungi ai film \"Preferiti\"");
         });
-        Utilities.stampaToast(this, "Film rimosso dalla lista dei preferiti");
+        Utilities.stampaToast(this, "Rimosso dai film \"Preferiti\"");
     }
 
     public void changeRemoveToWatchButtonToAdd() {
         runOnUiThread(()-> {
-            addToWatchButton.setBackgroundTintList(AppCompatResources.getColorStateList(getApplicationContext(), R.color.lightBlueVariant));
-            addToWatchButton.setOnClickListener(showDetailsMovieController.getAggiungiDaVedereOnClickListener());
+            toWatchActionButton.setColorNormalResId(R.color.lightBlueButton);
+            toWatchActionButton.setColorPressedResId(R.color.lightBlue);
+            toWatchActionButton.setOnClickListener(showDetailsMovieController.getAggiungiDaVedereOnClickListener());
+            toWatchActionButton.setTitle("Aggiungi ai film \"Da vedere\"");
         });
-        Utilities.stampaToast(this, "Film rimosso dalla lista da vedere");
+        Utilities.stampaToast(this, "Rimosso dai film \"Da Vedere\"");
     }
 
     public void temporarilyDisableFavouritesButton() {
-        addToFavouritesButton.setEnabled(false);
+        runOnUiThread(()-> favouritesActionButton.setEnabled(false));
         Timer buttonTimer = new Timer();
         buttonTimer.schedule(new TimerTask() {
             @Override
             public void run() {
-                runOnUiThread(() -> addToFavouritesButton.setEnabled(true));
+                runOnUiThread(() -> favouritesActionButton.setEnabled(true));
             }
-        }, 3000);
+        }, 2000);
     }
 
     public void temporarilyDisableToWatchButton() {
-        addToWatchButton.setEnabled(false);
+        runOnUiThread(()-> toWatchActionButton.setEnabled(false));
         Timer buttonTimer = new Timer();
         buttonTimer.schedule(new TimerTask() {
             @Override
             public void run() {
-                runOnUiThread(() -> addToWatchButton.setEnabled(true));
+                runOnUiThread(() -> toWatchActionButton.setEnabled(true));
             }
-        }, 3000);
+        }, 2000);
+    }
+
+    public void collapseFloatingActionMenu() {
+        if(floatingActionsMenu != null)
+            runOnUiThread(()-> floatingActionsMenu.collapse());
+    }
+
+    //Metodo fornito dalla documentazione di Android per lo zoom di un'immagine
+    private void zoomImageFromThumb(String imageUrl) {
+        if (currentAnimator != null)
+            currentAnimator.cancel();
+
+        expandedCoverImageView.setAlpha(0f);
+        expandedCoverImageView.animate().setDuration(300).alpha(1f).start();
+        expandedCoverBackgroundImageView.setAlpha(0f);
+        expandedCoverBackgroundImageView.animate().setDuration(300).alpha(1f).start();
+        floatingActionsMenu.setVisibility(View.INVISIBLE);
+
+        final Rect startBounds = new Rect();
+        final Rect finalBounds = new Rect();
+        final Point globalOffset = new Point();
+
+        coverImageView.getGlobalVisibleRect(startBounds);
+        findViewById(R.id.layoutRootMovieDetails)
+                .getGlobalVisibleRect(finalBounds, globalOffset);
+        startBounds.offset(-globalOffset.x, -globalOffset.y);
+        finalBounds.offset(-globalOffset.x, -globalOffset.y);
+
+        float startScale;
+        if ((float) finalBounds.width() / finalBounds.height()
+                > (float) startBounds.width() / startBounds.height()) {
+            // Extend start bounds horizontally
+            startScale = (float) startBounds.height() / finalBounds.height();
+            float startWidth = startScale * finalBounds.width();
+            float deltaWidth = (startWidth - startBounds.width()) / 2;
+            startBounds.left -= deltaWidth;
+            startBounds.right += deltaWidth;
+        } else {
+            // Extend start bounds vertically
+            startScale = (float) startBounds.width() / finalBounds.width();
+            float startHeight = startScale * finalBounds.height();
+            float deltaHeight = (startHeight - startBounds.height()) / 2;
+            startBounds.top -= deltaHeight;
+            startBounds.bottom += deltaHeight;
+        }
+
+        coverImageView.setAlpha(0f);
+        expandedCoverImageView.setVisibility(View.VISIBLE);
+        expandedCoverBackgroundImageView.setVisibility(View.VISIBLE);
+
+        expandedCoverImageView.setPivotX(0f);
+        expandedCoverImageView.setPivotY(0f);
+
+        AnimatorSet set = new AnimatorSet();
+        set.play(ObjectAnimator.ofFloat(expandedCoverImageView, View.X,
+                startBounds.left, finalBounds.left))
+                .with(ObjectAnimator.ofFloat(expandedCoverImageView, View.Y,
+                        startBounds.top, finalBounds.top))
+                .with(ObjectAnimator.ofFloat(expandedCoverImageView, View.SCALE_X,
+                        startScale, 1f))
+                .with(ObjectAnimator.ofFloat(expandedCoverImageView,
+                        View.SCALE_Y, startScale, 1f));
+        set.setDuration(shortAnimationDuration);
+        set.setInterpolator(new DecelerateInterpolator());
+        set.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) { currentAnimator = null; }
+
+            @Override
+            public void onAnimationCancel(Animator animation) { currentAnimator = null; }
+        });
+        set.start();
+        currentAnimator = set;
+
+        final float startScaleFinal = startScale;
+        expandedCoverImageView.setOnClickListener(view -> {
+            if (currentAnimator != null)
+                currentAnimator.cancel();
+
+            AnimatorSet set1 = new AnimatorSet();
+            set1.play(ObjectAnimator.ofFloat(expandedCoverImageView, View.X, startBounds.left))
+                    .with(ObjectAnimator
+                            .ofFloat(expandedCoverImageView, View.Y,startBounds.top))
+                    .with(ObjectAnimator
+                            .ofFloat(expandedCoverImageView, View.SCALE_X, startScaleFinal))
+                    .with(ObjectAnimator
+                            .ofFloat(expandedCoverImageView, View.SCALE_Y, startScaleFinal));
+            set1.setDuration(shortAnimationDuration);
+            set1.setInterpolator(new DecelerateInterpolator());
+            set1.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    coverImageView.setAlpha(1f);
+                    expandedCoverImageView.setVisibility(View.GONE);
+                    expandedCoverBackgroundImageView.setAlpha(1f);
+                    expandedCoverBackgroundImageView.setVisibility(View.GONE);
+                    floatingActionsMenu.setVisibility(View.VISIBLE);
+                    currentAnimator = null;
+                }
+
+                @Override
+                public void onAnimationCancel(Animator animation) {
+                    coverImageView.setAlpha(1f);
+                    expandedCoverImageView.setVisibility(View.GONE);
+                    expandedCoverBackgroundImageView.setAlpha(1f);
+                    expandedCoverBackgroundImageView.setVisibility(View.GONE);
+                    floatingActionsMenu.setVisibility(View.VISIBLE);
+                    currentAnimator = null;
+                }
+            });
+            set1.start();
+            currentAnimator = set1;
+        });
     }
 }

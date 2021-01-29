@@ -23,6 +23,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.navigation.NavigationView;
 
+import org.jetbrains.annotations.NotNull;
+
 import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.controller.HomeController;
 import it.unina.ingSw.cineMates20.model.User;
@@ -106,7 +108,7 @@ public class HomeActivity extends AppCompatActivity {
         TextView cognomeTextView = navigationView.getHeaderView(0).findViewById(R.id.cognomeUtenteNavMenu);
 
         runOnUiThread(() -> {
-            UserDB user = User.getUserInstance(this).getLoggedUser();
+            UserDB user = User.getLoggedUser(this);
             nomeTextView.setText(user.getNome());
             cognomeTextView.setText(user.getCognome());
         });
@@ -119,6 +121,8 @@ public class HomeActivity extends AppCompatActivity {
         searchView = (SearchView) menu.findItem(R.id.searchItem).getActionView();
         searchView.setQueryHint("Cerca un film");
 
+        setUpNotificationIcon(menu);
+
         searchView.setOnQueryTextListener(homeController.getSearchViewOnQueryTextListener());
         searchView.setOnQueryTextFocusChangeListener(homeController.getSearchViewOnQueryTextFocusChangeListener());
         searchView.setOnSearchClickListener(homeController.getOnSearchClickListener());
@@ -129,18 +133,28 @@ public class HomeActivity extends AppCompatActivity {
         return true;
     }
 
+    private void setUpNotificationIcon(@NotNull Menu menu) {
+        new Thread(()-> runOnUiThread(()-> {
+            MenuItem notificationItem = menu.findItem(R.id.notificationItem);
+            if(User.getTotalUserNotificationCount() > 0)
+                notificationItem.setIcon(R.drawable.ic_notifications_on);
+            else
+                notificationItem.setIcon(R.drawable.ic_notifications);
+        })).start();
+    }
+
     private void setNavigationViewActionListener() {
         //Listener per icone del NavigationView
         navigationView.setNavigationItemSelectedListener(
-                item -> {
-                    Runnable r = homeController.getNavigationViewOnOptionsItemSelected(this, item.getItemId());
-                    try {
-                        r.run();
-                    }catch(NullPointerException e){
-                        Utilities.stampaToast(HomeActivity.this, "Si è verificato un errore.\nRiprova tra qualche minuto");
-                    }
-                    return false;
+            item -> {
+                Runnable r = homeController.getNavigationViewOnOptionsItemSelected(this, item.getItemId());
+                try {
+                    r.run();
+                }catch(NullPointerException e){
+                    Utilities.stampaToast(HomeActivity.this, "Si è verificato un errore.\nRiprova tra qualche minuto");
                 }
+                return false;
+            }
         );
     }
 
@@ -159,11 +173,11 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     public void closeDrawerLayout() {
-        homeDrawerLayout.closeDrawer(GravityCompat.START);
+        runOnUiThread(()-> homeDrawerLayout.closeDrawer(GravityCompat.START));
     }
 
     public void openDrawerLayout() {
-        homeDrawerLayout.openDrawer(GravityCompat.START);
+        runOnUiThread(()-> homeDrawerLayout.openDrawer(GravityCompat.START));
     }
 
     @Override
@@ -174,103 +188,117 @@ public class HomeActivity extends AppCompatActivity {
             searchView.setIconified(true);
             searchView.clearFocus();
         }
+        if(menu != null)
+            setUpNotificationIcon(menu);
     }
 
     public void setNowPlayingHomeMoviesRecyclerView(RecyclerView.Adapter<RecyclerView.ViewHolder> adapter) {
-        nowPlayingHomeMoviesRecyclerView.setAdapter(adapter);
+        runOnUiThread(()-> {
+            nowPlayingHomeMoviesRecyclerView.setAdapter(adapter);
 
-        nowPlayingHomeMoviesRecyclerView.setHasFixedSize(true);
-        nowPlayingHomeMoviesRecyclerView.setItemViewCacheSize(20);
+            nowPlayingHomeMoviesRecyclerView.setHasFixedSize(true);
+            nowPlayingHomeMoviesRecyclerView.setItemViewCacheSize(20);
 
-        nowPlayingHomeMoviesRecyclerView.setLayoutManager(new LinearLayoutManager
-                (this, LinearLayoutManager.HORIZONTAL, false));
+            nowPlayingHomeMoviesRecyclerView.setLayoutManager(new LinearLayoutManager
+                    (this, LinearLayoutManager.HORIZONTAL, false));
+        });
     }
 
     public void setMostPopularHomeMoviesRecyclerView(RecyclerView.Adapter<RecyclerView.ViewHolder> adapter) {
-        mostPopularHomeMoviesRecyclerView.setAdapter(adapter);
+        runOnUiThread(()-> {
+            mostPopularHomeMoviesRecyclerView.setAdapter(adapter);
 
-        mostPopularHomeMoviesRecyclerView.setHasFixedSize(true);
-        mostPopularHomeMoviesRecyclerView.setItemViewCacheSize(20);
+            mostPopularHomeMoviesRecyclerView.setHasFixedSize(true);
+            mostPopularHomeMoviesRecyclerView.setItemViewCacheSize(20);
 
-        mostPopularHomeMoviesRecyclerView.setLayoutManager(new LinearLayoutManager
-                (this, LinearLayoutManager.HORIZONTAL, false));
+            mostPopularHomeMoviesRecyclerView.setLayoutManager(new LinearLayoutManager
+                    (this, LinearLayoutManager.HORIZONTAL, false));
+        });
     }
 
     public void setUpcomingHomeMoviesRecyclerView(RecyclerView.Adapter<RecyclerView.ViewHolder> adapter) {
-        upcomingHomeMoviesRecyclerView.setAdapter(adapter);
+        runOnUiThread(()-> {
+            upcomingHomeMoviesRecyclerView.setAdapter(adapter);
 
-        upcomingHomeMoviesRecyclerView.setHasFixedSize(true);
-        upcomingHomeMoviesRecyclerView.setItemViewCacheSize(20);
+            upcomingHomeMoviesRecyclerView.setHasFixedSize(true);
+            upcomingHomeMoviesRecyclerView.setItemViewCacheSize(20);
 
-        upcomingHomeMoviesRecyclerView.setLayoutManager(new LinearLayoutManager
-                (this, LinearLayoutManager.HORIZONTAL, false));
+            upcomingHomeMoviesRecyclerView.setLayoutManager(new LinearLayoutManager
+                    (this, LinearLayoutManager.HORIZONTAL, false));
+        });
     }
 
     public void setTopRatedHomeMoviesRecyclerView(RecyclerView.Adapter<RecyclerView.ViewHolder> adapter) {
-        topRatedHomeMoviesRecyclerView.setAdapter(adapter);
+        runOnUiThread(()-> {
+            topRatedHomeMoviesRecyclerView.setAdapter(adapter);
 
-        topRatedHomeMoviesRecyclerView.setHasFixedSize(true);
-        topRatedHomeMoviesRecyclerView.setItemViewCacheSize(20);
+            topRatedHomeMoviesRecyclerView.setHasFixedSize(true);
+            topRatedHomeMoviesRecyclerView.setItemViewCacheSize(20);
 
-        topRatedHomeMoviesRecyclerView.setLayoutManager(new LinearLayoutManager
-                (this, LinearLayoutManager.HORIZONTAL, false));
+            topRatedHomeMoviesRecyclerView.setLayoutManager(new LinearLayoutManager
+                    (this, LinearLayoutManager.HORIZONTAL, false));
+        });
     }
 
     public void showHomeTextViews() {
-        if(nowPlayingHomeMoviesRecyclerView.getAdapter() != null &&
-                nowPlayingHomeMoviesRecyclerView.getAdapter().getItemCount() > 0) {
+        runOnUiThread(()-> {
+            if(nowPlayingHomeMoviesRecyclerView.getAdapter() != null &&
+                    nowPlayingHomeMoviesRecyclerView.getAdapter().getItemCount() > 0) {
 
-            nowPlayingLabelHomeMoviesTextView.setVisibility(View.VISIBLE);
+                nowPlayingLabelHomeMoviesTextView.setVisibility(View.VISIBLE);
 
-            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
-                nowPlayingLabelHomeMoviesTextView.setAlpha(0.0f);
-                nowPlayingLabelHomeMoviesTextView.animate().alpha(1.0f);
+                if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
+                    nowPlayingLabelHomeMoviesTextView.setAlpha(0.0f);
+                    nowPlayingLabelHomeMoviesTextView.animate().alpha(1.0f);
+                }
             }
-        }
 
-        if(mostPopularHomeMoviesRecyclerView.getAdapter() != null &&
-                mostPopularHomeMoviesRecyclerView.getAdapter().getItemCount() > 0) {
+            if(mostPopularHomeMoviesRecyclerView.getAdapter() != null &&
+                    mostPopularHomeMoviesRecyclerView.getAdapter().getItemCount() > 0) {
 
-            mostPopularMoviesTextView.setVisibility(View.VISIBLE);
+                mostPopularMoviesTextView.setVisibility(View.VISIBLE);
 
-            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
-                mostPopularMoviesTextView.setAlpha(0.0f);
-                mostPopularMoviesTextView.animate().alpha(1.0f);
+                if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
+                    mostPopularMoviesTextView.setAlpha(0.0f);
+                    mostPopularMoviesTextView.animate().alpha(1.0f);
+                }
             }
-        }
 
-        if(upcomingHomeMoviesRecyclerView.getAdapter() != null &&
-                upcomingHomeMoviesRecyclerView.getAdapter().getItemCount() > 0) {
+            if(upcomingHomeMoviesRecyclerView.getAdapter() != null &&
+                    upcomingHomeMoviesRecyclerView.getAdapter().getItemCount() > 0) {
 
-            upcomingMoviesTextView.setVisibility(View.VISIBLE);
+                upcomingMoviesTextView.setVisibility(View.VISIBLE);
 
-            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
-                upcomingMoviesTextView.setAlpha(0.0f);
-                upcomingMoviesTextView.animate().alpha(1.0f);
+                if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
+                    upcomingMoviesTextView.setAlpha(0.0f);
+                    upcomingMoviesTextView.animate().alpha(1.0f);
+                }
             }
-        }
 
-        if(topRatedHomeMoviesRecyclerView.getAdapter() != null &&
-                topRatedHomeMoviesRecyclerView.getAdapter().getItemCount() > 0) {
+            if(topRatedHomeMoviesRecyclerView.getAdapter() != null &&
+                    topRatedHomeMoviesRecyclerView.getAdapter().getItemCount() > 0) {
 
-            topRatedMoviesTextView.setVisibility(View.VISIBLE);
+                topRatedMoviesTextView.setVisibility(View.VISIBLE);
 
-            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
-                topRatedMoviesTextView.setAlpha(0.0f);
-                topRatedMoviesTextView.animate().alpha(1.0f);
+                if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
+                    topRatedMoviesTextView.setAlpha(0.0f);
+                    topRatedMoviesTextView.animate().alpha(1.0f);
+                }
             }
-        }
+        });
     }
 
     public void resetRecyclersViewPosition() {
-        nowPlayingHomeMoviesRecyclerView.smoothScrollToPosition(0);
-        mostPopularHomeMoviesRecyclerView.smoothScrollToPosition(0);
-        upcomingHomeMoviesRecyclerView.smoothScrollToPosition(0);
-        topRatedHomeMoviesRecyclerView.smoothScrollToPosition(0);
+        runOnUiThread(()-> {
+            nowPlayingHomeMoviesRecyclerView.smoothScrollToPosition(0);
+            mostPopularHomeMoviesRecyclerView.smoothScrollToPosition(0);
+            upcomingHomeMoviesRecyclerView.smoothScrollToPosition(0);
+            topRatedHomeMoviesRecyclerView.smoothScrollToPosition(0);
+        });
     }
 
     public void hideMovieProgressBar() {
-        progressBar.setVisibility(View.INVISIBLE);
+        runOnUiThread(()-> progressBar.setVisibility(View.INVISIBLE));
     }
 
     public void showMovieProgressBar() {
@@ -278,23 +306,26 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     public void keepSearchViewExpanded() {
-        if(searchView != null) {
-            searchView.clearFocus();
-            menu.findItem(R.id.searchItem).expandActionView(); //Verrà collassata in onResume()
-        }
+        if(searchView != null)
+            runOnUiThread(()-> {
+                searchView.clearFocus();
+                menu.findItem(R.id.searchItem).expandActionView(); //Verrà collassata in onResume()
+            });
     }
 
     public void setLayoutsForHome(boolean searchIsExpanded) {
         LinearLayout ll = findViewById(R.id.linearLayoutHome);
         ConstraintLayout cl = findViewById(R.id.constraintLayoutHome);
 
-        if(searchIsExpanded) {
-            ll.setVisibility(View.INVISIBLE);
-            cl.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.lightGray));
-        }
-        else {
-            ll.setVisibility(View.VISIBLE);
-            cl.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.white));
-        }
+        runOnUiThread(()-> {
+            if(searchIsExpanded) {
+                ll.setVisibility(View.INVISIBLE);
+                cl.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.lightGray));
+            }
+            else {
+                ll.setVisibility(View.VISIBLE);
+                cl.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.white));
+            }
+        });
     }
 }

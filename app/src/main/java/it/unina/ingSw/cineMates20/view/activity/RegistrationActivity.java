@@ -13,8 +13,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.tasks.Task;
 
-import java.util.List;
-
 import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.controller.HomeController;
 import it.unina.ingSw.cineMates20.controller.RegistrationController;
@@ -86,7 +84,7 @@ public class RegistrationActivity extends AppCompatActivity {
         }
         else { //Se non è google, allora dev'essere sicuramente facebook
             if (registrationController.getFacebookCallbackManager().onActivityResult(requestCode, resultCode, data)) {
-                UserDB user = User.getUserInstance(this).getLoggedUser();
+                UserDB user = User.getLoggedUser(this);
                 showHomeOrRegistrationPage(user.getNome(), user.getCognome());
             }
         }

@@ -56,7 +56,7 @@ public class SearchMovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         movieHolder.titleTextView.setText(title.get(position));
         movieHolder.descriptionTextView.setText(description.get(position));
 
-        String firstPath = context.getResources().getString(R.string.first_path_poster_image);
+        String firstPath = context.getResources().getString(R.string.first_path_image);
         if(linkImage.get(position) != null)
             Picasso.get().load(firstPath +
                     linkImage.get(position)).resize(270, 360).noFade().into(movieHolder.coverImageView,

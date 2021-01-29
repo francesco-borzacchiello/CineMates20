@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 import it.unina.ingSw.cineMates20.R;
-import it.unina.ingSw.cineMates20.controller.NotificationsController;
+import it.unina.ingSw.cineMates20.controller.NotificationController;
 import it.unina.ingSw.cineMates20.model.UserDB;
 
 public class PendingFriendsRequestsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -86,7 +86,8 @@ public class PendingFriendsRequestsAdapter extends RecyclerView.Adapter<Recycler
         return v -> {
             try{
                 Runnable r = acceptRequestEvent.get(position);
-                deleteItem(position);
+                if(NotificationController.getNotificationControllerInstance().isInternetAvailable())
+                    deleteItem(position);
                 new Thread(r).start();
             } catch(NullPointerException ignore) {}
         };
@@ -97,7 +98,8 @@ public class PendingFriendsRequestsAdapter extends RecyclerView.Adapter<Recycler
         return v -> {
             try{
                 Runnable r = rejectRequestEvent.get(position);
-                deleteItem(position);
+                if(NotificationController.getNotificationControllerInstance().isInternetAvailable())
+                    deleteItem(position);
                 new Thread(r).start();
             } catch(NullPointerException ignore) {}
         };
@@ -113,7 +115,7 @@ public class PendingFriendsRequestsAdapter extends RecyclerView.Adapter<Recycler
         notifyItemRangeChanged(position, users.size());
 
         if(users.size() == 0)
-            NotificationsController.getNotificationControllerInstance().showEmptyNotificationsPage();
+            NotificationController.getNotificationControllerInstance().showEmptyFriendsNotificationPage(true);
     }
 
     @Override

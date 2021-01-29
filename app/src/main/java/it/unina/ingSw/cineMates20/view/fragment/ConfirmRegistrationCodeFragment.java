@@ -72,8 +72,8 @@ public class ConfirmRegistrationCodeFragment extends Fragment {
     }
 
     public void setEnableSendButton(boolean enable) {
-        if(inviaCodice != null)
-            inviaCodice.setEnabled(enable);
+        if(inviaCodice != null && isAdded() && getActivity() != null)
+            getActivity().runOnUiThread(()-> inviaCodice.setEnabled(enable));
     }
 
     public int getLengthEditTextInviaCodice() {

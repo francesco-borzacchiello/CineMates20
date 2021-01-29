@@ -21,7 +21,7 @@
         </item>
 
         <item
-            android:drawable="@drawable/ic_arrow_drop_down_black_24dp"
+            android:drawable="@drawable/ic_arrow_drop_down"
             android:gravity="right">
         </item>
 

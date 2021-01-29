@@ -64,6 +64,7 @@ public class ReportController {
     }
 
     public MovieDb getReportedMovie() {
+
         return movie;
     }
 

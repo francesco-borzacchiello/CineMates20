@@ -111,7 +111,7 @@ public class RegistrationController {
 
                 //TODO: memorizzare image_url per S3 nel nostro DB
 
-                String email = User.getUserInstance(registrationActivity).getLoggedUser().getEmail();
+                String email = User.getLoggedUser(registrationActivity).getEmail();
 
                 if(email != null) {
                     try {
@@ -145,7 +145,7 @@ public class RegistrationController {
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
         String url = registrationActivity.getResources().getString(R.string.db_path) + "User/getById/{email}";
 
-        String email = User.getUserInstance(registrationActivity).getLoggedUser().getEmail();
+        String email = User.getLoggedUser(registrationActivity).getEmail();
 
         if(email == null) return false;
 

@@ -1,9 +1,6 @@
 package it.unina.ingSw.cineMates20.view.activity;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.Bundle;
-import android.text.TextWatcher;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
 import android.view.MotionEvent;
@@ -12,10 +9,10 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Objects;
 
 import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.controller.ResetPasswordController;
@@ -113,69 +110,76 @@ public class ResetPasswordActivity extends AppCompatActivity {
     //endregion
 
     //region Abilita EditText in cui verrà inserita la password
-    public void enableEditTextsForNewPassword(){
-        confirmCodeEditText.setEnabled(true);
-        newPasswordEditText.setEnabled(true);
-        confirmNewPasswordEditText.setEnabled(true);
+    public void enableEditTextsForNewPassword() {
+        runOnUiThread(()-> {
+            confirmCodeEditText.setEnabled(true);
+            newPasswordEditText.setEnabled(true);
+            confirmNewPasswordEditText.setEnabled(true);
+        });
     }
     //endregion
 
     //region Abilita / Disabilita il tasto
     public void enableSendInformationButton(boolean enabled){
-        sendInformationButton.setEnabled(enabled);
+        runOnUiThread(()-> sendInformationButton.setEnabled(enabled));
     }
     //endregion
 
     //region Cambia il testo contenuto nel tasto
     public void changeTextFromSendInformationButton(){
-        sendInformationButton.setText(R.string.cambia_password);
+        runOnUiThread(()-> sendInformationButton.setText(R.string.cambia_password));
     }
     //endregion
 
     //region Disabilita l'EditText che contiene la mail
     public void disableEmailEditText(){
-        emailEditText.setEnabled(false);
+        runOnUiThread(()-> emailEditText.setEnabled(false));
     }
     //endregion
 
     //region Mostra Errori
     public void showEmailError() {
-        if(emailEditText != null) emailEditText.setError("Email non valida");
+        if(emailEditText != null)
+            runOnUiThread(()-> emailEditText.setError("Email non valida"));
     }
 
     public void showNewPasswordError() {
         if(newPasswordEditText != null)
-            newPasswordEditText.setError("Password non valida");
+            runOnUiThread(()-> newPasswordEditText.setError("Password non valida"));
     }
 
     public void showConfirmNewPasswordError() {
         if(confirmNewPasswordEditText != null)
-            confirmNewPasswordEditText.setError("Le password non coincidono");
+            runOnUiThread(()-> confirmNewPasswordEditText.setError("Le password non coincidono"));
     }
     //endregion
 
     //region Mostra / Nascondi le password
     public void showOrHidePassword(boolean show) {
-        if(show) {
-            newPasswordEditText.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
-            confirmNewPasswordEditText.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
-        }
-        else {
-            newPasswordEditText.setTransformationMethod(PasswordTransformationMethod.getInstance());
-            confirmNewPasswordEditText.setTransformationMethod(PasswordTransformationMethod.getInstance());
-        }
+        runOnUiThread(()-> {
+            if(show) {
+                newPasswordEditText.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+                confirmNewPasswordEditText.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+            }
+            else {
+                newPasswordEditText.setTransformationMethod(PasswordTransformationMethod.getInstance());
+                confirmNewPasswordEditText.setTransformationMethod(PasswordTransformationMethod.getInstance());
+            }
+        });
     }
     //endregion
 
     public void updatePasswordFocus() {
-        if(newPasswordEditText.hasFocus())
-            newPasswordEditText.setSelection(newPasswordEditText.length());
-        else if(confirmNewPasswordEditText.hasFocus())
-            confirmNewPasswordEditText.setSelection(confirmNewPasswordEditText.length());
+        runOnUiThread(()-> {
+            if(newPasswordEditText.hasFocus())
+                newPasswordEditText.setSelection(newPasswordEditText.length());
+            else if(confirmNewPasswordEditText.hasFocus())
+                confirmNewPasswordEditText.setSelection(confirmNewPasswordEditText.length());
+        });
     }
 
     public void enableMostraPasswordCheckBox() {
-        mostraPasswordCheckBox.setEnabled(true);
+        runOnUiThread(()-> mostraPasswordCheckBox.setEnabled(true));
     }
     //endregion
 

@@ -26,6 +26,8 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.navigation.NavigationView;
 import com.squareup.picasso.Picasso;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.LinkedList;
 
 import info.movito.themoviedbapi.model.MovieDb;
@@ -35,7 +37,7 @@ import it.unina.ingSw.cineMates20.controller.SearchMovieController;
 import it.unina.ingSw.cineMates20.model.User;
 import it.unina.ingSw.cineMates20.model.UserDB;
 import it.unina.ingSw.cineMates20.view.fragment.EmptySearchFragment;
-import it.unina.ingSw.cineMates20.view.fragment.NotEmptySearchFragment;
+import it.unina.ingSw.cineMates20.view.fragment.NotEmptyMovieSearchFragment;
 import it.unina.ingSw.cineMates20.view.util.Utilities;
 
 public class SearchMovieActivity extends AppCompatActivity {
@@ -43,7 +45,7 @@ public class SearchMovieActivity extends AppCompatActivity {
     private NavigationView navigationView;
     private BottomSheetDialog bottomMenuDialog;
     private DrawerLayout drawerLayout;
-    private NotEmptySearchFragment notEmptySearchFragment;
+    private NotEmptyMovieSearchFragment notEmptyMovieSearchFragment;
     private EmptySearchFragment emptySearchFragment;
     private FragmentManager manager;
     private String searchText;
@@ -51,6 +53,7 @@ public class SearchMovieActivity extends AppCompatActivity {
     private RecyclerView.Adapter<RecyclerView.ViewHolder> currentRecyclerViewAdapter;
     private LinkedList<String> searchHistory;
     private ProgressBar progressBar;
+    private Menu menu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +83,19 @@ public class SearchMovieActivity extends AppCompatActivity {
         configureNavigationDrawer();
     }
 
+    private void initializeGraphicsComponents() {
+        drawerLayout = findViewById(R.id.searchMovieNavMenuDrawerLayout);
+        progressBar = findViewById(R.id.progressBarSearchMovies);
+        Toolbar toolbar = findViewById(R.id.toolbarHeader);
+        setSupportActionBar(toolbar);
+        ActionBar ab = getSupportActionBar();
+        if(ab != null) {
+            ab.setDisplayHomeAsUpEnabled(true);
+            ab.setHomeAsUpIndicator(R.drawable.ic_arrow_back);
+            ab.setTitle("");
+        }
+    }
+
     private void configureNavigationDrawer() {
         navigationView = findViewById(R.id.navigationViewSearchMovies);
         navigationView.setItemIconTintList(null);
@@ -88,7 +104,7 @@ public class SearchMovieActivity extends AppCompatActivity {
         TextView cognomeTextView = navigationView.getHeaderView(0).findViewById(R.id.cognomeUtenteNavMenu);
 
         runOnUiThread(() -> {
-            UserDB user = User.getUserInstance(this).getLoggedUser();
+            UserDB user = User.getLoggedUser(this);
             nomeTextView.setText(user.getNome());
             cognomeTextView.setText(user.getCognome());
         });
@@ -104,8 +120,8 @@ public class SearchMovieActivity extends AppCompatActivity {
 
         //La ricerca ha prodotto risultati
         if(searchMovieController.initializeMovieSearch(searchText)) {
-            notEmptySearchFragment = new NotEmptySearchFragment(currentRecyclerViewAdapter);
-            createFirstFragment(notEmptySearchFragment);
+            notEmptyMovieSearchFragment = new NotEmptyMovieSearchFragment(currentRecyclerViewAdapter);
+            createFirstFragment(notEmptyMovieSearchFragment);
         }
         else {
             createFirstFragment(emptySearchFragment);
@@ -124,36 +140,44 @@ public class SearchMovieActivity extends AppCompatActivity {
 
         setNavigationViewActionListener();
 
+        setUpNotificationIcon(menu);
+
+        this.menu = menu;
+
         return true;
+    }
+
+    private void setUpNotificationIcon(@NotNull Menu menu) {
+        new Thread(()-> runOnUiThread(()-> {
+            MenuItem notificationItem = menu.findItem(R.id.notificationItem);
+            if(User.getTotalUserNotificationCount() > 0)
+                notificationItem.setIcon(R.drawable.ic_notifications_on);
+            else
+                notificationItem.setIcon(R.drawable.ic_notifications);
+        })).start();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if(menu != null)
+            setUpNotificationIcon(menu);
     }
 
     private void setNavigationViewActionListener() {
         //Listener per icone del NavigationView
         navigationView.setNavigationItemSelectedListener(
-                item -> {
-                    Runnable r = HomeController.getHomeControllerInstance().
-                            getNavigationViewOnOptionsItemSelected(this, item.getItemId());
-                    try {
-                        r.run();
-                    }catch(NullPointerException e){
-                        Utilities.stampaToast(SearchMovieActivity.this, "Si è verificato un errore.\nRiprova tra qualche minuto");
-                    }
-                    return false;
+            item -> {
+                Runnable r = HomeController.getHomeControllerInstance().
+                        getNavigationViewOnOptionsItemSelected(this, item.getItemId());
+                try {
+                    r.run();
+                }catch(NullPointerException e){
+                    Utilities.stampaToast(SearchMovieActivity.this, "Si è verificato un errore.\nRiprova tra qualche minuto");
                 }
+                return false;
+            }
         );
-    }
-
-    private void initializeGraphicsComponents() {
-        drawerLayout = findViewById(R.id.searchMovieNavMenuDrawerLayout);
-        progressBar = findViewById(R.id.progressBarSearchMovies);
-        Toolbar toolbar = findViewById(R.id.toolbarHeader);
-        setSupportActionBar(toolbar);
-        ActionBar ab = getSupportActionBar();
-        if(ab != null) {
-            ab.setDisplayHomeAsUpEnabled(true);
-            ab.setHomeAsUpIndicator(R.drawable.ic_arrow_back);
-            ab.setTitle("");
-        }
     }
 
     //Inizializza per la prima volta il fragment dell'activity
@@ -194,7 +218,7 @@ public class SearchMovieActivity extends AppCompatActivity {
 
         if(movie.getPosterPath() != null) {
             ImageView coverImageView = bottomMenuDialog.findViewById(R.id.copertinaBottomMenu);
-            Picasso.get().load(getResources().getString(R.string.first_path_poster_image) + movie.getPosterPath()).
+            Picasso.get().load(getResources().getString(R.string.first_path_image) + movie.getPosterPath()).
                     resize(270, 360)
                     .noFade().into(coverImageView);
         }
@@ -228,9 +252,9 @@ public class SearchMovieActivity extends AppCompatActivity {
 
             FragmentTransaction transaction = manager.beginTransaction();
 
-            notEmptySearchFragment = new NotEmptySearchFragment(currentRecyclerViewAdapter);
+            notEmptyMovieSearchFragment = new NotEmptyMovieSearchFragment(currentRecyclerViewAdapter);
 
-            transaction.replace(R.id.showMoviesFrameLayout, notEmptySearchFragment);
+            transaction.replace(R.id.showMoviesFrameLayout, notEmptyMovieSearchFragment);
             transaction.addToBackStack(null);
             transaction.commit();
         }
@@ -257,9 +281,11 @@ public class SearchMovieActivity extends AppCompatActivity {
     }
 
     public void clearSearchViewFocus() {
-        searchView.setFocusable(false);
-        searchView.setIconified(false);
-        searchView.clearFocus();
+        runOnUiThread(()-> {
+            searchView.setFocusable(false);
+            searchView.setIconified(false);
+            searchView.clearFocus();
+        });
     }
 
     @Override
@@ -283,10 +309,6 @@ public class SearchMovieActivity extends AppCompatActivity {
         }
     }
 
-    public String getSearchText(){
-        return searchText;
-    }
-
     public void setSearchText(String query) {
         if(query != null && !query.equals(""))
             searchText = query;
@@ -301,18 +323,18 @@ public class SearchMovieActivity extends AppCompatActivity {
     }
 
     public void hideSearchMovieProgressBar() {
-        progressBar.setVisibility(View.INVISIBLE);
+        runOnUiThread(()-> progressBar.setVisibility(View.INVISIBLE));
     }
 
     public void showSearchMovieProgressBar() {
-        progressBar.setVisibility(View.VISIBLE);
+        runOnUiThread(()-> progressBar.setVisibility(View.VISIBLE));
     }
 
     public void closeDrawerLayout() {
-        drawerLayout.closeDrawer(GravityCompat.START);
+        runOnUiThread(()-> drawerLayout.closeDrawer(GravityCompat.START));
     }
 
     public void closeBottomMenu() {
-        bottomMenuDialog.dismiss();
+        runOnUiThread(()-> bottomMenuDialog.dismiss());
     }
 }

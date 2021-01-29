@@ -13,12 +13,14 @@ import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import info.movito.themoviedbapi.TmdbApi;
+import info.movito.themoviedbapi.TmdbMovies;
 import info.movito.themoviedbapi.TmdbSearch;
 import info.movito.themoviedbapi.model.MovieDb;
 import info.movito.themoviedbapi.model.core.MovieResultsPage;
+import info.movito.themoviedbapi.tools.ApiUrl;
+import info.movito.themoviedbapi.tools.RequestMethod;
 import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.model.ListaFilmDB;
 import it.unina.ingSw.cineMates20.model.User;
@@ -26,9 +28,11 @@ import it.unina.ingSw.cineMates20.view.activity.SearchMovieActivity;
 import it.unina.ingSw.cineMates20.view.adapter.SearchMovieAdapter;
 import it.unina.ingSw.cineMates20.view.util.Utilities;
 
+import static info.movito.themoviedbapi.TmdbMovies.TMDB_METHOD_MOVIE;
+
 public class SearchMovieController {
     private static SearchMovieController instance;
-    private MoviesListController movieListController;
+    private final MoviesListController movieListController;
     private SearchMovieActivity searchMovieActivity;
     private static TmdbApi tmdbApi;
 
@@ -66,7 +70,7 @@ public class SearchMovieController {
             if(Utilities.checkNullActivityOrNoConnection(searchMovieActivity)) return;
 
             if(itemId == R.id.notificationItem)
-                NotificationsController.getNotificationControllerInstance().start(searchMovieActivity);
+                NotificationController.getNotificationControllerInstance().start(searchMovieActivity);
         };
     }
 
@@ -117,7 +121,8 @@ public class SearchMovieController {
                 tmdbApi = new TmdbApi(searchMovieActivity.getResources().getString(R.string.themoviedb_api_key));
 
             TmdbSearch search = tmdbApi.getSearch();
-            MovieResultsPage movieResults = search.searchMovie(searchMovieActivity.getSearchText(), 0, "it", true, 0);
+            MovieResultsPage movieResults = search.searchMovie(query, 0, "it",
+                    SettingsController.getSettingsControllerInstance().isSearchMovieFilterEnabled(), 0);
             movieResultsCount[0] = movieResults.getTotalResults();
 
             initializeAdapterForMovieSearch(movieResults);
@@ -138,17 +143,61 @@ public class SearchMovieController {
                           imagesUrl = new ArrayList<>();
         ArrayList<Runnable> threeDotsListeners = new ArrayList<>(),
                             showDetailsMovieListeners = new ArrayList<>();
+        if(tmdbApi == null)
+            tmdbApi = new TmdbApi(searchMovieActivity.getResources().getString(R.string.themoviedb_api_key));
+
+        ShowDetailsMovieController showDetailsMovieController = ShowDetailsMovieController.getShowDetailsMovieControllerInstance();
 
         for (MovieDb movie : movieResults) {
             threeDotsListeners.add(getThreeDotsListener(movie));
             showDetailsMovieListeners.add(getDetailsMovieListener(movie));
 
+            //Verifica se il film dispone di traduzione italiana
+            Thread t = new Thread(() -> {
+                String webpage = tmdbApi.requestWebPage(new ApiUrl(TMDB_METHOD_MOVIE, movie.getId(),
+                        TmdbMovies.MovieMethod.translations), null, RequestMethod.GET);
+
+                if (!webpage.contains("Italiano")) {
+                    MovieDb engMovie = tmdbApi.getMovies().getMovie(movie.getId(), "en");
+                    //Se non disponibile traduzione italiana, inserisci titolo inglese
+                    movie.setTitle(engMovie.getTitle());
+                }
+            });
+            t.start();
+
+            //L'aggiornamento dei titoli avverrà immediatamente
+            if(movieResults.getTotalResults() < 15) {
+                try {
+                    t.join();
+                }catch(InterruptedException ignore){}
+            } //else L'aggiornamento dei titoli avverrà a pagina film aperta
+
             if(movie.getTitle() != null)
                 titles.add(movie.getTitle());
-            else
+            else {
+                movie.setTitle(movie.getOriginalTitle());
                 titles.add(movie.getOriginalTitle());
+            }
 
-            descriptions.add(movie.getOverview());
+            if(movie.getOverview() == null || movie.getOverview().equals("")) {
+                Thread t2 = new Thread(()-> {
+                    if(tmdbApi == null)
+                        tmdbApi = new TmdbApi(searchMovieActivity.getResources().getString(R.string.themoviedb_api_key));
+                    String engOverview = new TmdbMovies(tmdbApi).getMovie(movie.getId(), "en").getOverview();
+                    descriptions.add(engOverview);
+                    movie.setOverview(engOverview);
+                });
+                t2.start();
+
+                try {
+                    t2.join();
+                }catch(InterruptedException e) {
+                    descriptions.add(null);
+                }
+            }
+            else
+                descriptions.add(movie.getOverview());
+
             imagesUrl.add(movie.getPosterPath());
         }
 
@@ -204,7 +253,7 @@ public class SearchMovieController {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
 
-        String email = User.getUserInstance(searchMovieActivity).getLoggedUser().getEmail();
+        String email = User.getLoggedUser(searchMovieActivity).getEmail();
         boolean[] contains = new boolean[1];
 
         Thread t = new Thread(()-> {

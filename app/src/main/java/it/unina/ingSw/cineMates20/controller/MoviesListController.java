@@ -28,12 +28,16 @@ import java.util.SortedSet;
 import info.movito.themoviedbapi.TmdbApi;
 import info.movito.themoviedbapi.TmdbMovies;
 import info.movito.themoviedbapi.model.MovieDb;
+import info.movito.themoviedbapi.tools.ApiUrl;
+import info.movito.themoviedbapi.tools.RequestMethod;
 import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.model.ListaFilmDB;
 import it.unina.ingSw.cineMates20.model.User;
 import it.unina.ingSw.cineMates20.view.activity.MoviesListActivity;
 import it.unina.ingSw.cineMates20.view.adapter.HomeStyleMovieAdapter;
 import it.unina.ingSw.cineMates20.view.util.Utilities;
+
+import static info.movito.themoviedbapi.TmdbMovies.TMDB_METHOD_MOVIE;
 
 public class MoviesListController {
     //region Attributi
@@ -82,7 +86,7 @@ public class MoviesListController {
                     String methodToRetrieveList = (parent.getItemAtPosition(position).toString().equals(spinnerArray[0]) ? "getPreferitiByPossessore" : "getDaVedereByPossessore");
                     url = moviesListActivity.getResources().getString(R.string.db_path) + "ListaFilm/" + methodToRetrieveList + "/{FK_Possessore}";
 
-                    String email = User.getUserInstance(moviesListActivity).getLoggedUser().getEmail();
+                    String email = User.getLoggedUser(moviesListActivity).getEmail();
 
                     ListaFilmDB listaFilmPreferiti = restTemplate.getForObject(url, ListaFilmDB.class, email);
                     initializeActivityMovies(listaFilmPreferiti);
@@ -165,7 +169,7 @@ public class MoviesListController {
 
             String url = activity.getResources().getString(R.string.db_path) + "ListaFilm/" + methodToRetrieveList + "/{FK_Possessore}";
 
-            String email = User.getUserInstance(activity).getLoggedUser().getEmail();
+            String email = User.getLoggedUser(activity).getEmail();
 
             ListaFilmDB listaFilmPreferiti = restTemplate.getForObject(url, ListaFilmDB.class, email);
             HttpEntity<ListaFilmDB> requestListaPreferitiEntity = new HttpEntity<>(listaFilmPreferiti, headers);
@@ -187,6 +191,7 @@ public class MoviesListController {
 
     private void initializeListsForMoviesListAdapter(@NotNull List<Long> moviesIds) {
         TmdbMovies tmdbMovies = new TmdbMovies(new TmdbApi(moviesListActivity.getResources().getString(R.string.themoviedb_api_key)));
+        TmdbApi tmdbApi = new TmdbApi(moviesListActivity.getResources().getString(R.string.themoviedb_api_key));
 
         ArrayList<String> titles = new ArrayList<>(),
                           imagesUrl = new ArrayList<>();
@@ -195,6 +200,30 @@ public class MoviesListController {
         for (Long id : moviesIds) {
             MovieDb movie = tmdbMovies.getMovie(id.intValue(), "it");
             moviesCardViewListeners.add(getMovieCardViewListener(movie));
+
+            //Verifica se il film dispone di traduzione italiana
+            Thread t = new Thread(()-> {
+                //L'aggiornamento dei titoli avverrà a pagina film aperta
+                String webpage = tmdbApi.requestWebPage(new ApiUrl(TMDB_METHOD_MOVIE, movie.getId(),
+                        TmdbMovies.MovieMethod.translations), null, RequestMethod.GET);
+
+                if (!webpage.contains("Italiano")) {
+                    MovieDb engMovie = tmdbMovies.getMovie(movie.getId(), "en");
+                    //Se non disponibile traduzione italiana, inserisci titolo inglese
+                    movie.setTitle(engMovie.getTitle());
+
+                    if (movie.getOverview() == null || movie.getOverview().equals(""))
+                        movie.setOverview(engMovie.getOverview());
+                }
+            });
+            t.start();
+
+            //L'aggiornamento dei titoli avverrà immediatamente
+            if(moviesIds.size() < 15) {
+                try {
+                    t.join();
+                }catch(InterruptedException ignore){}
+            } //else L'aggiornamento dei titoli avverrà a pagina film aperta
 
             if(movie.getTitle() != null)
                 titles.add(movie.getTitle());

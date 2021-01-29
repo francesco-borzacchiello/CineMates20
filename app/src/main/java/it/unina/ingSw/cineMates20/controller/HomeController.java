@@ -31,16 +31,24 @@ import info.movito.themoviedbapi.TmdbApi;
 import info.movito.themoviedbapi.TmdbMovies;
 import info.movito.themoviedbapi.model.MovieDb;
 import info.movito.themoviedbapi.model.core.MovieResultsPage;
+import info.movito.themoviedbapi.tools.ApiUrl;
+import info.movito.themoviedbapi.tools.RequestMethod;
 import it.unina.ingSw.cineMates20.EntryPoint;
 import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.model.User;
 import it.unina.ingSw.cineMates20.view.activity.FriendsActivity;
 import it.unina.ingSw.cineMates20.view.activity.HomeActivity;
+import it.unina.ingSw.cineMates20.view.activity.InformationActivity;
 import it.unina.ingSw.cineMates20.view.activity.MoviesListActivity;
 import it.unina.ingSw.cineMates20.view.activity.PersonalProfileActivity;
+import it.unina.ingSw.cineMates20.view.activity.SearchFriendsActivity;
 import it.unina.ingSw.cineMates20.view.activity.SearchMovieActivity;
+import it.unina.ingSw.cineMates20.view.activity.SettingsActivity;
 import it.unina.ingSw.cineMates20.view.adapter.HomeStyleMovieAdapter;
 import it.unina.ingSw.cineMates20.view.util.Utilities;
+
+import static info.movito.themoviedbapi.TmdbMovies.TMDB_METHOD_MOVIE;
+
 public class HomeController {
 
     //region Attributi
@@ -50,6 +58,9 @@ public class HomeController {
     private FriendsActivity friendsActivity;
     private MoviesListActivity moviesListActivity;
     private PersonalProfileActivity personalProfileActivity;
+    private SearchFriendsActivity searchFriendsActivity;
+    private InformationActivity informationActivity;
+    private SettingsActivity settingsActivity;
     private TmdbMovies tmdbMovies;
     //endregion
 
@@ -98,6 +109,7 @@ public class HomeController {
     //region Setter del riferimento alle Activity gestite da questo controller
     public void setHomeActivity(@NotNull HomeActivity homeActivity) {
         this.homeActivity = homeActivity;
+        SettingsController.setSettingsControllerContextActivity(homeActivity);
     }
 
     public void setSearchMovieActivity(@NotNull SearchMovieActivity searchMovieActivity) {
@@ -115,13 +127,26 @@ public class HomeController {
     public void setUserProfileActivity(PersonalProfileActivity personalProfileActivity) {
         this.personalProfileActivity = personalProfileActivity;
     }
+
+    public void setSearchFriendsActivity(SearchFriendsActivity searchFriendsActivity) {
+        this.searchFriendsActivity = searchFriendsActivity;
+    }
+
+    public void setInformationActivity(InformationActivity informationActivity) {
+        this.informationActivity = informationActivity;
+    }
+
+    public void setSettingsActivity(SettingsActivity settingsActivity) {
+        this.settingsActivity = settingsActivity;
+    }
     //endregion
 
     //Costruisce e setta gli adapter per i RecyclerView che andranno a mostrare i film sulla home
     public void setHomeActivityMovies() {
-        if(tmdbMovies == null) return;
-
         Thread t = new Thread(()-> {
+            if(tmdbMovies == null)
+                tmdbMovies = new TmdbMovies(new TmdbApi(homeActivity.getResources().getString(R.string.themoviedb_api_key)));
+
             MovieResultsPage upcomingUsa = tmdbMovies.getUpcoming("it", 1, "US");           //Prossime uscite USA
             MovieResultsPage upcomingIt = tmdbMovies.getUpcoming("it", 1, "IT");           //Prossime uscite Italia
             MovieResultsPage nowPlaying = tmdbMovies.getNowPlayingMovies("it", 1, "IT"); //Ora in sala
@@ -159,7 +184,6 @@ public class HomeController {
             if(nowPlayingAdapter != null)
                 homeActivity.setNowPlayingHomeMoviesRecyclerView(nowPlayingAdapter);
 
-
             initializeListsForHomeMovieAdapter(popular, popularTitles, popularImagesUrl, popularMoviesCardViewListeners);
             HomeStyleMovieAdapter popularAdapter = getHomeMoviesRecyclerViewAdapter
                     (popular.getTotalResults(), popularTitles, popularImagesUrl, popularMoviesCardViewListeners);
@@ -179,27 +203,48 @@ public class HomeController {
         });
         t.start();
 
-        try{
+        try {
             t.join();
-        }catch(InterruptedException ignore) {}
+        }catch(InterruptedException ignore){}
     }
 
     public void initializeListsForHomeMovieAdapter(@NotNull MovieResultsPage movieResultsPage,
                                                    @NotNull ArrayList<String> titles, @NotNull ArrayList<String> moviesImagesUrl,
                                                    @NotNull ArrayList<Runnable> movieCardViewListeners) {
+        TmdbApi tmdbApi = new TmdbApi(homeActivity.getResources().getString(R.string.themoviedb_api_key));
+
         for (MovieDb movie : movieResultsPage) {
             movieCardViewListeners.add(getMovieCardViewListener(movie));
 
+            //Verifica se il film dispone di traduzione italiana
+            new Thread(()-> {
+                //L'aggiornamento dei titoli avverrà a pagina film aperta
+                String webpage = tmdbApi.requestWebPage(new ApiUrl(TMDB_METHOD_MOVIE, movie.getId(),
+                        TmdbMovies.MovieMethod.translations), null, RequestMethod.GET);
+
+                if (!webpage.contains("Italiano")) {
+                    MovieDb engMovie = tmdbMovies.getMovie(movie.getId(), "en");
+                    //Se non disponibile traduzione italiana, inserisci titolo inglese
+                    movie.setTitle(engMovie.getTitle());
+
+                    if (movie.getOverview() == null || movie.getOverview().equals(""))
+                        movie.setOverview(engMovie.getOverview());
+                }
+            }).start();
+
             if(movie.getTitle() != null)
                 titles.add(movie.getTitle());
-            else
+            else {
+                movie.setTitle(movie.getOriginalTitle());
                 titles.add(movie.getOriginalTitle());
+            }
 
             moviesImagesUrl.add(movie.getPosterPath());
 
             if(titles.size() > 19)
                 break;
         }
+
     }
 
     @Nullable
@@ -238,13 +283,11 @@ public class HomeController {
     //Restituisce un listener le icone della toolbar in HomeActivity
     public Runnable getOnOptionsItemSelected(int itemId) {
         return () -> {
-            if(Utilities.checkNullActivityOrNoConnection(homeActivity)) return;
-
             if(itemId == android.R.id.home)
                 homeActivity.openDrawerLayout();
             else if(itemId == R.id.notificationItem &&
                     !Utilities.checkNullActivityOrNoConnection(homeActivity)) {
-                NotificationsController.getNotificationControllerInstance().start(homeActivity);
+                NotificationController.getNotificationControllerInstance().start(homeActivity);
             }
         };
     }
@@ -289,16 +332,34 @@ public class HomeController {
                 handleListMenuItem(activity, false);
             else if(itemId == R.id.menuProfile)
                 handleProfileMenuItem(activity);
-
-            //TODO: aggiungere la gestione degli altri item del menu...
+            else if(itemId == R.id.menuInfo)
+                handleInformationMenuItem(activity);
+            else //itemId == R.id.menuSettings
+                handleSettingsMenuItem(activity);
         };
+    }
+
+    private void handleSettingsMenuItem(Activity activity) {
+        closeActivityNavigationView(activity);
+
+        new Handler(Looper.getMainLooper()).postDelayed(() ->
+                SettingsController.getSettingsControllerInstance().start(activity), 240);
+    }
+
+    private void handleInformationMenuItem(Activity activity) {
+        closeActivityNavigationView(activity);
+
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            activity.startActivity(new Intent(activity, InformationActivity.class));
+            activity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        }, 240);
     }
 
     private void handleProfileMenuItem(Activity activity) {
         closeActivityNavigationView(activity);
 
         new Handler(Looper.getMainLooper()).postDelayed(() ->
-                PersonalProfileController.getPersonalProfileControllerInstance().startPersonalProfile(activity), 240);
+            PersonalProfileController.getPersonalProfileControllerInstance().start(activity), 240);
     }
 
     private void handleListMenuItem(Activity activity, boolean isFavourites) {
@@ -347,19 +408,6 @@ public class HomeController {
             activity.finish();
         }
         homeActivity.resetRecyclersViewPosition();
-    }
-
-    private void closeActivityNavigationView(@NotNull Activity activity) {
-        if(activity.equals(homeActivity))
-            homeActivity.closeDrawerLayout();
-        else if(activity.equals(searchMovieActivity))
-            searchMovieActivity.closeDrawerLayout();
-        else if(activity.equals(friendsActivity))
-            friendsActivity.closeDrawerLayout();
-        else if(activity.equals(moviesListActivity))
-            moviesListActivity.closeDrawerLayout();
-        else if(activity.equals(personalProfileActivity))
-            personalProfileActivity.closeDrawerLayout();
     }
 
     //region Gestore d'evento per il logout
@@ -425,6 +473,25 @@ public class HomeController {
 
     //endregion
     //endregion
+
+    private void closeActivityNavigationView(@NotNull Activity activity) {
+        if(activity.equals(homeActivity))
+            homeActivity.closeDrawerLayout();
+        else if(activity.equals(searchMovieActivity))
+            searchMovieActivity.closeDrawerLayout();
+        else if(activity.equals(friendsActivity))
+            friendsActivity.closeDrawerLayout();
+        else if(activity.equals(moviesListActivity))
+            moviesListActivity.closeDrawerLayout();
+        else if(activity.equals(personalProfileActivity))
+            personalProfileActivity.closeDrawerLayout();
+        else if(activity.equals(searchFriendsActivity))
+            searchFriendsActivity.closeDrawerLayout();
+        else if(activity.equals(informationActivity))
+            informationActivity.closeDrawerLayout();
+        else
+            settingsActivity.closeDrawerLayout();
+    }
 
     //Collassa la searchview in caso di annullamento ricerca
     public View.OnFocusChangeListener getSearchViewOnQueryTextFocusChangeListener() {

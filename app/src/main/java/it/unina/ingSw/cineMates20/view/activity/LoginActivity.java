@@ -17,8 +17,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Objects;
-
 import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.controller.LoginController;
 import it.unina.ingSw.cineMates20.view.util.Utilities;
@@ -149,17 +147,17 @@ public class LoginActivity extends AppCompatActivity {
 
     public void showUsernameError() {
         if(usernameEditText != null)
-            usernameEditText.setError("Email o username non valido");
+            runOnUiThread(()-> usernameEditText.setError("Email o username non valido"));
     }
 
     public void showPasswordError() {
         if(passwordEditText != null)
-            passwordEditText.setError("La password non è valida");
+            runOnUiThread(()-> passwordEditText.setError("La password non è valida"));
     }
 
     public void enableLoginButton(boolean enable) {
         if(loginButton != null)
-            loginButton.setEnabled(enable);
+            runOnUiThread(()-> loginButton.setEnabled(enable));
     }
 
     public boolean isCheckBoxMostraPasswordEnabled() {
@@ -169,12 +167,13 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void showOrHidePassword(boolean show) {
-        if(show) {
-            passwordEditText.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
-        }
-        else {
-            passwordEditText.setTransformationMethod(PasswordTransformationMethod.getInstance());
-        }
+        runOnUiThread(()-> {
+            if (show) {
+                passwordEditText.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+            } else {
+                passwordEditText.setTransformationMethod(PasswordTransformationMethod.getInstance());
+            }
+        });
     }
 
     public void updatePasswordFocus() {

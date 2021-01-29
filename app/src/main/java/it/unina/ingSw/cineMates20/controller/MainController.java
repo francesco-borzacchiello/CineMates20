@@ -78,7 +78,7 @@ public class MainController {
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
         String url = activity.getResources().getString(R.string.db_path) + "User/getById/{email}";
 
-        String email = User.getUserInstance(activity).getLoggedUser().getEmail();
+        String email = User.getLoggedUser(activity).getEmail();
 
         if(email == null) return false;
 

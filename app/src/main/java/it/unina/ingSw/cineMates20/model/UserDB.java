@@ -4,8 +4,9 @@ package it.unina.ingSw.cineMates20.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
@@ -79,16 +80,6 @@ public class UserDB {
         this.email = email;
     }
 
-    @JsonProperty("tipoUtente")
-    public String getTipoUtente() {
-        return tipoUtente;
-    }
-
-    @JsonProperty("tipoUtente")
-    public void setTipoUtente(String tipoUtente) {
-        this.tipoUtente = tipoUtente;
-    }
-
     @Override
     public int hashCode() {
         return new HashCodeBuilder().append(nome).append(tipoUtente).append(cognome).append(email).append(username).toHashCode();
@@ -102,8 +93,9 @@ public class UserDB {
         if (!(other instanceof UserDB)) {
             return false;
         }
-        UserDB rhs = ((UserDB) other);
-        return new EqualsBuilder().append(nome, rhs.nome).append(tipoUtente, rhs.tipoUtente).append(cognome, rhs.cognome).append(email, rhs.email).append(username, rhs.username).isEquals();
+        UserDB otherUser = ((UserDB) other);
+        return new EqualsBuilder().append(nome, otherUser.nome).append(tipoUtente, otherUser.tipoUtente).
+                append(cognome, otherUser.cognome).append(email, otherUser.email).append(username, otherUser.username).isEquals();
     }
 
 }

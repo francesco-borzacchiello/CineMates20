@@ -75,7 +75,7 @@ public class HomeStyleMovieAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         movieHolder.isInitialized = true;
         movieHolder.titleTextView.setText(title.get(position));
 
-        String firstPath = context.getResources().getString(R.string.first_path_poster_image);
+        String firstPath = context.getResources().getString(R.string.first_path_image);
         if(linkImage.get(position) != null && !linkImage.get(position).equals("")) {
             Picasso.get().load(firstPath +
                 linkImage.get(position)).resize(270, 360).noFade().into(movieHolder.movieImageView,

@@ -107,11 +107,11 @@ public class JoinedMoviesActivity extends AppCompatActivity {
     }
 
     public void hideProgressBar() {
-        progressBar.setVisibility(View.INVISIBLE);
+        runOnUiThread(()-> progressBar.setVisibility(View.INVISIBLE));
     }
 
     public void showProgressBar() {
-        progressBar.setVisibility(View.VISIBLE);
+        runOnUiThread(()-> progressBar.setVisibility(View.VISIBLE));
     }
 
     public boolean areMoviesHidden() {
@@ -119,16 +119,20 @@ public class JoinedMoviesActivity extends AppCompatActivity {
     }
 
     public void setMoviesVisibility(boolean show) {
-        if(show)
-            moviesRecyclerView.setVisibility(View.VISIBLE);
-        else
-            moviesRecyclerView.setVisibility(View.INVISIBLE);
+        runOnUiThread(()-> {
+            if (show)
+                moviesRecyclerView.setVisibility(View.VISIBLE);
+            else
+                moviesRecyclerView.setVisibility(View.INVISIBLE);
+        });
     }
 
     public void setEmptyMovieListTextViewVisibility(boolean show) {
-        if(show)
-            emptyListTextView.setVisibility(View.VISIBLE);
-        else
-            emptyListTextView.setVisibility(View.INVISIBLE);
+        runOnUiThread(()-> {
+            if (show)
+                emptyListTextView.setVisibility(View.VISIBLE);
+            else
+                emptyListTextView.setVisibility(View.INVISIBLE);
+        });
     }
 }

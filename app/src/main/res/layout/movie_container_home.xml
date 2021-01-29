@@ -57,8 +57,8 @@
 
             <CheckBox
                 android:id="@+id/movie_container_checkbox"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="31dp"
+                android:layout_height="26dp"
                 android:layout_alignParentTop="true"
                 android:visibility="gone"
                 android:buttonTint="@color/black"

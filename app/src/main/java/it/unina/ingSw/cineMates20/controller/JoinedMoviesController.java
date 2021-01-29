@@ -137,6 +137,18 @@ public class JoinedMoviesController {
         return ()-> {
             if(Utilities.checkNullActivityOrNoConnection(joinedMoviesActivity)) return;
 
+            if(movie.getOverview() == null || movie.getOverview().equals("")) {
+                Thread t = new Thread(()-> {
+                    TmdbMovies tmdbMovies = new TmdbMovies(new TmdbApi(joinedMoviesActivity.getResources().getString(R.string.themoviedb_api_key)));
+                    movie.setOverview(tmdbMovies.getMovie(movie.getId(), "en").getOverview());
+                });
+                t.start();
+
+                try {
+                    t.join();
+                }catch(InterruptedException ignore) {}
+            }
+
             joinedMoviesActivity.showProgressBar();
             ShowDetailsMovieController.getShowDetailsMovieControllerInstance()
                     .start(joinedMoviesActivity, movie);

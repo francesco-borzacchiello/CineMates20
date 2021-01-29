@@ -1,0 +1,11 @@
+<resources>
+    <string-array name="movies_list_tag">
+        <item>Preferiti</item>
+        <item>Da vedere</item>
+    </string-array>
+
+    <string-array name="enable_options">
+        <item>Disabilita</item>
+        <item>Abilita</item>
+    </string-array>
+</resources>

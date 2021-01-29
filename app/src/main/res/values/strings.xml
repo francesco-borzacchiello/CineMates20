@@ -14,6 +14,7 @@
     <string name="prompt_username">Username</string>
     <string name="prompt_email">Indirizzo e-mail</string>
     <string name="prompt_conferma_codice">Codice di verifica</string>
+    <string name="prompt_esito_segnalazione">Esito: …</string>
 
     <string name="action_sign_up">REGISTRATI</string>
     <string name="action_sign_in_short">LOGIN</string>
@@ -63,6 +64,7 @@
     <string name="notification">Notifiche</string>
     <string name="hamburgerMenu">Hamburger</string>
     <string name="schermata_di_ricerca">Schermata di ricerca</string>
+    <string name="expandedCoverDescription">Immagine ad alta risoluzione della locandina di un film</string>
 
     <string name="la_ricerca_non_ha_prodotto_risultati">La ricerca non ha\nprodotto risultati!!</string>
     <string name="title">Title</string>
@@ -74,8 +76,8 @@
     <string name="segnala_film_icon">Segnala film</string>
     <string name="segnala_film_text">Segnala questo film come inappropriato</string>
 
-    <string name="first_path_backdrop_image">https://www.themoviedb.org/t/p/w1280</string>
-    <string name="first_path_poster_image">https://www.themoviedb.org/t/p/original</string>
+    <string name="first_path_image">https://www.themoviedb.org/t/p/w780</string>
+    <string name="first_path_image_original">https://www.themoviedb.org/t/p/original</string>
     <string name="description_label_movie_show_details">Descrizione:</string>
     <string name="titolo">Titolo</string>
     <string name="cast">Cast</string>
@@ -85,7 +87,7 @@
     <string name="durata">Durata:\u0020</string>
     <string name="votoFilm">0.0</string>
     <string name="ratingStarDescription">Stella valutazione del film</string>
-    <string name="etaConsigliata">Età minima consigliata:\u0020</string>
+    <string name="etaConsigliata">Età minima:\u0020</string>
     <string name="unavailable">Non disponibile</string>
     <string name="nome_cognome">Nome Cognome</string>
     <string name="description_cover_actor">Copertina attore</string>
@@ -118,12 +120,32 @@
     <string name="showDetailsMovieButtonsLabel">Aggiungi o rimuovi film da una lista</string>
     <string name="watchTrailer">Guarda trailer</string>
 
-    <string-array name="movies_list_tag">
-        <item>Preferiti</item>
-        <item>Da vedere</item>
-    </string-array>
-
     <string name="noFriendRequestsAvailable">Non sono presenti richieste di amicizia</string>
     <string name="noNotificationsAvailable">Non sono presenti notifiche</string>
     <string name="prompt_nessun_amico">Non sono presenti amici</string>
+
+    <string name="developerInfo1">Carmine Grimaldi N86002551</string>
+    <string name="developerContact1">carmine.grimaldi@studenti.unina.it</string>
+    <string name="developerInfo2">Francesco Borzacchiello N86002541</string>
+    <string name="developerContact2">fran.borzacchiello@studenti.unina.it</string>
+    <string name="developersLabel">Sviluppatori:</string>
+    <string name="contactsLabel">Contatti:</string>
+    <string name="report_subject">Oggetto segnalazione</string>
+    <string name="title_activity_settings">SettingsActivity</string>
+
+    <!-- Preference Titles -->
+    <string name="adult_filter">Filtro per adulti [Sperimentale]</string>
+    <string name="messages_header">Messaggi</string>
+    <string name="sync_header">Sincronizza</string>
+
+    <!-- Messages Preferences -->
+    <string name="signature_title">La tua firma</string>
+    <string name="send_messages_title">Tasto invia per inviare</string>
+
+    <!-- Sync Preferences -->
+    <string name="sync_title">Sincronizza notifiche periodicamente</string>
+
+    <!-- Adult Filter Preferences -->
+    <string name="filter_title">Abilita filtro ricerca per adulti</string>
+
 </resources>

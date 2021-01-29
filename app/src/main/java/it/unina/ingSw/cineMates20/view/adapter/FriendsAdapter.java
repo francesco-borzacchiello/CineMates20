@@ -24,7 +24,6 @@ public class FriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private final Context context;
     private final List<UserDB> friends;
     private final List<Runnable> showUserListeners;
-    private UserDB lastClickedUser;
     private int lastClickedItemPosition;
 
     public FriendsAdapter(Context context, List<UserDB> friends, List<Runnable> showUserListeners) {
@@ -74,11 +73,8 @@ public class FriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private View.OnClickListener addListenerForUserLayout(int position) {
         return v -> {
             try{
-                showUserListeners.get(position).run();
                 lastClickedItemPosition = position;
-                lastClickedUser = new UserDB(friends.get(position).getUsername(),
-                        friends.get(position).getNome(), friends.get(position).getCognome(),
-                        friends.get(position).getEmail(), "utente");
+                showUserListeners.get(position).run();
             } catch(NullPointerException ignore) {}
         };
     }
@@ -107,10 +103,6 @@ public class FriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             FriendsController.getFriendsControllerInstance().showEmptyFriendsLayout(true);
 
         lastClickedItemPosition = -1; //Reset
-    }
-
-    public UserDB getLastClickedUser() {
-        return lastClickedUser;
     }
 
     private static class UserHolder extends RecyclerView.ViewHolder{

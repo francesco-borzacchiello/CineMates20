@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".view.activity.NotificationsActivity">
+    tools:context=".view.activity.NotificationActivity">
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/notificationsTabLayout"
@@ -22,7 +22,8 @@
         app:tabPaddingBottom="8dp"
         app:tabPaddingTop="15dp"
         app:tabSelectedTextColor="@color/cyan"
-        app:tabTextColor="@color/lightGray" />
+        app:tabTextColor="@color/lightGray"
+        app:tabTextAppearance="@style/CustomTabText"/>
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/notificationsViewPager"

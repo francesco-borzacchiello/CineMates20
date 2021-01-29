@@ -57,9 +57,10 @@ public class FriendsController {
         ArrayList<Runnable> usersLayoutListeners = new ArrayList<>();
 
         //Popolamento temporaneo con dati fittizzi:
-        for(int i = 0; i<4; i++) {
-            users.add(new UserDB("Username", "Nome", "Cognome", "email@gmail.com", "utente"));
-            usersLayoutListeners.add(getUserLayoutListener()); //getUserCardViewListener(utente);
+        for(int i = 0; i<20; i++) {
+            UserDB user = new UserDB("Username", "Nome", "Cognome", "email@gmail.com", "utente");
+            users.add(user);
+            usersLayoutListeners.add(getUserLayoutListener(user));
         }
 
         if(users.size() == 0)
@@ -74,17 +75,18 @@ public class FriendsController {
 
     @NotNull
     @Contract(pure = true)
-    private Runnable getUserLayoutListener() {
+    private Runnable getUserLayoutListener(UserDB user) {
         return ()-> {
             if(Utilities.checkNullActivityOrNoConnection(friendsActivity)) return;
 
             friendsActivity.showFriendsProgressBar(true);
-            UserController.getUserControllerInstance().start(friendsActivity);
+            UserController.getUserControllerInstance().start(friendsActivity, user);
         };
     }
 
     public void hideFriendsActivityProgressBar() {
-        friendsActivity.showFriendsProgressBar(false);
+        if(friendsActivity != null)
+            friendsActivity.showFriendsProgressBar(false);
     }
 
     //Restituisce un listener le icone della toolbar in FriendsActivity
@@ -94,7 +96,7 @@ public class FriendsController {
                 friendsActivity.openDrawerLayout();
             else if(itemId == R.id.notificationItem &&
                     !Utilities.checkNullActivityOrNoConnection(friendsActivity)) {
-                NotificationsController.getNotificationControllerInstance().start(friendsActivity);
+                NotificationController.getNotificationControllerInstance().start(friendsActivity);
             }
         };
     }
@@ -121,7 +123,7 @@ public class FriendsController {
             //Questo metodo non viene invocato se la query è vuota
             @Override
             public boolean onQueryTextSubmit(String query) {
-                //handleOnSearchPressed(query);
+                handleOnSearchPressed(query);
                 friendsActivity.keepSearchViewExpanded();
                 return true;
             }
@@ -133,15 +135,15 @@ public class FriendsController {
         };
     }
 
+    private void handleOnSearchPressed(String query) {
+        if(Utilities.checkNullActivityOrNoConnection(friendsActivity)) return;
+
+        SearchFriendsController.getSearchFriendsControllerInstance().start(friendsActivity, query);
+    }
+
     public void removeSelectedFriend() {
         if(friendsAdapter != null)
             friendsAdapter.deleteLastClickedItem();
-    }
-
-    public UserDB getLastClickedUser() {
-        if(friendsAdapter != null)
-            return friendsAdapter.getLastClickedUser();
-        return null;
     }
 
     public void showEmptyFriendsLayout(boolean show) {

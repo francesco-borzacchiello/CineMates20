@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Background color -->
+    <!-- Colore background -->
     <item android:drawable="@color/lightBlue"/>
 
-    <!-- Logo at the center of the screen -->
+    <!-- Logo al centro dello schermo -->
     <item
-        android:drawable="@mipmap/app_logo_launcher"
+        android:drawable="@mipmap/app_logo"
         android:gravity="center"/>
 </layer-list>

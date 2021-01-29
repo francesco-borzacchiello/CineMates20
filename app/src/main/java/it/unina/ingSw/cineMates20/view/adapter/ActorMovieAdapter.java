@@ -1,7 +1,6 @@
 package it.unina.ingSw.cineMates20.view.adapter;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,7 +51,7 @@ public class ActorMovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             actorHolder.nomeCognomeTextView.setText(nameAndSurname.get(position));
             actorHolder.nomeCognomeFilmTextView.setText(movieNameAndSurname.get(position));
 
-            String firstPath = context.getResources().getString(R.string.first_path_poster_image);
+            String firstPath = context.getResources().getString(R.string.first_path_image);
             if(linkImage.get(position) != null && !linkImage.get(position).equals(""))
                 Picasso.get().load(firstPath +
                         linkImage.get(position)).resize(270, 360).noFade()

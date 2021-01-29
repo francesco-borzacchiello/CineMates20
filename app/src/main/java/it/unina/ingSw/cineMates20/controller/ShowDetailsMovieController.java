@@ -76,7 +76,7 @@ public class ShowDetailsMovieController {
         activityParent.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
     }
 
-    public boolean isParentMoviesListActivity() {
+    public boolean parentIsMoviesListActivity() {
         return isParentMoviesListActivity;
     }
 
@@ -84,15 +84,10 @@ public class ShowDetailsMovieController {
         showDetailsMovieActivity = activity;
         hideProgressBar();
 
-        Thread t = new Thread(()->
-            tmdbMovies = new TmdbMovies(new TmdbApi(activity.getResources().getString(R.string.themoviedb_api_key))));
-        t.start();
-
-        try {
-            t.join();
-        }catch(InterruptedException ignore){}
-
         new Thread(()-> {
+            if(tmdbMovies == null)
+                tmdbMovies = new TmdbMovies(new TmdbApi(activity.getResources().getString(R.string.themoviedb_api_key)));
+
             List<Video> videos = tmdbMovies.getVideos(actualMovie.getId(), "it");
 
             if(videos.size() == 0) {
@@ -123,9 +118,14 @@ public class ShowDetailsMovieController {
         String title;
         if(actualMovie.getTitle() != null)
             title = actualMovie.getTitle();
-        else
-            title = actualMovie.getOriginalTitle();
-        String prefissoDataDiUscita  = showDetailsMovieActivity.getResources().getString(R.string.data_di_uscita),
+        else {
+            if(tmdbMovies == null)
+                tmdbMovies = new TmdbMovies(new TmdbApi(showDetailsMovieActivity.getResources().getString(R.string.themoviedb_api_key)));
+            title = tmdbMovies.getMovie(actualMovie.getId(), "en").getTitle();
+            if(title == null)
+                title = actualMovie.getOriginalTitle();
+        }
+        String prefissoDataDiUscita = showDetailsMovieActivity.getResources().getString(R.string.data_di_uscita),
                prefissoRegista = showDetailsMovieActivity.getResources().getString(R.string.regista),
                prefissoGenere = showDetailsMovieActivity.getResources().getString(R.string.genere),
                prefissoDurata = showDetailsMovieActivity.getResources().getString(R.string.durata),
@@ -133,7 +133,7 @@ public class ShowDetailsMovieController {
 
         showDetailsMovieActivity.setBackgroundImageSlider(createListForBackgroundImage());
 
-        initializerAdapterForMovieCast(actualMovie.getId());
+        initializeAdapterForMovieCast(actualMovie.getId());
 
         showDetailsMovieActivity.setMovieDetails(title, prefissoDataDiUscita +
                 getEuropeanFormatMovieReleaseDate(actualMovie),
@@ -145,7 +145,7 @@ public class ShowDetailsMovieController {
                 actualMovie.getOverview());
     }
 
-    private void initializerAdapterForMovieCast(int id) {
+    private void initializeAdapterForMovieCast(int id) {
         ArrayList<String> nomiCognomi = new ArrayList<>(),
                           nomiCognomiFilm = new ArrayList<>(),
                           castImagesUrl = new ArrayList<>();
@@ -176,7 +176,7 @@ public class ShowDetailsMovieController {
 
         try {
             t.join();
-        }catch(InterruptedException ignore){ }
+        }catch(InterruptedException ignore){}
     }
 
     @NotNull
@@ -185,6 +185,9 @@ public class ShowDetailsMovieController {
         int picturesCount = 0;
 
         Thread t = new Thread(()-> {
+            if(tmdbMovies == null)
+                tmdbMovies = new TmdbMovies(new TmdbApi(showDetailsMovieActivity.getResources().getString(R.string.themoviedb_api_key)));
+
             MovieImages images = tmdbMovies.getImages(actualMovie.getId(), null);
             actualMovie.setImages(images);
         });
@@ -194,7 +197,7 @@ public class ShowDetailsMovieController {
             t.join();
         }catch(InterruptedException ignore){}
 
-        String firstPath = showDetailsMovieActivity.getResources().getString(R.string.first_path_backdrop_image);
+        String firstPath = showDetailsMovieActivity.getResources().getString(R.string.first_path_image);
         for(Artwork currentImageBackground :actualMovie.getImages(ArtworkType.BACKDROP)){
             try {
                 imageBackground.add(new SlideModel(firstPath + currentImageBackground.getFilePath(), ScaleTypes.CENTER_CROP));
@@ -211,7 +214,6 @@ public class ShowDetailsMovieController {
     /* Restituisce la data di uscita italiana di un film in formato europeo,
        nel caso non disponibile prova a restituire la data di uscita americana */
     private String getEuropeanFormatMovieReleaseDate(@NotNull MovieDb movie) {
-        //tmdbMovies.getReleaseInfo(movie.getId(),"it");
         String[] movieReleaseDate = new String[1];
         movieReleaseDate[0] = showDetailsMovieActivity.getResources().getString(R.string.unavailable);
 
@@ -220,10 +222,11 @@ public class ShowDetailsMovieController {
             String usReleaseDate = null;
             //Recupero data di uscita in italia
             for(ReleaseInfo releaseInfo: tmdbMovies.getReleaseInfo(movie.getId(),"it")){
-                if(releaseInfo.getCountry() != null && releaseInfo.getCountry().equals("IT")) {
-                    for(ReleaseDate releaseDate: releaseInfo.getReleaseDates()) {
-                        usFormatItalianReleaseDate = releaseDate.getReleaseDate().subSequence(0,10).toString();
-                    }
+                if(releaseInfo.getCountry() != null &&
+                    (releaseInfo.getCountry().equals("IT") || releaseInfo.getCountry().equals("it"))) {
+                        for(ReleaseDate releaseDate: releaseInfo.getReleaseDates()) {
+                            usFormatItalianReleaseDate = releaseDate.getReleaseDate().subSequence(0,10).toString();
+                        }
                 }
                 else if(releaseInfo.getCountry() != null && releaseInfo.getCountry().equals("US")) {
                     for(ReleaseDate releaseDate: releaseInfo.getReleaseDates()) {
@@ -366,7 +369,7 @@ public class ShowDetailsMovieController {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
 
-        String email = User.getUserInstance(showDetailsMovieActivity).getLoggedUser().getEmail();
+        String email = User.getLoggedUser(showDetailsMovieActivity).getEmail();
         boolean[] contains = new boolean[1];
 
         Thread t = new Thread(()-> {
@@ -396,6 +399,7 @@ public class ShowDetailsMovieController {
     public View.OnClickListener getAggiungiPreferitiOnClickListener() {
         return v -> {
             if(actualMovie != null && showDetailsMovieActivity != null) {
+                showDetailsMovieActivity.collapseFloatingActionMenu();
                 showDetailsMovieActivity.temporarilyDisableFavouritesButton();
                 getListenerForManageListOfFavourites("addFilmToListaFilm");
                 showDetailsMovieActivity.changeAddFavouritesButtonToRemove();
@@ -407,6 +411,7 @@ public class ShowDetailsMovieController {
         return v -> {
             if(actualMovie != null && showDetailsMovieActivity != null) {
                 showDetailsMovieActivity.temporarilyDisableFavouritesButton();
+                showDetailsMovieActivity.collapseFloatingActionMenu();
                 getListenerForManageListOfFavourites("removeFilmFromListaFilm");
                 showDetailsMovieActivity.changeRemoveFavouritesButtonToAdd();
             }
@@ -417,6 +422,7 @@ public class ShowDetailsMovieController {
         return v -> {
             if(actualMovie != null && showDetailsMovieActivity != null) {
                 showDetailsMovieActivity.temporarilyDisableToWatchButton();
+                showDetailsMovieActivity.collapseFloatingActionMenu();
                 getListenerForManageListToWatch("addFilmToListaFilm");
                 showDetailsMovieActivity.changeAddToWatchButtonToRemove();
             }
@@ -427,6 +433,7 @@ public class ShowDetailsMovieController {
         return v -> {
             if(actualMovie != null && showDetailsMovieActivity != null) {
                 showDetailsMovieActivity.temporarilyDisableToWatchButton();
+                showDetailsMovieActivity.collapseFloatingActionMenu();
                 getListenerForManageListToWatch("removeFilmFromListaFilm");
                 showDetailsMovieActivity.changeRemoveToWatchButtonToAdd();
             }
@@ -450,7 +457,7 @@ public class ShowDetailsMovieController {
 
             String url = showDetailsMovieActivity.getResources().getString(R.string.db_path) + "ListaFilm/" + methodToRetrieveList + "/{FK_Possessore}";
 
-            String email = User.getUserInstance(showDetailsMovieActivity).getLoggedUser().getEmail();
+            String email = User.getLoggedUser(showDetailsMovieActivity).getEmail();
 
             ListaFilmDB listaFilmPreferiti = restTemplate.getForObject(url, ListaFilmDB.class, email);
             HttpEntity<ListaFilmDB> requestListaPreferitiEntity = new HttpEntity<>(listaFilmPreferiti, headers);
@@ -473,8 +480,10 @@ public class ShowDetailsMovieController {
                         Uri.parse("http://www.youtube.com/watch?v=" + actualMovieKeyTrailer));
                 try {
                     showDetailsMovieActivity.startActivity(appIntent);
+                    showDetailsMovieActivity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
                 } catch (ActivityNotFoundException ex) {
                     showDetailsMovieActivity.startActivity(webIntent);
+                    showDetailsMovieActivity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
                 }
             }
         };
@@ -482,6 +491,37 @@ public class ShowDetailsMovieController {
 
     public boolean isTrailerAvailable() {
         return actualMovieKeyTrailer != null;
+    }
+
+    public boolean isHomePageAvailable() {
+        if(actualMovie == null) return false;
+
+        if(actualMovie.getHomepage() == null || actualMovie.getHomepage().equals("")) {
+            Thread t = new Thread(()-> {
+                String homePage = tmdbMovies.getMovie(actualMovie.getId(), "it").getHomepage();
+                if(homePage != null)
+                    actualMovie.setHomepage(homePage);
+            });
+            t.start();
+
+            try {
+                t.join();
+            }catch(InterruptedException ignore) {}
+
+            return actualMovie.getHomepage() != null && !actualMovie.getHomepage().equals("");
+        }
+        return true;
+    }
+
+    public View.OnClickListener getHomePageOnClickListener() {
+        return v -> {
+            if(actualMovie.getHomepage() != null && !actualMovie.getHomepage().equals("")) {
+                showDetailsMovieActivity.collapseFloatingActionMenu();
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(actualMovie.getHomepage()));
+                showDetailsMovieActivity.startActivity(browserIntent);
+                showDetailsMovieActivity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+            }
+        };
     }
     //endregion
 }

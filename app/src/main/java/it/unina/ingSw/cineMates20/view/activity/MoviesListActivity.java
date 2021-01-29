@@ -49,7 +49,7 @@ public class MoviesListActivity extends AppCompatActivity {
                     moviesListController.updateAllMoviesCheckBoxesVisibility();
                 } else {
                     finish();
-                    overridePendingTransition(0,0);
+                    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
                 }
             }
         };
@@ -111,7 +111,7 @@ public class MoviesListActivity extends AppCompatActivity {
         TextView cognomeTextView = navigationView.getHeaderView(0).findViewById(R.id.cognomeUtenteNavMenu);
 
         runOnUiThread(() -> {
-            UserDB user = User.getUserInstance(this).getLoggedUser();
+            UserDB user = User.getLoggedUser(this);
             nomeTextView.setText(user.getNome());
             cognomeTextView.setText(user.getCognome());
         });
@@ -138,15 +138,15 @@ public class MoviesListActivity extends AppCompatActivity {
     private void setNavigationViewActionListener() {
         //Listener per icone del NavigationView
         navigationView.setNavigationItemSelectedListener(
-                item -> {
-                    Runnable r = HomeController.getHomeControllerInstance().getNavigationViewOnOptionsItemSelected(this, item.getItemId());
-                    try {
-                        r.run();
-                    }catch(NullPointerException e){
-                        Utilities.stampaToast(MoviesListActivity.this, "Si è verificato un errore.\nRiprova tra qualche minuto");
-                    }
-                    return false;
+            item -> {
+                Runnable r = HomeController.getHomeControllerInstance().getNavigationViewOnOptionsItemSelected(this, item.getItemId());
+                try {
+                    r.run();
+                }catch(NullPointerException e){
+                    Utilities.stampaToast(MoviesListActivity.this, "Si è verificato un errore.\nRiprova tra qualche minuto");
                 }
+                return false;
+            }
         );
     }
 
@@ -179,19 +179,19 @@ public class MoviesListActivity extends AppCompatActivity {
     }
 
     public void hideProgressBar() {
-        progressBar.setVisibility(View.INVISIBLE);
+        runOnUiThread(()-> progressBar.setVisibility(View.INVISIBLE));
     }
 
     public void showProgressBar() {
-        progressBar.setVisibility(View.VISIBLE);
+        runOnUiThread(()-> progressBar.setVisibility(View.VISIBLE));
     }
 
     public void openDrawerLayout() {
-        moviesListDrawerLayout.openDrawer(GravityCompat.START);
+        runOnUiThread(()-> moviesListDrawerLayout.openDrawer(GravityCompat.START));
     }
 
     public void closeDrawerLayout() {
-        moviesListDrawerLayout.closeDrawer(GravityCompat.START);
+        runOnUiThread(()-> moviesListDrawerLayout.closeDrawer(GravityCompat.START));
     }
 
     public boolean areMoviesHidden() {

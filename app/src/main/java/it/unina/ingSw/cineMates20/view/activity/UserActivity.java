@@ -12,8 +12,9 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import org.jetbrains.annotations.NotNull;
+
 import it.unina.ingSw.cineMates20.R;
-import it.unina.ingSw.cineMates20.controller.FriendsController;
 import it.unina.ingSw.cineMates20.controller.UserController;
 import it.unina.ingSw.cineMates20.model.UserDB;
 import it.unina.ingSw.cineMates20.view.util.Utilities;
@@ -41,44 +42,38 @@ public class UserActivity extends AppCompatActivity {
     }
 
     private void initializeGraphicsComponents() {
-        TextView nome;
-        TextView username;
         //ImageView profilePicture = findViewById(R.id.userProfilePicture);
 
-        if(userController.isFriendProfile()) {
+        if(userController.isParentFriendsActivity()) {
             setContentView(R.layout.activity_user_friend_profile);
-            UserDB user = FriendsController.getFriendsControllerInstance().getLastClickedUser();
-
-            nome = findViewById(R.id.user_name);
-            username = findViewById(R.id.user_username);
-
-            String fullName = user.getNome() + " " + user.getCognome();
-            nome.setText(fullName);
-
-            username.setText(user.getUsername());
-            //...set foto profilePicture tramite user.getImageLink()
         }
-        else {
+        else if(userController.isParentNotificationsActivity()) {
             setContentView(R.layout.activity_user);
-          /*UserDB user = SearchUserController.getSearchUserControllerInstance().getLastClickedUser();
-
-            nome = findViewById(R.id.user_name);
-            username = findViewById(R.id.user_username);
-
-            String fullName = user.getNome() + " " + user.getCognome();
-            nome.setText(fullName);
-
-            username.setText(user.getUsername());
-            //...set foto profilePicture tramite user.getImageLink()
-          */
         }
+        else { //parent è SearchFriendsActivity
+            //if(userController.isUserFriendshipPending() || !userController.isFriendProfile())
+                setContentView(R.layout.activity_user);
+            //else setContentView(R.layout.activity_user_friend_profile);
+        }
+
+        initializeUser(userController.getActualUser());
+        setUserToolbar();
+        setButtonListeners();
+    }
+
+    private void initializeUser(@NotNull UserDB user) {
+        TextView nome = findViewById(R.id.user_name);
+        TextView username = findViewById(R.id.user_username);
+
+        String fullName = user.getNome() + " " + user.getCognome();
+        nome.setText(fullName);
+
+        username.setText(user.getUsername());
 
         /*TODO: Occorrerà settare anche immagine tramite un metodo di UserDB che restituisce il link,
                 se anche il link della foto fosse su Cognito, se ne occuperà FriendsAdapter di
                 settarlo correttamente in uno UserDB */
-
-        setUserToolbar();
-        setButtonListeners();
+        //...set foto profilePicture tramite user.getImageLink()
     }
 
     private void setUserToolbar() {
@@ -100,9 +95,9 @@ public class UserActivity extends AppCompatActivity {
             joinedMoviesButton.setOnClickListener(userController.getJoinedMoviesOnClickListener());
         }
         else {
-            //if(!userController.isUserFriendshipPending())
-            Button addUserButton = findViewById(R.id.addUserButton);
-            addUserButton.setOnClickListener(userController.getAddFriendOnClickListener());
+            //if(!userController.isUserFriendshipPending()) //Vale anche per notificationsActivity quando si clicca su un utente in attesa di essere accettato/rifiutato
+                Button addUserButton = findViewById(R.id.addUserButton);
+                addUserButton.setOnClickListener(userController.getAddFriendOnClickListener());
             //else disableAddFriendButton()
         }
     }
@@ -136,8 +131,9 @@ public class UserActivity extends AppCompatActivity {
 
     public void disableAddFriendButton() {
         Button addUserButton = findViewById(R.id.addUserButton);
-        addUserButton.setEnabled(false);
-
-        addUserButton.setBackgroundResource(R.drawable.add_friend_button_disabled);
+        runOnUiThread(()-> {
+            addUserButton.setEnabled(false);
+            addUserButton.setBackgroundResource(R.drawable.add_friend_button_disabled);
+        });
     }
 }

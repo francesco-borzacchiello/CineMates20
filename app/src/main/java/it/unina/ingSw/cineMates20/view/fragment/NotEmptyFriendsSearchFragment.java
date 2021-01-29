@@ -8,20 +8,20 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.jetbrains.annotations.NotNull;
 
 import it.unina.ingSw.cineMates20.R;
 
-public class NotEmptySearchFragment extends Fragment {
+public class NotEmptyFriendsSearchFragment extends Fragment {
 
     private RecyclerView.Adapter<RecyclerView.ViewHolder> adapter = null;
 
-    public NotEmptySearchFragment() {}
+    public NotEmptyFriendsSearchFragment() {}
 
-    public NotEmptySearchFragment(RecyclerView.Adapter<RecyclerView.ViewHolder> adapter) {
+    public NotEmptyFriendsSearchFragment(RecyclerView.Adapter<RecyclerView.ViewHolder> adapter) {
         this.adapter = adapter;
     }
 
@@ -32,7 +32,7 @@ public class NotEmptySearchFragment extends Fragment {
 
     @Override
     public View onCreateView(@NotNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_search_not_empty, container, false);
+        return inflater.inflate(R.layout.fragment_not_empty_friends_search, container, false);
     }
 
     @Override
@@ -40,17 +40,13 @@ public class NotEmptySearchFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         if(adapter != null && isAdded() && getActivity() != null) {
-            RecyclerView moviesRecyclerView = view.findViewById(R.id.moviesRecyclerView);
-            moviesRecyclerView.setAdapter(adapter);
+            RecyclerView friendsSearchRecyclerView = view.findViewById(R.id.friendsSearchRecyclerView);
+            friendsSearchRecyclerView.setAdapter(adapter);
 
-            moviesRecyclerView.setHasFixedSize(true);
-            moviesRecyclerView.setItemViewCacheSize(30);
+            friendsSearchRecyclerView.setHasFixedSize(true);
+            friendsSearchRecyclerView.setItemViewCacheSize(30);
 
-            moviesRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+            friendsSearchRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 3));
         }
-
-        //initializeGraphicComponents(view);
-
-        //setAllActionListener();
     }
 }

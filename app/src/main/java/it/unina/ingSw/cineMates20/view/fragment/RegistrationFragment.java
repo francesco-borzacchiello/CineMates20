@@ -199,8 +199,8 @@ public class RegistrationFragment extends Fragment {
     }
 
     public void enableRegisterButtonIfTextIsNotEmpty() {
-        if(registrationButton != null)
-            registrationButton.setEnabled(allEditTextAreNotEmpty());
+        if(registrationButton != null && isAdded() && getActivity() != null)
+            getActivity().runOnUiThread(()-> registrationButton.setEnabled(allEditTextAreNotEmpty()));
     }
 
     public boolean isMostraPasswordChecked() {
@@ -210,23 +210,27 @@ public class RegistrationFragment extends Fragment {
     }
 
     public void showOrHidePassword(boolean show) {
-        if(show) {
-            if (passwordEditText != null && confermaPasswordEditText != null) {
-                passwordEditText.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
-                confermaPasswordEditText.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
-            }
-        }
-        else {
-            passwordEditText.setTransformationMethod(PasswordTransformationMethod.getInstance());
-            confermaPasswordEditText.setTransformationMethod(PasswordTransformationMethod.getInstance());
-        }
+        if(isAdded() && getActivity() != null)
+            getActivity().runOnUiThread(()-> {
+                if (show) {
+                    if (passwordEditText != null && confermaPasswordEditText != null) {
+                        passwordEditText.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+                        confermaPasswordEditText.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+                    }
+                } else {
+                    passwordEditText.setTransformationMethod(PasswordTransformationMethod.getInstance());
+                    confermaPasswordEditText.setTransformationMethod(PasswordTransformationMethod.getInstance());
+                }
+            });
     }
 
-
     public void updatePasswordFocus() {
-        if(passwordEditText.hasFocus())
-            passwordEditText.setSelection(passwordEditText.length());
-        else if(confermaPasswordEditText.hasFocus())
-            confermaPasswordEditText.setSelection(confermaPasswordEditText.length());
+        if(isAdded() && getActivity() != null)
+            getActivity().runOnUiThread(()-> {
+                if (passwordEditText.hasFocus())
+                    passwordEditText.setSelection(passwordEditText.length());
+                else if (confermaPasswordEditText.hasFocus())
+                    confermaPasswordEditText.setSelection(confermaPasswordEditText.length());
+            });
     }
 }

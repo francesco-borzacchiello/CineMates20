@@ -12,6 +12,8 @@ import org.jetbrains.annotations.NotNull;
 
 import it.unina.ingSw.cineMates20.model.UserDB;
 import it.unina.ingSw.cineMates20.view.activity.FriendsActivity;
+import it.unina.ingSw.cineMates20.view.activity.NotificationActivity;
+import it.unina.ingSw.cineMates20.view.activity.SearchFriendsActivity;
 import it.unina.ingSw.cineMates20.view.activity.UserActivity;
 import it.unina.ingSw.cineMates20.view.util.Utilities;
 
@@ -20,7 +22,7 @@ public class UserController {
     private static UserController instance;
     private UserActivity userActivity;
     private AppCompatActivity activityParent;
-    private boolean isFriendProfile;
+    private UserDB actualUser;
     //endregion
 
     private UserController() {}
@@ -34,13 +36,13 @@ public class UserController {
     //endregion
 
     //region Lancio dell'Activity
-    public void start(@NotNull AppCompatActivity activityParent) {
+    public void start(@NotNull AppCompatActivity activityParent, UserDB actualUser) {
         Intent intent = new Intent(activityParent, UserActivity.class);
         activityParent.startActivity(intent);
         activityParent.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
 
         this.activityParent = activityParent;
-        isFriendProfile = (activityParent instanceof FriendsActivity);
+        this.actualUser = actualUser;
     }
     //endregion
 
@@ -55,7 +57,8 @@ public class UserController {
         if(activityParent != null) {
             if(activityParent instanceof FriendsActivity)
                 FriendsController.getFriendsControllerInstance().hideFriendsActivityProgressBar();
-            //else if(activityParent instanceof SearchUsersActivity) ...
+            else if(activityParent instanceof SearchFriendsActivity)
+                SearchFriendsController.getSearchFriendsControllerInstance().hideProgressBar();
         }
     }
 
@@ -68,8 +71,17 @@ public class UserController {
         };
     }
 
+    public boolean isParentFriendsActivity() {
+        return activityParent instanceof FriendsActivity;
+    }
+
+    public boolean isParentNotificationsActivity() {
+        return activityParent instanceof NotificationActivity;
+    }
+
+    //TODO: da modificare con controllo nel database, il seguente metodo contiene codice temporaneo
     public boolean isFriendProfile() {
-        return isFriendProfile;
+        return isParentFriendsActivity();
     }
 
     public View.OnClickListener getRemoveFriendOnClickListener() {
@@ -85,7 +97,6 @@ public class UserController {
 
                         userActivity.startActivity(new Intent(userActivity, UserActivity.class));
                         userActivity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-                        isFriendProfile = false;
                         userActivity.finish();
                     })
                     .setNegativeButton("No", null).show();
@@ -129,16 +140,16 @@ public class UserController {
 
     public MenuItem.OnMenuItemClickListener getReportItemOnClickListener() {
         return menuItem -> {
-            if(activityParent instanceof FriendsActivity) {
-                UserDB user = FriendsController.getFriendsControllerInstance().getLastClickedUser();
-                ReportController.getReportControllerInstance().startUserReport(userActivity, user);
-            }
-            /*else if(activityParent instanceof SearchUserActivity) {
-                UserDB user = SearchUserController.getSearchUserControllerInstance().getLastClickedUser();
-                ReportController.getReportControllerInstance().startUserReport(userActivity, user);
-            }*/
+            if(activityParent instanceof FriendsActivity)
+                ReportController.getReportControllerInstance().startUserReport(userActivity, actualUser);
+            else if(activityParent instanceof SearchFriendsActivity)
+                ReportController.getReportControllerInstance().startUserReport(userActivity, actualUser);
 
             return true;
         };
+    }
+
+    public UserDB getActualUser() {
+        return actualUser;
     }
 }

@@ -1,5 +1,13 @@
 package it.unina.ingSw.cineMates20.view.activity;
 
+import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -13,15 +21,9 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-
 import com.google.android.material.navigation.NavigationView;
+
+import org.jetbrains.annotations.NotNull;
 
 import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.controller.FriendsController;
@@ -48,7 +50,7 @@ public class FriendsActivity extends AppCompatActivity {
             @Override
             public void handleOnBackPressed() {
                 finish();
-                overridePendingTransition(0,0);
+                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             }
         };
         getOnBackPressedDispatcher().addCallback(this, callback);
@@ -92,7 +94,7 @@ public class FriendsActivity extends AppCompatActivity {
         TextView cognomeTextView = navigationView.getHeaderView(0).findViewById(R.id.cognomeUtenteNavMenu);
 
         runOnUiThread(() -> {
-            UserDB user = User.getUserInstance(this).getLoggedUser();
+            UserDB user = User.getLoggedUser(this);
             nomeTextView.setText(user.getNome());
             cognomeTextView.setText(user.getCognome());
         });
@@ -105,6 +107,8 @@ public class FriendsActivity extends AppCompatActivity {
         searchView = (SearchView) menu.findItem(R.id.searchItem).getActionView();
         searchView.setQueryHint("Cerca un utente");
 
+        setUpNotificationIcon(menu);
+
         searchView.setOnQueryTextListener(friendsController.getSearchViewOnQueryTextListener());
         searchView.setOnQueryTextFocusChangeListener(friendsController.getSearchViewOnQueryTextFocusChangeListener());
         searchView.setOnSearchClickListener(friendsController.getOnSearchClickListener());
@@ -113,6 +117,16 @@ public class FriendsActivity extends AppCompatActivity {
         this.menu = menu;
 
         return true;
+    }
+
+    private void setUpNotificationIcon(@NotNull Menu menu) {
+        new Thread(()-> runOnUiThread(()-> {
+            MenuItem notificationItem = menu.findItem(R.id.notificationItem);
+            if(User.getTotalUserNotificationCount() > 0)
+                notificationItem.setIcon(R.drawable.ic_notifications_on);
+            else
+                notificationItem.setIcon(R.drawable.ic_notifications);
+        })).start();
     }
 
     private void setNavigationViewActionListener() {
@@ -145,16 +159,20 @@ public class FriendsActivity extends AppCompatActivity {
     }
 
     public void showFriendsProgressBar(boolean show) {
-        if(show)
-            progressBar.setVisibility(View.VISIBLE);
-        else
-            progressBar.setVisibility(View.INVISIBLE);
+        runOnUiThread(()-> {
+            if (show)
+                progressBar.setVisibility(View.VISIBLE);
+            else
+                progressBar.setVisibility(View.INVISIBLE);
+        });
     }
 
     public void keepSearchViewExpanded() {
         if(searchView != null) {
-            searchView.clearFocus();
-            menu.findItem(R.id.searchItem).expandActionView(); //Verrà collassata in onResume()
+            runOnUiThread(()-> {
+                searchView.clearFocus();
+                menu.findItem(R.id.searchItem).expandActionView(); //Verrà collassata in onResume()
+            });
         }
     }
 
@@ -162,46 +180,60 @@ public class FriendsActivity extends AppCompatActivity {
         LinearLayout ll = findViewById(R.id.friendsLinearLayout);
         ConstraintLayout cl = findViewById(R.id.friendsConstraintLayout);
 
-        if(searchIsExpanded) {
-            ll.setVisibility(View.INVISIBLE);
-            cl.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.lightGray));
-        }
-        else {
-            ll.setVisibility(View.VISIBLE);
-            cl.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.white));
-        }
+        runOnUiThread(()-> {
+            if(searchIsExpanded) {
+                ll.setVisibility(View.INVISIBLE);
+                cl.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.lightGray));
+            }
+            else {
+                ll.setVisibility(View.VISIBLE);
+                cl.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.white));
+            }
+        });
     }
 
     @Override
     public void onResume() {
         super.onResume();
         if (menu != null && searchView != null) {
-            menu.findItem(R.id.searchItem).collapseActionView();
-            searchView.setIconified(true);
-            searchView.clearFocus();
+            runOnUiThread(()-> {
+                menu.findItem(R.id.searchItem).collapseActionView();
+                searchView.setIconified(true);
+                searchView.clearFocus();
+            });
+
+            //La struttura potrebbe essere stata invalidata, per cui si reinizializza il RecyclerView degli amici
+            friendsController.initializeActivityFriendsAdapter();
         }
+        if(menu != null)
+            setUpNotificationIcon(menu);
     }
 
     public void setFriendsRecyclerView(RecyclerView.Adapter<RecyclerView.ViewHolder> adapter) {
-        friendsRecyclerView.setAdapter(adapter);
+        runOnUiThread(()-> {
+            friendsRecyclerView.setAdapter(adapter);
 
-        friendsRecyclerView.setItemViewCacheSize(30);
+            friendsRecyclerView.setItemViewCacheSize(30);
 
-        friendsRecyclerView.setLayoutManager(new GridLayoutManager(this, 3));
+            friendsRecyclerView.setLayoutManager(new GridLayoutManager(this, 3));
+            friendsRecyclerView.setFocusable(false);
+        });
     }
 
     public void closeDrawerLayout() {
-        friendsDrawerLayout.closeDrawer(GravityCompat.START);
+        runOnUiThread(()-> friendsDrawerLayout.closeDrawer(GravityCompat.START));
     }
 
     public void openDrawerLayout() {
-        friendsDrawerLayout.openDrawer(GravityCompat.START);
+        runOnUiThread(()-> friendsDrawerLayout.openDrawer(GravityCompat.START));
     }
 
     public void showEmptyFriendsLayout(boolean show) {
-        if(show)
-            emptyFriendsListTextView.setVisibility(View.VISIBLE);
-        else
-            emptyFriendsListTextView.setVisibility(View.GONE);
+        runOnUiThread(()-> {
+            if(show)
+                emptyFriendsListTextView.setVisibility(View.VISIBLE);
+            else
+                emptyFriendsListTextView.setVisibility(View.GONE);
+        });
     }
 }

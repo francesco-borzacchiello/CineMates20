@@ -15,55 +15,77 @@ import com.facebook.GraphRequest;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONException;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import it.unina.ingSw.cineMates20.R;
+import it.unina.ingSw.cineMates20.controller.SettingsController;
 
 /**
  * Classe che memorizza le informazioni di base dell'utente loggato
  */
 public class User {
 
-    private static User instance;
     private static String name;
     private static String surname;
     private static String email;
     private static String username;
+    private static ScheduledExecutorService scheduleTaskExecutor;
+    private static int totalNotificationNumber;
+    private static boolean notificationTaskIsAlive;
 
-    private User(){}
-
-    public static User getUserInstance(Activity activity) {
-        if(instance == null || someFieldsAreNull()) {
-            instance = new User();
+    @NotNull
+    @Contract("_ -> new")
+    public static UserDB getLoggedUser(Activity activity) {
+        if(someFieldsAreNull())
             initializeUserInstance(activity);
-        }
-        return instance;
+        return new UserDB(username, name, surname, email, "utente");
     }
 
     /* A causa del fatto che alcune activity possono chiamare questa classe prima che l'utente sia loggato,
-       grazie a tale metodo, sappiamo che è necessario riprovare a creare l'istanza singleton, che ha il
+       grazie a tale metodo, sappiamo che è necessario riprovare a creare l'istanza utente, che ha il
        principale scopo di rappresentare un utente loggato. */
     private static boolean someFieldsAreNull() {
         return name == null || surname == null || email == null || email.equals("") || username == null;
     }
 
     public static void deleteUserInstance() {
-        instance = null;
+        if(notificationTaskIsAlive) {
+            scheduleTaskExecutor.shutdownNow();
+            notificationTaskIsAlive = false;
+        }
+        name = null; //Basta uno solo dei campi della classe
     }
 
-    /* Potrebbe restituire anche sempre lo stesso UserDB, ma se poi
-       qualcuno ci facesse dei set, l'oggetto verrebbe invalidato */
-    public UserDB getLoggedUser() {
-        return new UserDB(username, name, surname, email, "utente");
+    public static int getTotalUserNotificationCount() {
+        return totalNotificationNumber;
+    }
+
+    public static void enableNotificationFilter(boolean enabled) {
+        if(enabled && !notificationTaskIsAlive)
+            enableNotificationTask();
+        else if(!enabled && notificationTaskIsAlive) {
+            scheduleTaskExecutor.shutdownNow();
+            notificationTaskIsAlive = false;
+        }
     }
 
     private static void initializeUserInstance(Activity activity) {
+        initializeTotalNotificationNumber();
+
         if(Amplify.Auth.getPlugins().size() == 0) {
             try {
                 Amplify.addPlugin(new AWSCognitoAuthPlugin());
@@ -141,6 +163,33 @@ public class User {
 
             }catch(HttpClientErrorException ignore){}
         }
+    }
+
+    private static void initializeTotalNotificationNumber() {
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                if(SettingsController.getSettingsControllerInstance().isNotificationSyncEnabled())
+                    enableNotificationTask();
+            }
+        }, 10000);
+    }
+
+    private static void enableNotificationTask() {
+        notificationTaskIsAlive = true;
+        scheduleTaskExecutor = Executors.newScheduledThreadPool(1);
+        // Ricalcola il numero di notifiche totali ogni minuto
+        scheduleTaskExecutor.scheduleAtFixedRate(() -> {
+            //TODO: da sostituire con codice che restituisce il numero di notifiche dal database
+            Random rd = new Random();
+            boolean tmp = rd.nextBoolean();
+
+            if(tmp)
+                totalNotificationNumber = 99;
+            else
+                totalNotificationNumber = 0;
+            //Log.i("TASKNOTIFICHE", "ESEGUO");
+        }, 0, 1, TimeUnit.MINUTES);
     }
 
     @Nullable
