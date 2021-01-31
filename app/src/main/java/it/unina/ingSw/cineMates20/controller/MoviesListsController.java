@@ -39,15 +39,15 @@ import it.unina.ingSw.cineMates20.view.util.Utilities;
 
 import static info.movito.themoviedbapi.TmdbMovies.TMDB_METHOD_MOVIE;
 
-public class MoviesListController {
+public class MoviesListsController {
     //region Attributi
-    private static MoviesListController instance;
+    private static MoviesListsController instance;
     private MoviesListActivity moviesListActivity;
     private HomeStyleMovieAdapter actualAdapter;
     //endregion
 
     //region Costruttore
-    private MoviesListController() {}
+    private MoviesListsController() {}
     //endregion
 
     //region Lancio dell'Activity
@@ -60,9 +60,9 @@ public class MoviesListController {
     //endregion
 
     //region getInstance() per il pattern singleton
-    public static MoviesListController getMoviesListControllerInstance() {
+    public static MoviesListsController getMoviesListControllerInstance() {
         if(instance == null)
-            instance = new MoviesListController();
+            instance = new MoviesListsController();
         return instance;
     }
     //endregion
@@ -82,14 +82,13 @@ public class MoviesListController {
                     RestTemplate restTemplate = new RestTemplate();
                     restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
 
-                    String url;
                     String methodToRetrieveList = (parent.getItemAtPosition(position).toString().equals(spinnerArray[0]) ? "getPreferitiByPossessore" : "getDaVedereByPossessore");
-                    url = moviesListActivity.getResources().getString(R.string.db_path) + "ListaFilm/" + methodToRetrieveList + "/{FK_Possessore}";
+                    String url = moviesListActivity.getResources().getString(R.string.db_path) + "ListaFilm/" + methodToRetrieveList + "/{FK_Possessore}";
 
                     String email = User.getLoggedUser(moviesListActivity).getEmail();
 
-                    ListaFilmDB listaFilmPreferiti = restTemplate.getForObject(url, ListaFilmDB.class, email);
-                    initializeActivityMovies(listaFilmPreferiti);
+                    ListaFilmDB listaFilm = restTemplate.getForObject(url, ListaFilmDB.class, email);
+                    initializeActivityMovies(listaFilm);
                 });
 
                 t.start();
@@ -114,7 +113,8 @@ public class MoviesListController {
             HttpEntity<ListaFilmDB> requestListEntity = new HttpEntity<>(list, headers);
 
             String url = moviesListActivity.getResources().getString(R.string.db_path) + "ListaFilm/getAll";
-            ResponseEntity<List<Long>> moviesIds = restTemplate.exchange(url, HttpMethod.POST, requestListEntity,new ParameterizedTypeReference<List<Long>>() {});
+            ResponseEntity<List<Long>> moviesIds = restTemplate.exchange
+                    (url, HttpMethod.POST, requestListEntity, new ParameterizedTypeReference<List<Long>>() {});
 
             if(!moviesIds.getBody().isEmpty()) {
                 if(moviesListActivity.areMoviesHidden()) {

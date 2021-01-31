@@ -26,6 +26,7 @@ public class JoinedMoviesActivity extends AppCompatActivity {
     private TextView emptyListTextView;
     private ProgressBar progressBar;
     private RecyclerView moviesRecyclerView;
+    private Spinner listType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +51,7 @@ public class JoinedMoviesActivity extends AppCompatActivity {
         setContentView(R.layout.activity_movies_list);
         setToolbar();
 
-        Spinner listType = findViewById(R.id.moviesListSpinner);
+        listType = findViewById(R.id.moviesListSpinner);
         listType.setOnItemSelectedListener(joinedMoviesController.getJoinedMoviesActivitySpinnerListener());
 
         emptyListTextView = findViewById(R.id.emptyMovieListTextView);
@@ -71,6 +72,15 @@ public class JoinedMoviesActivity extends AppCompatActivity {
             ab.setHomeAsUpIndicator(R.drawable.ic_arrow_back);
             ab.setTitle("Film in comune");
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        String[] spinnerArray = getResources().getStringArray(R.array.movies_list_tag);
+        joinedMoviesController.initializeActivityMovies
+                (listType.getSelectedItem().toString().equals(spinnerArray[0]));
     }
 
     @Override

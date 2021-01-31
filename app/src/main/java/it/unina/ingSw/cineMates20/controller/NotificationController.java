@@ -8,7 +8,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
+import it.unina.ingSw.cineMates20.model.User;
 import it.unina.ingSw.cineMates20.model.UserDB;
+import it.unina.ingSw.cineMates20.model.UserHttpRequests;
 import it.unina.ingSw.cineMates20.view.activity.NotificationActivity;
 import it.unina.ingSw.cineMates20.view.adapter.NotificationPagerAdapter;
 import it.unina.ingSw.cineMates20.view.adapter.PendingFriendsRequestsAdapter;
@@ -18,6 +20,7 @@ import it.unina.ingSw.cineMates20.view.util.Utilities;
 public class NotificationController {
     private static NotificationController instance;
     private NotificationActivity notificationActivity;
+    private PendingFriendsRequestsAdapter friendsRequestsAdapter;
 
     //region Costruttore
     private NotificationController() {}
@@ -49,18 +52,13 @@ public class NotificationController {
     }
     //endregion
 
-    //TODO: da modificare con utenti reali dopo aver completato applicativo server
     public void initializeFriendRequestsNotificationAdapter() {
-        ArrayList<UserDB> users = new ArrayList<>();
+        ArrayList<UserDB> users = new ArrayList<>(UserHttpRequests.getInstance().
+                getAllPendingFriendRequests(User.getLoggedUser(notificationActivity).getEmail()));
 
         ArrayList<Runnable> usersLayoutListeners = new ArrayList<>(),
                             acceptRequestListeners = new ArrayList<>(),
                             rejectRequestListeners = new ArrayList<>();
-
-        //Popolamento temporaneo con dati fittizzi:
-        for(int i = 0; i<20; i++) {
-            users.add(new UserDB("Username", "Nome", "Cognome", "test@gmail.com", "utente"));
-        }
 
         for(UserDB user: users) {
             usersLayoutListeners.add(getUserLayoutListener(user));
@@ -68,7 +66,7 @@ public class NotificationController {
             rejectRequestListeners.add(getRejectRequestListener(user));
         }
 
-        PendingFriendsRequestsAdapter friendsRequestsAdapter = new PendingFriendsRequestsAdapter
+        friendsRequestsAdapter = new PendingFriendsRequestsAdapter
                 (notificationActivity, users, usersLayoutListeners, acceptRequestListeners, rejectRequestListeners);
 
         friendsRequestsAdapter.setHasStableIds(true);
@@ -110,9 +108,14 @@ public class NotificationController {
         return ()-> {
             if(Utilities.checkNullActivityOrNoConnection(notificationActivity)) return;
 
-            notificationActivity.decreaseFriendsNotificationsBadgeNumber();
+            if(UserHttpRequests.getInstance().confirmFriendRequest
+                    (User.getLoggedUser(notificationActivity).getEmail(), user.getEmail())) {
+                notificationActivity.decreaseFriendsNotificationsBadgeNumber();
+                friendsRequestsAdapter.deleteItem(user);
 
-            //TODO: Aggiungi "user" agli amici nel database
+            }
+            else
+                notificationActivity.runOnUiThread(()-> Utilities.stampaToast(notificationActivity, "Si è verificato un errore.\nRiprova più tardi."));
         };
     }
 
@@ -122,9 +125,13 @@ public class NotificationController {
         return ()-> {
             if(Utilities.checkNullActivityOrNoConnection(notificationActivity)) return;
 
-            notificationActivity.decreaseFriendsNotificationsBadgeNumber();
-
-            //TODO: Rimuovi "user" dagli amici nel database
+            if(UserHttpRequests.getInstance().removeFriend
+                    (User.getLoggedUser(notificationActivity).getEmail(), user.getEmail())) {
+                notificationActivity.decreaseFriendsNotificationsBadgeNumber();
+                friendsRequestsAdapter.deleteItem(user);
+            }
+            else
+                notificationActivity.runOnUiThread(()-> Utilities.stampaToast(notificationActivity, "Si è verificato un errore.\nRiprova più tardi."));
         };
     }
 

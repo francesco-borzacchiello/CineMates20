@@ -357,7 +357,7 @@ public class ShowDetailsMovieController {
             else if(activityParent instanceof SearchMovieActivity)
                 SearchMovieController.getSearchMovieControllerInstance().hideSearchMovieProgressBar();
             else if(activityParent instanceof MoviesListActivity)
-                MoviesListController.getMoviesListControllerInstance().hideMoviesListProgressBar();
+                MoviesListsController.getMoviesListControllerInstance().hideMoviesListProgressBar();
             else if(activityParent instanceof JoinedMoviesActivity)
                 JoinedMoviesController.getJoinedMoviesControllerInstance().hideJoinedMoviesProgressBar();
         }

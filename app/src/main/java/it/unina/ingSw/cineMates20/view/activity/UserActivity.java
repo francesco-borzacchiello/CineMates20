@@ -44,17 +44,10 @@ public class UserActivity extends AppCompatActivity {
     private void initializeGraphicsComponents() {
         //ImageView profilePicture = findViewById(R.id.userProfilePicture);
 
-        if(userController.isParentFriendsActivity()) {
-            setContentView(R.layout.activity_user_friend_profile);
-        }
-        else if(userController.isParentNotificationsActivity()) {
+        if(userController.isUserFriendshipPending() || !userController.isFriendProfile())
             setContentView(R.layout.activity_user);
-        }
-        else { //parent è SearchFriendsActivity
-            //if(userController.isUserFriendshipPending() || !userController.isFriendProfile())
-                setContentView(R.layout.activity_user);
-            //else setContentView(R.layout.activity_user_friend_profile);
-        }
+        else
+            setContentView(R.layout.activity_user_friend_profile);
 
         initializeUser(userController.getActualUser());
         setUserToolbar();
@@ -95,10 +88,11 @@ public class UserActivity extends AppCompatActivity {
             joinedMoviesButton.setOnClickListener(userController.getJoinedMoviesOnClickListener());
         }
         else {
-            //if(!userController.isUserFriendshipPending()) //Vale anche per notificationsActivity quando si clicca su un utente in attesa di essere accettato/rifiutato
+            if(!userController.isUserFriendshipPending()) {
                 Button addUserButton = findViewById(R.id.addUserButton);
                 addUserButton.setOnClickListener(userController.getAddFriendOnClickListener());
-            //else disableAddFriendButton()
+            }
+            else disableAddFriendButton();
         }
     }
 

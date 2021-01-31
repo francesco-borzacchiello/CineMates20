@@ -22,13 +22,13 @@ import com.google.android.material.navigation.NavigationView;
 
 import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.controller.HomeController;
-import it.unina.ingSw.cineMates20.controller.MoviesListController;
+import it.unina.ingSw.cineMates20.controller.MoviesListsController;
 import it.unina.ingSw.cineMates20.model.User;
 import it.unina.ingSw.cineMates20.model.UserDB;
 import it.unina.ingSw.cineMates20.view.util.Utilities;
 
 public class MoviesListActivity extends AppCompatActivity {
-    private MoviesListController moviesListController;
+    private MoviesListsController moviesListsController;
     private DrawerLayout moviesListDrawerLayout;
     private NavigationView navigationView;
     private ProgressBar progressBar;
@@ -44,9 +44,9 @@ public class MoviesListActivity extends AppCompatActivity {
         OnBackPressedCallback callback = new OnBackPressedCallback(true ) {
             @Override
             public void handleOnBackPressed() {
-                if(moviesListController.isDeleteEnabled()) {
-                    moviesListController.resetAllMoviesCheckBoxes();
-                    moviesListController.updateAllMoviesCheckBoxesVisibility();
+                if(moviesListsController.isDeleteEnabled()) {
+                    moviesListsController.resetAllMoviesCheckBoxes();
+                    moviesListsController.updateAllMoviesCheckBoxesVisibility();
                 } else {
                     finish();
                     overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
@@ -55,8 +55,8 @@ public class MoviesListActivity extends AppCompatActivity {
         };
         getOnBackPressedDispatcher().addCallback(this, callback);
 
-        moviesListController = MoviesListController.getMoviesListControllerInstance();
-        moviesListController.setMoviesListActivity(this);
+        moviesListsController = MoviesListsController.getMoviesListControllerInstance();
+        moviesListsController.setMoviesListActivity(this);
         HomeController.getHomeControllerInstance().setMoviesListActivity(this);
 
         initializeGraphicsComponents();
@@ -68,7 +68,7 @@ public class MoviesListActivity extends AppCompatActivity {
         setToolbar();
 
         listTypeSpinner = findViewById(R.id.moviesListSpinner);
-        listTypeSpinner.setOnItemSelectedListener(moviesListController.getMoviesListActivitySpinnerListener());
+        listTypeSpinner.setOnItemSelectedListener(moviesListsController.getMoviesListActivitySpinnerListener());
 
         boolean isFavourites = getIntentExtra();
         if(!isFavourites)
@@ -126,7 +126,7 @@ public class MoviesListActivity extends AppCompatActivity {
         menu.findItem(R.id.shareItem).setIcon(R.drawable.ic_delete);
         menu.findItem(R.id.shareItem).setTitle("Elimina");
 
-        menu.findItem(R.id.shareItem).setOnMenuItemClickListener(moviesListController.getOnMenuItemClickListener());
+        menu.findItem(R.id.shareItem).setOnMenuItemClickListener(moviesListsController.getOnMenuItemClickListener());
 
         setNavigationViewActionListener();
 
@@ -153,7 +153,7 @@ public class MoviesListActivity extends AppCompatActivity {
     //Listener per icone della toolbar
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        Runnable onOptionsItemSelected = moviesListController.getOnOptionsItemSelected(item.getItemId());
+        Runnable onOptionsItemSelected = moviesListsController.getOnOptionsItemSelected(item.getItemId());
         try {
             onOptionsItemSelected.run();
             return false;

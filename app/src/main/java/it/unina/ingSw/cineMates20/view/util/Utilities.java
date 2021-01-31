@@ -22,10 +22,7 @@ public class Utilities {
 
     public static boolean isUserNameValid(String username) {
         if(username != null) {
-            if(username.trim().isEmpty())
-                return false;
-
-            if(username.trim().length() < 3)
+            if(username.trim().isEmpty() || username.trim().length() < 3 || username.contains("@"))
                 return false;
 
             Pattern whiteSpacePattern = Pattern.compile("\\s+");

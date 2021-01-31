@@ -3,6 +3,7 @@ package it.unina.ingSw.cineMates20.view.activity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -138,6 +139,14 @@ public class SearchFriendsActivity extends AppCompatActivity {
         this.menu = menu;
 
         return true;
+    }
+
+    //Nasconde la tastiera alla pressione di un elemento che non sia essa stessa o una text box
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent event) {
+        boolean ret = super.dispatchTouchEvent(event);
+        Utilities.hideKeyboard(this, event);
+        return ret;
     }
 
     private void setUpNotificationIcon(@NotNull Menu menu) {

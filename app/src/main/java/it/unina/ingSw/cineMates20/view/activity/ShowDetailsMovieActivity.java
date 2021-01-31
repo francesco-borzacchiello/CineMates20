@@ -215,14 +215,13 @@ public class ShowDetailsMovieActivity extends AppCompatActivity {
             descrizioneTextView.setContent(getResources().getString(R.string.unavailable));
 
         if(coverUrl != null && !coverUrl.equals("")) {
-            Picasso.get().load(getResources().getString(R.string.first_path_image) + coverUrl).
-                    noFade().into(coverImageView);
+            Picasso.get().load(getResources().getString(R.string.first_path_image) + coverUrl)
+                    .noFade().into(coverImageView);
 
-            Picasso.get().load(getResources().getString(R.string.first_path_image_original) + coverUrl).
-                    noFade().into(expandedCoverImageView);
+            Picasso.get().load(getResources().getString(R.string.first_path_image_original) + coverUrl)
+                    .noFade().into(expandedCoverImageView);
 
-            coverImageView.setOnClickListener(view ->
-                    zoomImageFromThumb(coverUrl));
+            coverImageView.setOnClickListener(view -> zoomImageFromThumb());
 
             // Recupera e memorizza il tempo di animazione "short" del sistema.
             shortAnimationDuration = getResources().getInteger(android.R.integer.config_shortAnimTime);
@@ -312,7 +311,7 @@ public class ShowDetailsMovieActivity extends AppCompatActivity {
     }
 
     //Metodo fornito dalla documentazione di Android per lo zoom di un'immagine
-    private void zoomImageFromThumb(String imageUrl) {
+    private void zoomImageFromThumb() {
         if (currentAnimator != null)
             currentAnimator.cancel();
 

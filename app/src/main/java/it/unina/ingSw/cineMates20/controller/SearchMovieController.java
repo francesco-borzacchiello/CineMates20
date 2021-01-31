@@ -32,12 +32,12 @@ import static info.movito.themoviedbapi.TmdbMovies.TMDB_METHOD_MOVIE;
 
 public class SearchMovieController {
     private static SearchMovieController instance;
-    private final MoviesListController movieListController;
+    private final MoviesListsController movieListController;
     private SearchMovieActivity searchMovieActivity;
     private static TmdbApi tmdbApi;
 
     private SearchMovieController() {
-        movieListController = MoviesListController.getMoviesListControllerInstance();
+        movieListController = MoviesListsController.getMoviesListControllerInstance();
     }
 
     public static SearchMovieController getSearchMovieControllerInstance() {

@@ -28,22 +28,12 @@ import com.google.android.gms.tasks.Task;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.StringHttpMessageConverter;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import it.unina.ingSw.cineMates20.R;
-import it.unina.ingSw.cineMates20.model.ListaFilmDB;
-import it.unina.ingSw.cineMates20.model.User;
 import it.unina.ingSw.cineMates20.model.UserDB;
+import it.unina.ingSw.cineMates20.model.UserHttpRequests;
 import it.unina.ingSw.cineMates20.view.activity.RegistrationActivity;
 import it.unina.ingSw.cineMates20.view.util.Utilities;
 
@@ -84,8 +74,8 @@ public class RegistrationController {
                 ArrayList<AuthUserAttribute> attributes = new ArrayList<>();
                 attributes.add(new AuthUserAttribute(AuthUserAttributeKey.email(), registrationActivity.getEmail()));
                 attributes.add(new AuthUserAttribute(AuthUserAttributeKey.preferredUsername(), registrationActivity.getUsername()));
-                attributes.add(new AuthUserAttribute(AuthUserAttributeKey.familyName(), registrationActivity.getCognome())); //Cognome
-                attributes.add(new AuthUserAttribute(AuthUserAttributeKey.givenName(), registrationActivity.getNome())); //Nome
+                attributes.add(new AuthUserAttribute(AuthUserAttributeKey.familyName(), registrationActivity.getCognome()));
+                attributes.add(new AuthUserAttribute(AuthUserAttributeKey.givenName(), registrationActivity.getNome()));
                 attributes.add(new AuthUserAttribute(AuthUserAttributeKey.name(), ""));
                 attributes.add(new AuthUserAttribute(AuthUserAttributeKey.picture(), "null")); //TODO: da modificare successivamente
 
@@ -105,33 +95,12 @@ public class RegistrationController {
                 registrationActivity.mostraFragmentConfermaCodice(); //TODO: questo va fatto solo se result è corretto, gestire caso dati già esistenti ma non confermati
             }
             else if(inputIsValid) { //Si procede con la registrazione social
-                RestTemplate restTemplate = new RestTemplate();
-                restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
-                String url = registrationActivity.getResources().getString(R.string.db_path) + "User/add";
-
-                //TODO: memorizzare image_url per S3 nel nostro DB
-
-                String email = User.getLoggedUser(registrationActivity).getEmail();
+                String email = UserHttpRequests.getInstance().getSocialUserEmail(registrationActivity);
 
                 if(email != null) {
-                    try {
-                        HttpHeaders headers = new HttpHeaders();
-                        headers.setContentType(MediaType.APPLICATION_JSON);
-                        UserDB userDB = new UserDB(registrationActivity.getUsername(), registrationActivity.getNome(), registrationActivity.getCognome(), email, "utente");
-                        HttpEntity<UserDB> requestEntity = new HttpEntity<>(userDB, headers);
-                        ResponseEntity<UserDB> responseEntity = restTemplate.postForEntity(url, requestEntity, UserDB.class);
-
-                        if(responseEntity.getStatusCode() == HttpStatus.OK) {
-                            HomeController.getHomeControllerInstance().startFromLogin(registrationActivity);
-                            registrationActivity.runOnUiThread(() -> Utilities.stampaToast(registrationActivity, "Benvenuto " + registrationActivity.getUsername()));
-
-                            createMoviesLists(email);
-                        }
-                        else
-                            registrationActivity.runOnUiThread(() -> Utilities.stampaToast(registrationActivity,
-                                    "L'utente esiste già oppure uno o più dei dati\ninseriti corrispondono ad un utente già registrato."));
-                    } catch(HttpClientErrorException e) {
-                        e.printStackTrace();
+                    if (insertNewUser(new UserDB(registrationActivity.getUsername(), registrationActivity.getNome(), registrationActivity.getCognome(), email, "utente"))) {
+                        HomeController.getHomeControllerInstance().startFromLogin(registrationActivity);
+                        registrationActivity.runOnUiThread(() -> Utilities.stampaToast(registrationActivity, "Benvenuto " + email));
                     }
                 }
                 else
@@ -140,33 +109,12 @@ public class RegistrationController {
         };
     }
 
+    private boolean insertNewUser(UserDB user) {
+        return UserHttpRequests.getInstance().createNewUser(user);
+    }
+
     public boolean isUserAlreadyRegistered() {
-        RestTemplate restTemplate = new RestTemplate();
-        restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
-        String url = registrationActivity.getResources().getString(R.string.db_path) + "User/getById/{email}";
-
-        String email = User.getLoggedUser(registrationActivity).getEmail();
-
-        if(email == null) return false;
-
-        try {
-            boolean [] ret = new boolean[1];
-
-            Thread t = new Thread(()-> {
-                UserDB userDB = restTemplate.getForObject(url, UserDB.class, email);
-                if(userDB != null)
-                    ret[0] = true;
-            });
-            t.start();
-
-            try {
-                t.join();
-            }catch(InterruptedException ignore){}
-
-            return ret[0];
-        }catch(HttpClientErrorException ignore){}
-
-        return false;
+        return UserHttpRequests.getInstance().getSocialLoggedUser(registrationActivity) != null;
     }
 
     private boolean isInputValid(boolean isSocialRegistration) {
@@ -336,23 +284,26 @@ public class RegistrationController {
             Amplify.Auth.confirmSignUp(
                     registrationActivity.getUsername(),
                     registrationActivity.getCodiceDiConferma(),
-                    result -> handleSendedVerificationCode(result.isSignUpComplete()),
-                    error -> handleSendedVerificationCode(false)
+                    result -> handleSendedVerificationCode(result.isSignUpComplete(), registrationActivity.getEmail()),
+                    error -> handleSendedVerificationCode(false, null)
             );
         };
     }
 
-    private void handleSendedVerificationCode(boolean isSignUpComplete) {
+    private void handleSendedVerificationCode(boolean isSignUpComplete, String email) {
         if(isSignUpComplete) {
             //Reindirizzare a pagina login
-            registrationActivity.returnToLogin();
-            registrationActivity.runOnUiThread(() -> Utilities.stampaToast(registrationActivity, "Account creato con successo"));
+            if(insertNewUser(new UserDB(registrationActivity.getUsername(), registrationActivity.getNome(),
+                    registrationActivity.getCognome(), email, "utente"))) {
 
-            createMoviesLists(registrationActivity.getEmail());
+                registrationActivity.returnToLogin();
+                registrationActivity.runOnUiThread(() -> Utilities.stampaToast(registrationActivity, "Account creato con successo"));
+            }
+            else
+                registrationActivity.runOnUiThread(() -> Utilities.stampaToast(registrationActivity, "Si è verificato un errore.\nRiprova tra qualche minuto."));
         }
-        else {
+        else
             registrationActivity.runOnUiThread(() -> Utilities.stampaToast(registrationActivity, "Codice errato"));
-        }
     }
 
     public View.OnClickListener getReinviaCodiceOnClickListener() {
@@ -361,24 +312,5 @@ public class RegistrationController {
                 result -> registrationActivity.runOnUiThread(() -> Utilities.stampaToast(registrationActivity, "Codice reinviato")),
                 error -> registrationActivity.runOnUiThread(() -> Utilities.stampaToast(registrationActivity, "L'email inserita non è valida oppure è già in uso."))
         );
-    }
-
-    private void createMoviesLists(String email) {
-        new Thread (() -> {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            ListaFilmDB listaFilmPreferiti = new ListaFilmDB(registrationActivity.getResources().getString(R.string.favourites), email);
-            ListaFilmDB listaFilmDaVedere = new ListaFilmDB(registrationActivity.getResources().getString(R.string.toWatch), email);
-
-            HttpEntity<ListaFilmDB> requestListaPreferitiEntity = new HttpEntity<>(listaFilmPreferiti, headers);
-            HttpEntity<ListaFilmDB> requestListaDaVedereEntity = new HttpEntity<>(listaFilmDaVedere, headers);
-
-            RestTemplate restTemplate = new RestTemplate();
-            restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
-            String url = registrationActivity.getResources().getString(R.string.db_path) + "ListaFilm/add";
-
-            restTemplate.postForEntity(url, requestListaPreferitiEntity, ListaFilmDB.class);
-            restTemplate.postForEntity(url, requestListaDaVedereEntity, ListaFilmDB.class);
-        }).start();
     }
 }

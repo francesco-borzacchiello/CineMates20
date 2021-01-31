@@ -1,6 +1,5 @@
 package it.unina.ingSw.cineMates20.view.adapter;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,16 +15,17 @@ import java.util.List;
 import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.controller.NotificationController;
 import it.unina.ingSw.cineMates20.model.UserDB;
+import it.unina.ingSw.cineMates20.view.activity.NotificationActivity;
 
 public class PendingFriendsRequestsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private final Context context;
+    private final NotificationActivity notificationActivity;
     private final List<UserDB> users;
     private final List<Runnable> clickOnUserEvent, acceptRequestEvent, rejectRequestEvent;
 
-    public PendingFriendsRequestsAdapter(Context context, List<UserDB> users, List<Runnable> clickOnUserEvent,
+    public PendingFriendsRequestsAdapter(NotificationActivity notificationActivity, List<UserDB> users, List<Runnable> clickOnUserEvent,
                                          List<Runnable> acceptRequestEvent, List<Runnable> rejectRequestEvent) {
-        this.context = context;
+        this.notificationActivity = notificationActivity;
         this.users = users;
         this.clickOnUserEvent = clickOnUserEvent;
         this.acceptRequestEvent = acceptRequestEvent;
@@ -35,7 +35,7 @@ public class PendingFriendsRequestsAdapter extends RecyclerView.Adapter<Recycler
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        LayoutInflater inflater = LayoutInflater.from(context);
+        LayoutInflater inflater = LayoutInflater.from(notificationActivity);
         View view = inflater.inflate(R.layout.friend_notification_container, parent, false);
         return new PendingFriendsRequestsAdapter.FriendNotificationHolder(view);
     }
@@ -86,8 +86,6 @@ public class PendingFriendsRequestsAdapter extends RecyclerView.Adapter<Recycler
         return v -> {
             try{
                 Runnable r = acceptRequestEvent.get(position);
-                if(NotificationController.getNotificationControllerInstance().isInternetAvailable())
-                    deleteItem(position);
                 new Thread(r).start();
             } catch(NullPointerException ignore) {}
         };
@@ -98,21 +96,29 @@ public class PendingFriendsRequestsAdapter extends RecyclerView.Adapter<Recycler
         return v -> {
             try{
                 Runnable r = rejectRequestEvent.get(position);
-                if(NotificationController.getNotificationControllerInstance().isInternetAvailable())
-                    deleteItem(position);
                 new Thread(r).start();
             } catch(NullPointerException ignore) {}
         };
     }
 
-    private void deleteItem(int position) {
-        users.remove(position);
-        clickOnUserEvent.remove(position);
-        acceptRequestEvent.remove(position);
-        rejectRequestEvent.remove(position);
+    public void deleteItem(UserDB user) {
+        int[] position = new int[1];
+        for(UserDB utente: users) {
+            if(utente.getEmail().equals(user.getEmail()))
+                break;
+            position[0]++;
+        }
 
-        notifyItemRemoved(position);
-        notifyItemRangeChanged(position, users.size());
+        if(position[0] == users.size())
+            return;
+
+        users.remove(position[0]);
+        clickOnUserEvent.remove(position[0]);
+        acceptRequestEvent.remove(position[0]);
+        rejectRequestEvent.remove(position[0]);
+
+        notificationActivity.runOnUiThread(()-> notifyItemRemoved(position[0]));
+        notificationActivity.runOnUiThread(()-> notifyItemRangeChanged(position[0], users.size()));
 
         if(users.size() == 0)
             NotificationController.getNotificationControllerInstance().showEmptyFriendsNotificationPage(true);

@@ -6,19 +6,16 @@ import com.amplifyframework.core.Amplify;
 import com.facebook.AccessToken;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 
-import org.springframework.http.converter.StringHttpMessageConverter;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
-
 import it.unina.ingSw.cineMates20.EntryPoint;
 import it.unina.ingSw.cineMates20.R;
+import it.unina.ingSw.cineMates20.model.ReportHttpRequests;
 import it.unina.ingSw.cineMates20.model.User;
-import it.unina.ingSw.cineMates20.model.UserDB;
+import it.unina.ingSw.cineMates20.model.UserHttpRequests;
 
 /**
- * Verifica se l'utente è loggato comunicando con cognito,
+ * Verifica se l'utente è loggato comunicando con Cognito,
  * se non è loggato con cognito, verifica se è loggato con google o facebook.
- * Se loggato aprirà la home, altrimenti la pagina di login
+ * Se loggato aprirà la home, altrimenti la pagina di login.
  */
 public class MainController {
 
@@ -40,6 +37,18 @@ public class MainController {
     public void start(){
         activity.overridePendingTransition(0, 0);
 
+        //Inizializzazione SettingsController
+        SettingsController.setSettingsControllerContextActivity(activity);
+        SettingsController.getSettingsControllerInstance();
+
+        //Initializzazione UserHttpRequests
+        UserHttpRequests.getInstance().setDbPath(activity.getResources().getString(R.string.db_path));
+        UserHttpRequests.getInstance().setFavourites(activity.getResources().getString(R.string.favourites));
+        UserHttpRequests.getInstance().setToWatch(activity.getResources().getString(R.string.toWatch));
+
+        //Initializzazione ReportHttpRequests
+        ReportHttpRequests.getInstance().setDbPath(activity.getResources().getString(R.string.db_path));
+
         if(isLoggedIn()) openHomeActivity();
         else openLoginActivity();
 
@@ -49,23 +58,10 @@ public class MainController {
 
     //region Verifica se un utente è loggato si apre la home, altrimenti il login
     private boolean isLoggedIn() {
-        /*AuthUser user = Amplify.Auth.getCurrentUser(); //Se l'utente non è autenticato, restituisce null
-        if(user != null) return true;
-
-        //Verifica se l'utente è loggato con Facebook
-        //Nota: il token di Facebook scade circa 60 giorni dall'ultimo utilizzo dell'applicazione
-        AccessToken fbAccessToken = AccessToken.getCurrentAccessToken();
-        if(fbAccessToken != null)
-            return true;
-
-        // Se l'utente è già loggato, restituisce l'account con il quale si è loggato l'ultima volta
-        return GoogleSignIn.getLastSignedInAccount(activity) != null;*/
-
-        /*
-        * Verifica se un utente è loggato internamente tramite amplify,
+       /* Verifica se un utente è loggato internamente tramite amplify,
         * oppure se un utente è loggato tramite facebook,
         * oppure se un utente è loggato tramite google
-        * */
+        */
         return  Amplify.Auth.getCurrentUser() != null ||
                 ((AccessToken.getCurrentAccessToken() != null ||
                   GoogleSignIn.getLastSignedInAccount(activity) != null)
@@ -73,29 +69,9 @@ public class MainController {
 
     }
 
-    public boolean isUserAlreadyRegistered() {
-        RestTemplate restTemplate = new RestTemplate();
-        restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
-        String url = activity.getResources().getString(R.string.db_path) + "User/getById/{email}";
-
-        String email = User.getLoggedUser(activity).getEmail();
-
-        if(email == null) return false;
-
-        try {
-            final UserDB[] userDB = new UserDB[1];
-            Thread t = new Thread(()-> userDB[0] = restTemplate.getForObject(url, UserDB.class, email));
-            t.start();
-
-            try{
-                t.join();
-            }catch(InterruptedException ignore){}
-
-            if(userDB[0] != null)
-                return true;
-        }catch(HttpClientErrorException ignore){}
-
-        return false;
+    private boolean isUserAlreadyRegistered() {
+        return UserHttpRequests.getInstance().
+                isUserAlreadyRegistered(User.getLoggedUser(activity).getEmail());
     }
 
     private void openLoginActivity() { controllerLogin.start(activity); }

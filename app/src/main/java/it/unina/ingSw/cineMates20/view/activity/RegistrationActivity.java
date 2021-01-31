@@ -29,7 +29,6 @@ public class RegistrationActivity extends AppCompatActivity {
     private RegistrationFragment registrationFragment;
     private FragmentManager manager;
     private ConfirmRegistrationCodeFragment fragmentConfermaCodice;
-    private String socialProviderRegistration;
     private String username;
 
     @Override
@@ -41,6 +40,7 @@ public class RegistrationActivity extends AppCompatActivity {
         registrationController.setRegistrationActivity(this);
 
         Bundle loginBundle = getIntent().getExtras();
+        String socialProviderRegistration;
         if(loginBundle != null) {
             isSocialRegistration = loginBundle.getBoolean("isSocialLogin");
             socialProviderRegistration = loginBundle.getString("socialProvider");

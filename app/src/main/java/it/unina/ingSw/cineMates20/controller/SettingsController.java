@@ -22,7 +22,7 @@ public class SettingsController {
     private SettingsController() {
         if(activity != null) {
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(activity.getApplicationContext());
-            enableNotificationSync = preferences.getBoolean("sync", false);
+            enableNotificationSync = preferences.getBoolean("sync_notification", false);
             enableSearchMovieFilter = preferences.getString("adult_filter", "Disabilita").equals("Abilita");
         }
         else { //Valori di default

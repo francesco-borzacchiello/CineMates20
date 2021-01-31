@@ -12,7 +12,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 
 import it.unina.ingSw.cineMates20.R;
+import it.unina.ingSw.cineMates20.model.User;
 import it.unina.ingSw.cineMates20.model.UserDB;
+import it.unina.ingSw.cineMates20.model.UserHttpRequests;
 import it.unina.ingSw.cineMates20.view.activity.FriendsActivity;
 import it.unina.ingSw.cineMates20.view.adapter.FriendsAdapter;
 import it.unina.ingSw.cineMates20.view.util.Utilities;
@@ -50,24 +52,20 @@ public class FriendsController {
     }
     //endregion
 
-    //TODO: da modificare con utenti reali dopo aver completato applicativo server
     public void initializeActivityFriendsAdapter() {
-        ArrayList<UserDB> users = new ArrayList<>();
-
         ArrayList<Runnable> usersLayoutListeners = new ArrayList<>();
+        ArrayList<UserDB> users = new ArrayList<>(UserHttpRequests.getInstance().
+                getAllFriends(User.getLoggedUser(friendsActivity).getEmail()));
 
-        //Popolamento temporaneo con dati fittizzi:
-        for(int i = 0; i<20; i++) {
-            UserDB user = new UserDB("Username", "Nome", "Cognome", "email@gmail.com", "utente");
-            users.add(user);
+        for(UserDB user: users)
             usersLayoutListeners.add(getUserLayoutListener(user));
-        }
 
         if(users.size() == 0)
             showEmptyFriendsLayout(true);
         else {
-            friendsAdapter = new FriendsAdapter(friendsActivity, users, usersLayoutListeners);
+            showEmptyFriendsLayout(false);
 
+            friendsAdapter = new FriendsAdapter(friendsActivity, users, usersLayoutListeners);
             friendsAdapter.setHasStableIds(true);
             friendsActivity.setFriendsRecyclerView(friendsAdapter);
         }

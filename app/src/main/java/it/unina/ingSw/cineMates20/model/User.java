@@ -1,7 +1,6 @@
 package it.unina.ingSw.cineMates20.model;
 
 import android.app.Activity;
-import android.os.Bundle;
 import android.util.Log;
 
 import com.amplifyframework.AmplifyException;
@@ -10,20 +9,10 @@ import com.amplifyframework.auth.AuthUserAttribute;
 import com.amplifyframework.auth.cognito.AWSCognitoAuthPlugin;
 import com.amplifyframework.core.Amplify;
 import com.amplifyframework.core.AmplifyConfiguration;
-import com.facebook.AccessToken;
-import com.facebook.GraphRequest;
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.json.JSONException;
-import org.springframework.http.converter.StringHttpMessageConverter;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
 
-import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Executors;
@@ -31,7 +20,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.controller.SettingsController;
 
 /**
@@ -95,8 +83,8 @@ public class User {
             } catch (AmplifyException ignore) {}
         }
 
-        AuthUser user = Amplify.Auth.getCurrentUser();
-        if(user != null) { //L'utente è autenticato con Cognito
+        AuthUser authuser = Amplify.Auth.getCurrentUser();
+        if(authuser != null) { //L'utente è autenticato con Cognito
             AtomicBoolean done = new AtomicBoolean(false);
             Thread t = new Thread(()->
                 Amplify.Auth.fetchUserAttributes(
@@ -138,99 +126,40 @@ public class User {
                 }
             }
         }
-        else { //L'utente è loggato con un social, per cui i dati vanno ricercati nel DB interno
-            RestTemplate restTemplate = new RestTemplate();
-            restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
-            String url = activity.getResources().getString(R.string.db_path) + "User/getById/{email}";
-
-            email = tryToGetFacebookEmail();
-            if(email == null || email.equals(""))
-                email = tryToGetGoogleEmail(activity);
-
-            try {
-                Thread t = new Thread(()-> {
-                    //Usa l'email social per identificare l'utente nel Database interno
-                    UserDB userDB = restTemplate.getForObject(url, UserDB.class, email);
-                    name = userDB.getNome();
-                    surname = userDB.getCognome();
-                    username = userDB.getUsername();
-                });
-                t.start();
-
-                try {
-                    t.join();
-                }catch(InterruptedException ignore){}
-
-            }catch(HttpClientErrorException ignore){}
+        else { //L'utente è autenticato con un social, occorre interrogare il DB interno
+            UserDB user = UserHttpRequests.getInstance().getSocialLoggedUser(activity);
+            if(user != null) {
+                name = user.getNome();
+                surname = user.getCognome();
+                username = user.getUsername();
+                email = user.getEmail();
+            }
         }
     }
 
     private static void initializeTotalNotificationNumber() {
-        new Timer().schedule(new TimerTask() {
-            @Override
-            public void run() {
-                if(SettingsController.getSettingsControllerInstance().isNotificationSyncEnabled())
+        if(SettingsController.getSettingsControllerInstance().isNotificationSyncEnabled()) {
+            new Timer().schedule(new TimerTask() {
+                @Override
+                public void run() {
                     enableNotificationTask();
-            }
-        }, 10000);
+                }
+            }, 10000);
+        }
+        //TODO: Aggiungere size segnalazioni
+        else { //Si sincronizza solo al primo avvio dell'applicazione
+            totalNotificationNumber = UserHttpRequests.getInstance().getAllPendingFriendRequests(email).size();
+        }
     }
 
     private static void enableNotificationTask() {
         notificationTaskIsAlive = true;
         scheduleTaskExecutor = Executors.newScheduledThreadPool(1);
-        // Ricalcola il numero di notifiche totali ogni minuto
-        scheduleTaskExecutor.scheduleAtFixedRate(() -> {
-            //TODO: da sostituire con codice che restituisce il numero di notifiche dal database
-            Random rd = new Random();
-            boolean tmp = rd.nextBoolean();
 
-            if(tmp)
-                totalNotificationNumber = 99;
-            else
-                totalNotificationNumber = 0;
-            //Log.i("TASKNOTIFICHE", "ESEGUO");
-        }, 0, 1, TimeUnit.MINUTES);
-    }
-
-    @Nullable
-    private static String tryToGetFacebookEmail() {
-        final String[] facebookEmail = new String[1];
-        facebookEmail[0] = null;
-        AccessToken fbAccessToken = AccessToken.getCurrentAccessToken();
-
-        if(fbAccessToken == null) return null;
-
-        GraphRequest request = GraphRequest.newMeRequest(
-                AccessToken.getCurrentAccessToken(),
-                (object, response) -> {
-                    try {
-                        if (object.has("email"))
-                            facebookEmail[0] = object.getString("email");
-                        else facebookEmail[0] = null;
-                    } catch (JSONException ignore) {}
-                });
-        Bundle parameters = new Bundle();
-        parameters.putString("fields", "email");
-        request.setParameters(parameters);
-
-        Thread t = new Thread(request::executeAndWait);
-        t.start();
-
-        try {
-            t.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        return facebookEmail[0];
-    }
-
-    @Nullable
-    private static String tryToGetGoogleEmail(Activity activity) {
-        GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(activity);
-        if (acct != null)
-            return acct.getEmail();
-
-        return null;
+        //TODO: Aggiungere size segnalazioni
+        //Ricalcola il numero di notifiche totali ogni minuto
+        scheduleTaskExecutor.scheduleAtFixedRate(() ->
+                totalNotificationNumber = UserHttpRequests.getInstance()
+                        .getAllPendingFriendRequests(email).size(), 0, 30, TimeUnit.SECONDS);
     }
 }

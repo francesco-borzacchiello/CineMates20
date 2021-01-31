@@ -10,23 +10,17 @@ import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.cognitoidentityprovider.AmazonCognitoIdentityProviderClient;
-import com.amazonaws.services.cognitoidentityprovider.model.AttributeType;
-import com.amazonaws.services.cognitoidentityprovider.model.ListUsersRequest;
-import com.amazonaws.services.cognitoidentityprovider.model.ListUsersResult;
-import com.amazonaws.services.cognitoidentityprovider.model.UserType;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.model.User;
 import it.unina.ingSw.cineMates20.model.UserDB;
+import it.unina.ingSw.cineMates20.model.UserHttpRequests;
 import it.unina.ingSw.cineMates20.view.activity.SearchFriendsActivity;
 import it.unina.ingSw.cineMates20.view.adapter.FriendsAdapter;
 import it.unina.ingSw.cineMates20.view.util.Utilities;
@@ -35,7 +29,6 @@ public class SearchFriendsController {
     private static SearchFriendsController instance;
     private SearchFriendsActivity searchFriendsActivity;
     private AmazonCognitoIdentityProviderClient identityProviderClient;
-    private FriendsAdapter actualSearchFriendsAdapter;
 
     private SearchFriendsController() {
         AtomicBoolean done = new AtomicBoolean(false);
@@ -94,99 +87,23 @@ public class SearchFriendsController {
         return initializeAdapterForFriendsSearch(query);
     }
 
-    //TODO: aggiungere utenti presenti nel nostro database (utenti social)
     private boolean initializeAdapterForFriendsSearch(String query) {
-        boolean[] ret = new boolean[1];
+        ArrayList<UserDB> users = new ArrayList<>(UserHttpRequests.getInstance().getUsersByQuery(query));
+        users.remove(User.getLoggedUser(searchFriendsActivity));
 
-        Thread t = new Thread(()-> {
-            LinkedHashSet<UserDB> usersSet = new LinkedHashSet<>(); //Non occorre controllare risultati duplicati
+        if(users.size() > 0) {
             ArrayList<Runnable> usersLayoutListeners = new ArrayList<>();
-            List<ListUsersResult> results = getDefaultResults(query);
-            String loggedUserEmail = User.getLoggedUser(searchFriendsActivity).getEmail();
-            boolean validUser = false;
 
-            for(ListUsersResult result: results) { //Itera sui 4 tipi di risultati (Nome, Cognome, Username, Email)
-                for (UserType userType : result.getUsers()) { //Itera sugli utenti trovati per ogni categoria di risultati
-                    String name = "", surname = "", username = "", email = "";
-                    for (AttributeType attribute : userType.getAttributes()) { //Itera sugli attributi dell'utente trovato
-                        switch(attribute.getName()) {
-                            case "email_verified": {
-                                if (attribute.getValue().equals("true"))
-                                    validUser = true; //L'account è ben formato
-                                break;
-                            }
-                            case "given_name": {
-                                name = attribute.getValue();
-                                break;
-                            }
-                            case "family_name": {
-                                surname = attribute.getValue();
-                                break;
-                            }
-                            case "email": {
-                                email = attribute.getValue();
-                                break;
-                            }
-                            case "preferred_username": {
-                                username = attribute.getValue();
-                                break;
-                            }
-                        }
-                    }
-                    if(validUser) {
-                        UserDB user = new UserDB(username, name, surname, email, "utente");
-                        if(!user.getEmail().equals(loggedUserEmail) && usersSet.add(user))
-                            usersLayoutListeners.add(getUserLayoutListener(user));
-                        validUser = false;
-                    }
-                }
-            }
+            for(UserDB user: users)
+                usersLayoutListeners.add(getUserLayoutListener(user));
 
-            ret[0] = usersSet.size() > 0;
+            FriendsAdapter actualSearchFriendsAdapter = new FriendsAdapter(searchFriendsActivity, users, usersLayoutListeners);
+            actualSearchFriendsAdapter.setHasStableIds(true);
+            searchFriendsActivity.setFriendsRecyclerView(actualSearchFriendsAdapter);
+        }
 
-            if(usersSet.size() > 0) {
-                actualSearchFriendsAdapter = new FriendsAdapter(searchFriendsActivity, new ArrayList<>(usersSet), usersLayoutListeners);
-                actualSearchFriendsAdapter.setHasStableIds(true);
-                searchFriendsActivity.setFriendsRecyclerView(actualSearchFriendsAdapter);
-            }
-
-            searchFriendsActivity.showProgressBar(false);
-        });
-        t.start();
-
-        try {
-            t.join();
-        }catch(InterruptedException ignore){}
-
-        return ret[0];
-    }
-
-    @NotNull
-    private List<ListUsersResult> getDefaultResults(String query) {
-        List<ListUsersResult> results = new LinkedList<>();
-
-        ListUsersRequest listUsersGivenName = new ListUsersRequest();
-        listUsersGivenName.withUserPoolId("eu-west-3_VN56xO6X5");
-        listUsersGivenName.withFilter("given_name ^= \"" + query + "\"");
-
-        ListUsersRequest listUsersFamilyName = new ListUsersRequest();
-        listUsersFamilyName.withUserPoolId("eu-west-3_VN56xO6X5");
-        listUsersFamilyName.withFilter("family_name ^= \"" + query + "\"");
-
-        ListUsersRequest listUsersUsername = new ListUsersRequest();
-        listUsersUsername.withUserPoolId("eu-west-3_VN56xO6X5");
-        listUsersUsername.withFilter("preferred_username ^= \"" + query + "\"");
-
-        ListUsersRequest listUsersEmail = new ListUsersRequest();
-        listUsersEmail.withUserPoolId("eu-west-3_VN56xO6X5");
-        listUsersEmail.withFilter("email ^= \"" + query + "\"");
-
-        results.add(identityProviderClient.listUsers(listUsersGivenName));
-        results.add(identityProviderClient.listUsers(listUsersFamilyName));
-        results.add(identityProviderClient.listUsers(listUsersUsername));
-        results.add(identityProviderClient.listUsers(listUsersEmail));
-
-        return results;
+        searchFriendsActivity.showProgressBar(false);
+        return users.size() > 0;
     }
 
     @NotNull

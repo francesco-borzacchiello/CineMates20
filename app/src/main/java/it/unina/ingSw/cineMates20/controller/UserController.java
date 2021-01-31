@@ -10,9 +10,10 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import org.jetbrains.annotations.NotNull;
 
+import it.unina.ingSw.cineMates20.model.User;
 import it.unina.ingSw.cineMates20.model.UserDB;
+import it.unina.ingSw.cineMates20.model.UserHttpRequests;
 import it.unina.ingSw.cineMates20.view.activity.FriendsActivity;
-import it.unina.ingSw.cineMates20.view.activity.NotificationActivity;
 import it.unina.ingSw.cineMates20.view.activity.SearchFriendsActivity;
 import it.unina.ingSw.cineMates20.view.activity.UserActivity;
 import it.unina.ingSw.cineMates20.view.util.Utilities;
@@ -71,17 +72,9 @@ public class UserController {
         };
     }
 
-    public boolean isParentFriendsActivity() {
-        return activityParent instanceof FriendsActivity;
-    }
-
-    public boolean isParentNotificationsActivity() {
-        return activityParent instanceof NotificationActivity;
-    }
-
-    //TODO: da modificare con controllo nel database, il seguente metodo contiene codice temporaneo
     public boolean isFriendProfile() {
-        return isParentFriendsActivity();
+        return UserHttpRequests.getInstance().getAllFriends
+                (User.getLoggedUser(userActivity).getEmail()).contains(actualUser);
     }
 
     public View.OnClickListener getRemoveFriendOnClickListener() {
@@ -92,12 +85,17 @@ public class UserController {
                     .setPositiveButton("Si", (dialog, id) -> {
                         if (Utilities.checkNullActivityOrNoConnection(userActivity)) return;
 
-                        FriendsController.getFriendsControllerInstance().removeSelectedFriend(); //Rimozione grafica, non reale
-                        //TODO: comunicazione col database per confermare rimozione amicizia
+                        if(!UserHttpRequests.getInstance().removeFriend(User.getLoggedUser(userActivity).getEmail(), actualUser.getEmail()))
+                            Utilities.stampaToast(userActivity, "Si è verificato un errore, riprova più tardi.");
+                        else {
+                            Utilities.stampaToast(userActivity, "Amico rimosso con successo");
+                            FriendsController.getFriendsControllerInstance().removeSelectedFriend(); //Rimozione grafica, non reale
 
-                        userActivity.startActivity(new Intent(userActivity, UserActivity.class));
-                        userActivity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-                        userActivity.finish();
+                            Intent intent = userActivity.getIntent();
+                            userActivity.overridePendingTransition(0, 0);
+                            userActivity.finish();
+                            userActivity.startActivity(intent);
+                        }
                     })
                     .setNegativeButton("No", null).show();
 
@@ -117,12 +115,12 @@ public class UserController {
                     .setPositiveButton("Si", (dialog, id) -> {
                         if (Utilities.checkNullActivityOrNoConnection(userActivity)) return;
 
-                        FriendsController.getFriendsControllerInstance().removeSelectedFriend(); //Rimozione grafica, non reale
-                        //TODO: comunicazione col database per inviare richiesta di amicizia
-
-                        userActivity.disableAddFriendButton();
-
-                        Utilities.stampaToast(userActivity, "Richiesta di amicizia inviata");
+                        if(!UserHttpRequests.getInstance().addFriend(User.getLoggedUser(userActivity).getEmail(), actualUser.getEmail()))
+                            Utilities.stampaToast(userActivity, "Si è verificato un errore, riprova più tardi.");
+                        else {
+                            userActivity.disableAddFriendButton();
+                            Utilities.stampaToast(userActivity, "Richiesta di amicizia inviata");
+                        }
                     })
                     .setNegativeButton("No", null).show();
 
@@ -135,15 +133,12 @@ public class UserController {
     }
 
     public View.OnClickListener getJoinedMoviesOnClickListener() {
-        return v -> JoinedMoviesController.getJoinedMoviesControllerInstance().start(userActivity);
+        return v -> JoinedMoviesController.getJoinedMoviesControllerInstance().start(userActivity, actualUser);
     }
 
     public MenuItem.OnMenuItemClickListener getReportItemOnClickListener() {
         return menuItem -> {
-            if(activityParent instanceof FriendsActivity)
-                ReportController.getReportControllerInstance().startUserReport(userActivity, actualUser);
-            else if(activityParent instanceof SearchFriendsActivity)
-                ReportController.getReportControllerInstance().startUserReport(userActivity, actualUser);
+            ReportController.getReportControllerInstance().startUserReport(userActivity, actualUser);
 
             return true;
         };
@@ -151,5 +146,10 @@ public class UserController {
 
     public UserDB getActualUser() {
         return actualUser;
+    }
+
+    public boolean isUserFriendshipPending() {
+        return UserHttpRequests.getInstance().isUserFriendshipPending(
+                User.getLoggedUser(userActivity).getEmail(), actualUser.getEmail() );
     }
 }

@@ -33,6 +33,7 @@ public class ReportActivity extends AppCompatActivity {
     private ReportController reportController;
     private EditText otherReasonEditText;
     private Button reportButton;
+    private RadioGroup radioGroup;
     private boolean reportSent;
 
     @Override
@@ -65,6 +66,8 @@ public class ReportActivity extends AppCompatActivity {
         }
         otherReasonEditText = findViewById(R.id.otherReasonReportEditText);
         otherReasonEditText.addTextChangedListener(reportController.getOtherReasonEditTextTextWatcher());
+
+        radioGroup = findViewById(R.id.reportRadioGroup);
 
         setReportToolbar();
         initializeRadioButtons();
@@ -208,5 +211,14 @@ public class ReportActivity extends AppCompatActivity {
             button3.setEnabled(false);
             button4.setEnabled(false);
         });
+    }
+
+    public String getReportedMessage() {
+        RadioButton selectedRadioButton = findViewById(radioGroup.getCheckedRadioButtonId());
+
+        if(selectedRadioButton.getText().toString().equals(getResources().getString(R.string.otherReasonReport)))
+            return otherReasonEditText.getText().toString();
+
+        return selectedRadioButton.getText().toString();
     }
 }

@@ -109,7 +109,6 @@ public class HomeController {
     //region Setter del riferimento alle Activity gestite da questo controller
     public void setHomeActivity(@NotNull HomeActivity homeActivity) {
         this.homeActivity = homeActivity;
-        SettingsController.setSettingsControllerContextActivity(homeActivity);
     }
 
     public void setSearchMovieActivity(@NotNull SearchMovieActivity searchMovieActivity) {
@@ -367,7 +366,7 @@ public class HomeController {
             closeActivityNavigationView(activity);
 
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                MoviesListController.getMoviesListControllerInstance()
+                MoviesListsController.getMoviesListControllerInstance()
                         .start(activity, isFavourites);
 
                 if(activity.equals(moviesListActivity))

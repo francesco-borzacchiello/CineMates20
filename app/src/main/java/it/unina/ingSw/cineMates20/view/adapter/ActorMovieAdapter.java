@@ -64,8 +64,7 @@ public class ActorMovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                                     }
 
                                     @Override
-                                    public void onError(Exception e) {
-                                    }
+                                    public void onError(Exception e) {}
                                 });
             actorHolder.isConfigured = true;
         }

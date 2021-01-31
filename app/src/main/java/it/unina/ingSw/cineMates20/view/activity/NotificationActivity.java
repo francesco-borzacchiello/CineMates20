@@ -12,6 +12,8 @@ import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
+import org.jetbrains.annotations.NotNull;
+
 import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.controller.NotificationController;
 import it.unina.ingSw.cineMates20.view.adapter.ReportNotificationAdapter;
@@ -73,7 +75,7 @@ public class NotificationActivity extends AppCompatActivity {
                     badgeDrawableTabReports = tab.getOrCreateBadge();
                     badgeDrawableTabReports.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.white));
                     badgeDrawableTabReports.setBadgeTextColor(ContextCompat.getColor(getApplicationContext(), R.color.lightBlue));
-                    badgeDrawableTabReports.setNumber(134);
+                    //badgeDrawableTabReports.setNumber(134);
                     badgeDrawableTabReports.setMaxCharacterCount(3);
                     badgeDrawableTabReports.setVisible(false);
                 }
@@ -108,26 +110,32 @@ public class NotificationActivity extends AppCompatActivity {
         notificationController.initializeReportNotificationAdapter();
     }
 
-    public void setFriendsNotificationsRecyclerView(RecyclerView.Adapter<RecyclerView.ViewHolder> adapter) {
-        runOnUiThread(()-> {
-            pendingFriendsNotificationFragment.setFriendsNotificationRecyclerView(adapter);
+    public void setFriendsNotificationsRecyclerView(@NotNull RecyclerView.Adapter<RecyclerView.ViewHolder> adapter) {
+        if(adapter.getItemCount() == 0)
+            showEmptyFriendsNotificationPage(true);
+        else
+            runOnUiThread(() -> {
+                pendingFriendsNotificationFragment.setFriendsNotificationRecyclerView(adapter);
 
-            if(adapter.getItemCount() > 0) {
-                badgeDrawableTabFriends.setVisible(true);
-                badgeDrawableTabFriends.setNumber(adapter.getItemCount());
-            }
-        });
+                if (adapter.getItemCount() > 0) {
+                    badgeDrawableTabFriends.setVisible(true);
+                    badgeDrawableTabFriends.setNumber(adapter.getItemCount());
+                }
+            });
     }
 
-    public void setReportNotificationsRecyclerView(ReportNotificationAdapter adapter) {
-        runOnUiThread(()-> {
-            reportNotificationFragment.setReportNotificationRecyclerView(adapter);
+    public void setReportNotificationsRecyclerView(@NotNull ReportNotificationAdapter adapter) {
+        if(adapter.getItemCount() == 0)
+            showEmptyReportsNotificationPage(true);
+        else
+            runOnUiThread(()-> {
+                reportNotificationFragment.setReportNotificationRecyclerView(adapter);
 
-            if(adapter.getItemCount() > 0) {
-                badgeDrawableTabReports.setVisible(true);
-                badgeDrawableTabReports.setNumber(adapter.getItemCount());
-            }
-        });
+                if(adapter.getItemCount() > 0) {
+                    badgeDrawableTabReports.setVisible(true);
+                    badgeDrawableTabReports.setNumber(adapter.getItemCount());
+                }
+            });
     }
 
     public void showEmptyFriendsNotificationPage(boolean show) {

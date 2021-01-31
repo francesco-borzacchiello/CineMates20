@@ -9,6 +9,8 @@ import android.widget.RadioGroup;
 
 import info.movito.themoviedbapi.model.MovieDb;
 import it.unina.ingSw.cineMates20.R;
+import it.unina.ingSw.cineMates20.model.ReportHttpRequests;
+import it.unina.ingSw.cineMates20.model.User;
 import it.unina.ingSw.cineMates20.model.UserDB;
 import it.unina.ingSw.cineMates20.view.activity.ReportActivity;
 import it.unina.ingSw.cineMates20.view.util.Utilities;
@@ -16,8 +18,8 @@ import it.unina.ingSw.cineMates20.view.util.Utilities;
 public class ReportController {
     private static ReportController instance;
     private ReportActivity reportActivity;
-    private MovieDb movie;
-    private UserDB user;
+    private MovieDb movieToReport;
+    private UserDB userToReport;
 
     private ReportController() {}
 
@@ -36,8 +38,8 @@ public class ReportController {
         activity.startActivity(intent);
         activity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
 
-        this.movie = movie;
-        this.user = null;
+        this.movieToReport = movie;
+        this.userToReport = null;
     }
 
     public void startUserReport(Activity activity, UserDB user) {
@@ -45,8 +47,8 @@ public class ReportController {
         activity.startActivity(intent);
         activity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
 
-        this.user = user;
-        this.movie = null;
+        this.userToReport = user;
+        this.movieToReport = null;
     }
 
     //Restituisce un listener le icone della toolbar in ReportActivity
@@ -60,16 +62,16 @@ public class ReportController {
     }
 
     public boolean isUserReport() {
-        return user != null;
+        return userToReport != null;
     }
 
     public MovieDb getReportedMovie() {
 
-        return movie;
+        return movieToReport;
     }
 
     public UserDB getReportedUser() {
-        return user;
+        return userToReport;
     }
 
     public TextWatcher getOtherReasonEditTextTextWatcher() {
@@ -113,8 +115,20 @@ public class ReportController {
         };
     }
 
-    //TODO: inviare segnalazione al database interno
     public void report() {
-        Utilities.stampaToast(reportActivity, "Segnalazione inviata");
+        String msg = reportActivity.getReportedMessage();
+
+        if(isUserReport() && userToReport != null) {
+            if(ReportHttpRequests.getInstance().reportUser(User.getLoggedUser(reportActivity).getEmail(), userToReport.getEmail(), msg))
+                Utilities.stampaToast(reportActivity, "Segnalazione inviata");
+            else
+                Utilities.stampaToast(reportActivity, "Si è verificato un errore, riprova più tardi.");
+        }
+        else if(movieToReport != null) {
+            if(ReportHttpRequests.getInstance().reportMovie(movieToReport.getId(), User.getLoggedUser(reportActivity).getEmail(), msg))
+                Utilities.stampaToast(reportActivity, "Segnalazione inviata");
+            else
+                Utilities.stampaToast(reportActivity, "Si è verificato un errore, riprova più tardi.");
+        }
     }
 }

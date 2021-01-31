@@ -1,6 +1,5 @@
 package it.unina.ingSw.cineMates20.view.activity;
 
-import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -188,6 +187,7 @@ public class HomeActivity extends AppCompatActivity {
             searchView.setIconified(true);
             searchView.clearFocus();
         }
+
         if(menu != null)
             setUpNotificationIcon(menu);
     }
@@ -247,10 +247,10 @@ public class HomeActivity extends AppCompatActivity {
 
                 nowPlayingLabelHomeMoviesTextView.setVisibility(View.VISIBLE);
 
-                if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
+                //if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
                     nowPlayingLabelHomeMoviesTextView.setAlpha(0.0f);
                     nowPlayingLabelHomeMoviesTextView.animate().alpha(1.0f);
-                }
+                //}
             }
 
             if(mostPopularHomeMoviesRecyclerView.getAdapter() != null &&
@@ -258,10 +258,10 @@ public class HomeActivity extends AppCompatActivity {
 
                 mostPopularMoviesTextView.setVisibility(View.VISIBLE);
 
-                if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
+                //if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
                     mostPopularMoviesTextView.setAlpha(0.0f);
                     mostPopularMoviesTextView.animate().alpha(1.0f);
-                }
+                //}
             }
 
             if(upcomingHomeMoviesRecyclerView.getAdapter() != null &&
@@ -269,10 +269,10 @@ public class HomeActivity extends AppCompatActivity {
 
                 upcomingMoviesTextView.setVisibility(View.VISIBLE);
 
-                if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
+                //if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
                     upcomingMoviesTextView.setAlpha(0.0f);
                     upcomingMoviesTextView.animate().alpha(1.0f);
-                }
+                //}
             }
 
             if(topRatedHomeMoviesRecyclerView.getAdapter() != null &&
@@ -280,10 +280,10 @@ public class HomeActivity extends AppCompatActivity {
 
                 topRatedMoviesTextView.setVisibility(View.VISIBLE);
 
-                if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
+                //if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
                     topRatedMoviesTextView.setAlpha(0.0f);
                     topRatedMoviesTextView.animate().alpha(1.0f);
-                }
+                //}
             }
         });
     }

@@ -23,7 +23,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import it.unina.ingSw.cineMates20.R;
-import it.unina.ingSw.cineMates20.controller.MoviesListController;
+import it.unina.ingSw.cineMates20.controller.MoviesListsController;
 
 public class HomeStyleMovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final Context context;
@@ -141,7 +141,7 @@ public class HomeStyleMovieAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     }
 
     public void resetAllMoviesCheckBoxes() {
-        RecyclerView recyclerView = MoviesListController.getMoviesListControllerInstance().
+        RecyclerView recyclerView = MoviesListsController.getMoviesListControllerInstance().
                 getMoviesRecyclerView();
 
         for (int x = recyclerView.getChildCount(), i = 0; i < x; ++i) {
@@ -163,7 +163,7 @@ public class HomeStyleMovieAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         }
 
         if(title.size() == 0)
-            MoviesListController.getMoviesListControllerInstance().showEmptyMovieList();
+            MoviesListsController.getMoviesListControllerInstance().showEmptyMovieList();
     }
 
     private class MovieHolder extends RecyclerView.ViewHolder {
