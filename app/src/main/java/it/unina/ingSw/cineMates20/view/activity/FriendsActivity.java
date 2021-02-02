@@ -3,8 +3,8 @@ package it.unina.ingSw.cineMates20.view.activity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -15,14 +15,16 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.navigation.NavigationView;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.MemoryPolicy;
+import com.squareup.picasso.NetworkPolicy;
+import com.squareup.picasso.Picasso;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -42,6 +44,8 @@ public class FriendsActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private RecyclerView friendsRecyclerView;
     private TextView emptyFriendsListTextView;
+    private LinearLayout friendsLinearLayout;
+    private ImageView fotoProfilo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +75,7 @@ public class FriendsActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBarFriends);
         friendsRecyclerView = findViewById(R.id.friendsRecyclerView);
         emptyFriendsListTextView = findViewById(R.id.emptyFriendsListTextView);
+        friendsLinearLayout = findViewById(R.id.friendsLinearLayout);
 
         friendsController.initializeActivityFriendsAdapter();
     }
@@ -93,12 +98,30 @@ public class FriendsActivity extends AppCompatActivity {
 
         TextView nomeTextView = navigationView.getHeaderView(0).findViewById(R.id.nomeUtenteNavMenu);
         TextView cognomeTextView = navigationView.getHeaderView(0).findViewById(R.id.cognomeUtenteNavMenu);
+        fotoProfilo = navigationView.getHeaderView(0).findViewById(R.id.imageProfile);
 
         runOnUiThread(() -> {
             UserDB user = User.getLoggedUser(this);
             nomeTextView.setText(user.getNome());
             cognomeTextView.setText(user.getCognome());
+
+            String profilePictureUrl = User.getUserProfilePictureUrl();
+            if(profilePictureUrl != null)
+                refreshProfilePicture(profilePictureUrl);
         });
+    }
+
+    private void refreshProfilePicture(String imageUrl) {
+        Picasso.get().load(imageUrl).memoryPolicy(MemoryPolicy.NO_CACHE)
+                .networkPolicy(NetworkPolicy.NO_CACHE).resize(75, 75).noFade()
+                .into(fotoProfilo,
+                        new Callback() {
+                            @Override
+                            public void onSuccess() {}
+
+                            @Override
+                            public void onError(Exception e) {}
+                        });
     }
 
     @Override
@@ -178,27 +201,12 @@ public class FriendsActivity extends AppCompatActivity {
     }
 
     public void setLayoutsForFriends(boolean searchIsExpanded) {
-        LinearLayout ll = findViewById(R.id.friendsLinearLayout);
-        ConstraintLayout cl = findViewById(R.id.friendsConstraintLayout);
-
         runOnUiThread(()-> {
-            if(searchIsExpanded) {
-                ll.setVisibility(View.INVISIBLE);
-                cl.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.lightGray));
-            }
-            else {
-                ll.setVisibility(View.VISIBLE);
-                cl.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.white));
-            }
+            if(searchIsExpanded)
+                friendsLinearLayout.setVisibility(View.INVISIBLE);
+            else
+                friendsLinearLayout.setVisibility(View.VISIBLE);
         });
-    }
-
-    //Nasconde la tastiera alla pressione di un elemento che non sia essa stessa o una text box
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent event) {
-        boolean ret = super.dispatchTouchEvent(event);
-        Utilities.hideKeyboard(this, event);
-        return ret;
     }
 
     @Override
@@ -216,6 +224,10 @@ public class FriendsActivity extends AppCompatActivity {
         }
         if(menu != null)
             setUpNotificationIcon(menu);
+
+        String profilePicUrl = User.getUserProfilePictureUrl();
+        if(profilePicUrl != null)
+            refreshProfilePicture(profilePicUrl);
     }
 
     public void setFriendsRecyclerView(RecyclerView.Adapter<RecyclerView.ViewHolder> adapter) {

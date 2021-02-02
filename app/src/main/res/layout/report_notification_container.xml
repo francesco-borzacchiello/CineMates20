@@ -40,10 +40,11 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="15dp"
                     android:layout_marginTop="3dp"
+                    android:layout_marginEnd="50dp"
                     android:text="@string/report_subject"
                     android:textStyle="bold"
                     android:ellipsize="end"
-                    android:maxLines="1"
+                    android:maxLines="3"
                     android:textSize="16sp"
                     android:textColor="@color/black"/>
 
@@ -53,10 +54,11 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="15dp"
                     android:layout_marginBottom="3dp"
+                    android:layout_marginEnd="50dp"
                     android:text="@string/prompt_esito_segnalazione"
                     android:textColor="@color/blueNavigationMenu"
                     android:ellipsize="end"
-                    android:maxLines="1"
+                    android:maxLines="3"
                     android:textSize="16sp"/>
             </LinearLayout>
 

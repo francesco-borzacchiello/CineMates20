@@ -9,6 +9,7 @@ import com.amplifyframework.AmplifyException;
 import com.amplifyframework.auth.cognito.AWSCognitoAuthPlugin;
 import com.amplifyframework.core.Amplify;
 import com.amplifyframework.core.AmplifyConfiguration;
+import com.amplifyframework.storage.s3.AWSS3StoragePlugin;
 
 import it.unina.ingSw.cineMates20.controller.MainController;
 import it.unina.ingSw.cineMates20.view.util.Utilities;
@@ -54,6 +55,7 @@ public class EntryPoint extends AppCompatActivity {
     private void configureAmplify() throws AmplifyException {
         if(Amplify.Auth.getPlugins().size() == 0) {
             Amplify.addPlugin(new AWSCognitoAuthPlugin());
+            Amplify.addPlugin(new AWSS3StoragePlugin());
 
             AmplifyConfiguration config = AmplifyConfiguration.builder(getApplicationContext()).devMenuEnabled(false).build();
             Amplify.configure(config, getApplicationContext());

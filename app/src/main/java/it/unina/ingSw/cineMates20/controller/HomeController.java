@@ -35,7 +35,9 @@ import info.movito.themoviedbapi.tools.ApiUrl;
 import info.movito.themoviedbapi.tools.RequestMethod;
 import it.unina.ingSw.cineMates20.EntryPoint;
 import it.unina.ingSw.cineMates20.R;
+import it.unina.ingSw.cineMates20.model.ReportHttpRequests;
 import it.unina.ingSw.cineMates20.model.User;
+import it.unina.ingSw.cineMates20.model.UserHttpRequests;
 import it.unina.ingSw.cineMates20.view.activity.FriendsActivity;
 import it.unina.ingSw.cineMates20.view.activity.HomeActivity;
 import it.unina.ingSw.cineMates20.view.activity.InformationActivity;
@@ -507,5 +509,18 @@ public class HomeController {
             if(view.getId() == R.id.searchItem)
                 homeActivity.setLayoutsForHome(true);
         };
+    }
+
+    public void setHttpRequestsFields() {
+        if(homeActivity != null) {
+            UserHttpRequests.getInstance().setDbPath(homeActivity.getResources().getString(R.string.db_path));
+            UserHttpRequests.getInstance().setFavourites(homeActivity.getResources().getString(R.string.favourites));
+            UserHttpRequests.getInstance().setToWatch(homeActivity.getResources().getString(R.string.toWatch));
+        }
+    }
+
+    public void setReportHttpRequestsField() {
+        if(homeActivity != null)
+            ReportHttpRequests.getInstance().setDbPath(homeActivity.getResources().getString(R.string.db_path));
     }
 }

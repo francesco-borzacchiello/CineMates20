@@ -1,8 +1,15 @@
 package it.unina.ingSw.cineMates20.view.activity;
 
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.activity.OnBackPressedCallback;
@@ -14,9 +21,17 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.MemoryPolicy;
+import com.squareup.picasso.NetworkPolicy;
+import com.squareup.picasso.Picasso;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
+
+import it.unina.ingSw.cineMates20.BuildConfig;
 import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.controller.HomeController;
 import it.unina.ingSw.cineMates20.controller.PersonalProfileController;
@@ -29,6 +44,10 @@ public class PersonalProfileActivity extends AppCompatActivity {
     private NavigationView navigationView;
     private DrawerLayout drawerLayout;
     private Menu menu;
+    private Uri profileImageUri;
+    private ImageView profilePictureImageView;
+    private ImageView navMenuProfilePictureImageView;
+    private boolean profilePictureMightHaveChanged;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,8 +74,11 @@ public class PersonalProfileActivity extends AppCompatActivity {
         setToolbar();
 
         TextView nomeTextView = findViewById(R.id.name_personal_profile);
+        nomeTextView.setSelected(true);
         TextView usernameTextView = findViewById(R.id.username_personal_profile);
+        usernameTextView.setSelected(true);
         TextView emailTextView = findViewById(R.id.email_personal_profile);
+        emailTextView.setSelected(true);
 
         UserDB user = User.getLoggedUser(this);
         runOnUiThread(() -> {
@@ -67,12 +89,18 @@ public class PersonalProfileActivity extends AppCompatActivity {
             emailTextView.setText(user.getEmail());
         });
 
-        configureNavigationDrawer(user);
+        profilePictureImageView = findViewById(R.id.profileAvatarMenu);
+        ImageView pencilImageView = findViewById(R.id.editAvatarPencilMenu);
 
-        //TODO: set listener su ImageView "profileAvatarMenu" per la modifica della foto
+        profilePictureImageView.setOnClickListener(personalProfileController.getEditProfilePictureOnClickListener());
+        pencilImageView.setOnClickListener(personalProfileController.getEditProfilePictureOnClickListener());
+
+        String profilePictureUrl = User.getUserProfilePictureUrl();
+        configureNavigationDrawer(user, profilePictureUrl);
+        refreshProfilePicture(profilePictureUrl);
     }
 
-    private void configureNavigationDrawer(UserDB user) {
+    private void configureNavigationDrawer(UserDB user, String profilePictureUrl) {
         drawerLayout = findViewById(R.id.userProfileDrawerLayout);
         navigationView = findViewById(R.id.userProfileNavigationView);
         navigationView.setItemIconTintList(null);
@@ -81,11 +109,43 @@ public class PersonalProfileActivity extends AppCompatActivity {
 
         TextView nomeTextView = navigationView.getHeaderView(0).findViewById(R.id.nomeUtenteNavMenu);
         TextView cognomeTextView = navigationView.getHeaderView(0).findViewById(R.id.cognomeUtenteNavMenu);
+        navMenuProfilePictureImageView = navigationView.getHeaderView(0).findViewById(R.id.imageProfile);
 
         runOnUiThread(() -> {
             nomeTextView.setText(user.getNome());
             cognomeTextView.setText(user.getCognome());
+
+            refreshProfilePicture(profilePictureUrl);
         });
+    }
+
+    private void refreshProfilePicture(String imageUrl) {
+        if(imageUrl != null) {
+            Picasso.get().load(imageUrl).memoryPolicy(MemoryPolicy.NO_CACHE)
+                    .networkPolicy(NetworkPolicy.NO_CACHE).resize(75, 75).noFade()
+                    .into(navMenuProfilePictureImageView,
+                            new Callback() {
+                                @Override
+                                public void onSuccess() {}
+
+                                @Override
+                                public void onError(Exception e) {}
+                            });
+
+            Picasso.get().load(imageUrl).memoryPolicy(MemoryPolicy.NO_CACHE)
+                    .networkPolicy(NetworkPolicy.NO_CACHE).resize(140, 140).noFade()
+                    .into(profilePictureImageView,
+                            new Callback() {
+                                @Override
+                                public void onSuccess() {
+                                    profilePictureImageView.setAlpha(0f);
+                                    profilePictureImageView.animate().setDuration(100).alpha(1f).start();
+                                }
+
+                                @Override
+                                public void onError(Exception e) {}
+                            });
+        }
     }
 
     private void setToolbar() {
@@ -115,8 +175,54 @@ public class PersonalProfileActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
+
         if(menu != null)
             setUpNotificationIcon(menu);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == personalProfileController.getPickImageCode() && resultCode == RESULT_OK) {
+            profileImageUri = data.getData();
+
+            try {
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), profileImageUri);
+                profilePictureImageView.setImageBitmap(bitmap);
+                navMenuProfilePictureImageView.setImageBitmap(bitmap);
+                personalProfileController.uploadNewProfilePicture();
+            } catch (IOException e) {
+                Utilities.stampaToast(this, "Si è verificato un errore,\nriprova più tardi.");
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NotNull String[] permissions, @NotNull int[] grantResults) {
+        if (requestCode == personalProfileController.getPickImageCode()) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                personalProfileController.launchGalleryIntentPicker();
+            else if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_DENIED) {
+                Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), "Hai rifiutato la concessione di questa autorizzazione.\n" +
+                                "Devi concedere il permesso in \"Permessi\" nelle impostazioni\n del tuo dispositivo, prima di poter selezionare una foto.",
+                        Snackbar.LENGTH_LONG).setAction("Impostazioni", view ->
+                        startActivity(new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                                Uri.parse("package:" + BuildConfig.APPLICATION_ID))));
+
+                View snackbarView = snackbar.getView();
+                TextView textView = (TextView) snackbarView.findViewById(com.google.android.material.R.id.snackbar_text);
+                textView.setMaxLines(6);
+                snackbar.setDuration(6000);
+                snackbar.show();
+            }
+        }
+        else
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    public Uri getProfileImageUri() {
+        return profileImageUri;
     }
 
     private void setUpNotificationIcon(@NotNull Menu menu) {

@@ -24,6 +24,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.navigation.NavigationView;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.MemoryPolicy;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import org.jetbrains.annotations.NotNull;
@@ -54,6 +57,7 @@ public class SearchMovieActivity extends AppCompatActivity {
     private LinkedList<String> searchHistory;
     private ProgressBar progressBar;
     private Menu menu;
+    private ImageView fotoProfilo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,12 +67,11 @@ public class SearchMovieActivity extends AppCompatActivity {
         initializeGraphicsComponents();
 
         Bundle srcTxtBundle = getIntent().getExtras();
-        if(srcTxtBundle != null) {
+        if (srcTxtBundle != null) {
             searchText = srcTxtBundle.getString("searchText");
             searchHistory = new LinkedList<>();
             searchHistory.offer(searchText);
-        }
-        else {
+        } else {
             finish();
             return;
         }
@@ -89,7 +92,7 @@ public class SearchMovieActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbarHeader);
         setSupportActionBar(toolbar);
         ActionBar ab = getSupportActionBar();
-        if(ab != null) {
+        if (ab != null) {
             ab.setDisplayHomeAsUpEnabled(true);
             ab.setHomeAsUpIndicator(R.drawable.ic_arrow_back);
             ab.setTitle("");
@@ -102,12 +105,30 @@ public class SearchMovieActivity extends AppCompatActivity {
 
         TextView nomeTextView = navigationView.getHeaderView(0).findViewById(R.id.nomeUtenteNavMenu);
         TextView cognomeTextView = navigationView.getHeaderView(0).findViewById(R.id.cognomeUtenteNavMenu);
+        fotoProfilo = navigationView.getHeaderView(0).findViewById(R.id.imageProfile);
 
         runOnUiThread(() -> {
             UserDB user = User.getLoggedUser(this);
             nomeTextView.setText(user.getNome());
             cognomeTextView.setText(user.getCognome());
+
+            String profilePictureUrl = User.getUserProfilePictureUrl();
+            if(profilePictureUrl != null)
+                refreshProfilePicture(profilePictureUrl);
         });
+    }
+
+    private void refreshProfilePicture(String imageUrl) {
+        Picasso.get().load(imageUrl).memoryPolicy(MemoryPolicy.NO_CACHE)
+            .networkPolicy(NetworkPolicy.NO_CACHE).resize(75, 75).noFade()
+            .into(fotoProfilo,
+                  new Callback() {
+                      @Override
+                      public void onSuccess() {}
+
+                      @Override
+                      public void onError(Exception e) {}
+                  });
     }
 
     @Override
@@ -119,11 +140,10 @@ public class SearchMovieActivity extends AppCompatActivity {
         searchView.setQueryHint("Cerca un film");
 
         //La ricerca ha prodotto risultati
-        if(searchMovieController.initializeMovieSearch(searchText)) {
+        if (searchMovieController.initializeMovieSearch(searchText)) {
             notEmptyMovieSearchFragment = new NotEmptyMovieSearchFragment(currentRecyclerViewAdapter);
             createFirstFragment(notEmptyMovieSearchFragment);
-        }
-        else {
+        } else {
             createFirstFragment(emptySearchFragment);
         }
 
@@ -148,9 +168,9 @@ public class SearchMovieActivity extends AppCompatActivity {
     }
 
     private void setUpNotificationIcon(@NotNull Menu menu) {
-        new Thread(()-> runOnUiThread(()-> {
+        new Thread(() -> runOnUiThread(() -> {
             MenuItem notificationItem = menu.findItem(R.id.notificationItem);
-            if(User.getTotalUserNotificationCount() > 0)
+            if (User.getTotalUserNotificationCount() > 0)
                 notificationItem.setIcon(R.drawable.ic_notifications_on);
             else
                 notificationItem.setIcon(R.drawable.ic_notifications);
@@ -160,23 +180,28 @@ public class SearchMovieActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
-        if(menu != null)
+
+        if (menu != null)
             setUpNotificationIcon(menu);
+
+        String profilePicUrl = User.getUserProfilePictureUrl();
+        if(profilePicUrl != null)
+            refreshProfilePicture(profilePicUrl);
     }
 
     private void setNavigationViewActionListener() {
         //Listener per icone del NavigationView
         navigationView.setNavigationItemSelectedListener(
-            item -> {
-                Runnable r = HomeController.getHomeControllerInstance().
-                        getNavigationViewOnOptionsItemSelected(this, item.getItemId());
-                try {
-                    r.run();
-                }catch(NullPointerException e){
-                    Utilities.stampaToast(SearchMovieActivity.this, "Si è verificato un errore.\nRiprova tra qualche minuto");
+                item -> {
+                    Runnable r = HomeController.getHomeControllerInstance().
+                            getNavigationViewOnOptionsItemSelected(this, item.getItemId());
+                    try {
+                        r.run();
+                    } catch (NullPointerException e) {
+                        Utilities.stampaToast(SearchMovieActivity.this, "Si è verificato un errore.\nRiprova tra qualche minuto");
+                    }
+                    return false;
                 }
-                return false;
-            }
         );
     }
 
@@ -202,21 +227,22 @@ public class SearchMovieActivity extends AppCompatActivity {
         LinearLayout daVedereLinearLayout = bottomMenuDialog.findViewById(R.id.layoutFilmDaVedere);
         LinearLayout segnalaFilmLayout = bottomMenuDialog.findViewById(R.id.layoutSegnalazioneFilm);
 
-        if(preferitiLinearLayout == null || daVedereLinearLayout == null || segnalaFilmLayout == null) return;
-            segnalaFilmLayout.setOnClickListener(searchMovieController.getReportOnClickListener(movie));
+        if (preferitiLinearLayout == null || daVedereLinearLayout == null || segnalaFilmLayout == null)
+            return;
+        segnalaFilmLayout.setOnClickListener(searchMovieController.getReportOnClickListener(movie));
 
         TextView titleTextView = bottomMenuDialog.findViewById(R.id.titoloBottomMenu);
-        if(titleTextView != null && movie.getTitle() != null)
+        if (titleTextView != null && movie.getTitle() != null)
             titleTextView.setText(movie.getTitle());
-        else if(titleTextView != null)
+        else if (titleTextView != null)
             titleTextView.setText(movie.getOriginalTitle());
 
         TextView addToFavouritesTextView = bottomMenuDialog.findViewById(R.id.addToFavouritesTextView);
         TextView addToWatchTextView = bottomMenuDialog.findViewById(R.id.addToWatchTextView);
 
-        if(addToFavouritesTextView == null || addToWatchTextView == null) return;
+        if (addToFavouritesTextView == null || addToWatchTextView == null) return;
 
-        if(movie.getPosterPath() != null) {
+        if (movie.getPosterPath() != null) {
             ImageView coverImageView = bottomMenuDialog.findViewById(R.id.copertinaBottomMenu);
             Picasso.get().load(getResources().getString(R.string.first_path_image) + movie.getPosterPath()).
                     resize(270, 360)
@@ -225,14 +251,14 @@ public class SearchMovieActivity extends AppCompatActivity {
 
         bottomMenuDialog.show();
 
-        if(searchMovieController.isSelectedMovieAlreadyInList(movie, true)) {
+        if (searchMovieController.isSelectedMovieAlreadyInList(movie, true)) {
             addToFavouritesTextView.setText(getResources().getString(R.string.removeFromFavourites));
             preferitiLinearLayout.setOnClickListener(searchMovieController.getRimuoviPreferitiOnClickListener(movie));
         } else
             preferitiLinearLayout.setOnClickListener(searchMovieController.getAggiungiPreferitiOnClickListener(movie));
 
 
-        if(searchMovieController.isSelectedMovieAlreadyInList(movie, false)) {
+        if (searchMovieController.isSelectedMovieAlreadyInList(movie, false)) {
             addToWatchTextView.setText(getResources().getString(R.string.removeFromToWatch));
             daVedereLinearLayout.setOnClickListener(searchMovieController.getRimuoviDaVedereOnClickListener(movie));
         } else
@@ -240,9 +266,9 @@ public class SearchMovieActivity extends AppCompatActivity {
     }
 
     public void showNextSearchFragment(boolean isEmptySearch) {
-        if(!isEmptySearch) {
-            if(manager.getBackStackEntryCount() > 3) {
-                for(int i = 0; i < manager.getBackStackEntryCount(); ++i) {
+        if (!isEmptySearch) {
+            if (manager.getBackStackEntryCount() > 3) {
+                for (int i = 0; i < manager.getBackStackEntryCount(); ++i) {
                     manager.popBackStack();
                 }
                 String head = searchHistory.getFirst();
@@ -257,8 +283,7 @@ public class SearchMovieActivity extends AppCompatActivity {
             transaction.replace(R.id.showMoviesFrameLayout, notEmptyMovieSearchFragment);
             transaction.addToBackStack(null);
             transaction.commit();
-        }
-        else if(!emptySearchFragment.isVisible()) {
+        } else if (!emptySearchFragment.isVisible()) {
             FragmentTransaction transaction = manager.beginTransaction();
             transaction.replace(R.id.showMoviesFrameLayout, emptySearchFragment);
             transaction.addToBackStack(null);
@@ -273,7 +298,7 @@ public class SearchMovieActivity extends AppCompatActivity {
         try {
             onOptionsItemSelected.run();
             return false;
-        }catch(NullPointerException e) {
+        } catch (NullPointerException e) {
             Utilities.stampaToast(SearchMovieActivity.this, "Si è verificato un errore.\nRiprova tra qualche minuto");
         }
 
@@ -281,7 +306,7 @@ public class SearchMovieActivity extends AppCompatActivity {
     }
 
     public void clearSearchViewFocus() {
-        runOnUiThread(()-> {
+        runOnUiThread(() -> {
             searchView.setFocusable(false);
             searchView.setIconified(false);
             searchView.clearFocus();
@@ -293,15 +318,13 @@ public class SearchMovieActivity extends AppCompatActivity {
         if (manager.getBackStackEntryCount() == 0) {
             super.finish();
             searchMovieController.resetHomeRecyclerViewPosition();
-            overridePendingTransition(0,0);
-        }
-        else {
-            if(searchHistory.size() == 1) {
+            overridePendingTransition(0, 0);
+        } else {
+            if (searchHistory.size() == 1) {
                 String head = searchHistory.pollLast();
                 manager.popBackStack();
                 searchView.setQuery(head, false);
-            }
-            else {
+            } else {
                 searchHistory.removeLast();
                 manager.popBackStack();
                 searchView.setQuery(searchHistory.getLast(), false);
@@ -310,7 +333,7 @@ public class SearchMovieActivity extends AppCompatActivity {
     }
 
     public void setSearchText(String query) {
-        if(query != null && !query.equals(""))
+        if (query != null && !query.equals(""))
             searchText = query;
     }
 
@@ -323,18 +346,18 @@ public class SearchMovieActivity extends AppCompatActivity {
     }
 
     public void hideSearchMovieProgressBar() {
-        runOnUiThread(()-> progressBar.setVisibility(View.INVISIBLE));
+        runOnUiThread(() -> progressBar.setVisibility(View.INVISIBLE));
     }
 
     public void showSearchMovieProgressBar() {
-        runOnUiThread(()-> progressBar.setVisibility(View.VISIBLE));
+        runOnUiThread(() -> progressBar.setVisibility(View.VISIBLE));
     }
 
     public void closeDrawerLayout() {
-        runOnUiThread(()-> drawerLayout.closeDrawer(GravityCompat.START));
+        runOnUiThread(() -> drawerLayout.closeDrawer(GravityCompat.START));
     }
 
     public void closeBottomMenu() {
-        runOnUiThread(()-> bottomMenuDialog.dismiss());
+        runOnUiThread(() -> bottomMenuDialog.dismiss());
     }
 }

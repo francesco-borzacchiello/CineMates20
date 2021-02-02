@@ -26,6 +26,8 @@ import org.springframework.web.client.RestTemplate;
 import java.util.HashSet;
 import java.util.Set;
 
+import it.unina.ingSw.cineMates20.controller.HomeController;
+
 public class UserHttpRequests {
 
     private static UserHttpRequests instance;
@@ -51,10 +53,13 @@ public class UserHttpRequests {
         return instance;
     }
 
-    public boolean createNewUser(@NotNull UserDB user) {
-        if(dbPath == null || favourites == null || toWatch == null) return false;
+    private void checkIfFieldsAreNull() {
+        if(dbPath == null || favourites == null || toWatch == null)
+            HomeController.getHomeControllerInstance().setHttpRequestsFields();
+    }
 
-        //TODO: memorizzare image_url per S3 nel nostro DB
+    public boolean createNewUser(@NotNull UserDB user) {
+        checkIfFieldsAreNull();
 
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
@@ -116,6 +121,7 @@ public class UserHttpRequests {
 
     @NotNull
     public Set<UserDB> getUsersByQuery(String query) {
+        checkIfFieldsAreNull();
         Set<UserDB> users = new HashSet<>();
 
         Thread t = new Thread(()-> {
@@ -143,6 +149,8 @@ public class UserHttpRequests {
     }
 
     public boolean isUserAlreadyRegistered(String email) {
+        checkIfFieldsAreNull();
+
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
         String url = dbPath + "User/getById/{email}";
@@ -167,6 +175,8 @@ public class UserHttpRequests {
 
     @Nullable
     public UserDB getSocialLoggedUser(@NotNull Activity activity) {
+        checkIfFieldsAreNull();
+
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
         String url = dbPath + "User/getById/{email}";
@@ -188,7 +198,7 @@ public class UserHttpRequests {
                     retUser.setCognome(userDB.getCognome());
                     retUser.setUsername(userDB.getUsername());
                     retUser.setEmail(email[0]);
-                }catch(HttpClientErrorException ignore){}
+                }catch(Exception ignore){}
             });
             t.start();
 
@@ -254,6 +264,8 @@ public class UserHttpRequests {
     }
 
     public boolean addFriend(String emailUser, String emailFriend) {
+        checkIfFieldsAreNull();
+
         boolean[] ret = new boolean[1];
         Thread t = new Thread(()-> {
             try {
@@ -279,6 +291,8 @@ public class UserHttpRequests {
     }
 
     public boolean removeFriend(String userEmail, String friendEmail) {
+        checkIfFieldsAreNull();
+
         boolean[] ret = new boolean[1];
         Thread t = new Thread(()-> {
             try {
@@ -304,6 +318,8 @@ public class UserHttpRequests {
     }
 
     public boolean confirmFriendRequest(String emailUser, String emailFriend) {
+        checkIfFieldsAreNull();
+
         boolean[] ret = new boolean[1];
         Thread t = new Thread(()-> {
             try {
@@ -329,6 +345,8 @@ public class UserHttpRequests {
     }
 
     public boolean isUserFriendshipPending(String userEmail, String friendEmail) {
+        checkIfFieldsAreNull();
+
         boolean[] ret = new boolean[1];
 
         Thread t = new Thread(()-> {
@@ -357,6 +375,8 @@ public class UserHttpRequests {
 
     @NotNull
     public Set<UserDB> getAllFriends(String userEmail) {
+        checkIfFieldsAreNull();
+
         Set<UserDB> users = new HashSet<>();
 
         Thread t = new Thread(()-> {
@@ -385,6 +405,8 @@ public class UserHttpRequests {
 
     @NotNull
     public Set<UserDB> getAllPendingFriendRequests(String userEmail) {
+        checkIfFieldsAreNull();
+
         Set<UserDB> users = new HashSet<>();
 
         Thread t = new Thread(()-> {

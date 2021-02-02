@@ -12,6 +12,7 @@ import com.amplifyframework.core.AmplifyConfiguration;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -69,6 +70,13 @@ public class User {
             scheduleTaskExecutor.shutdownNow();
             notificationTaskIsAlive = false;
         }
+    }
+
+    @Nullable
+    public static String getUserProfilePictureUrl() {
+        if(email != null)
+            return S3Manager.getProfilePictureUrl(email);
+        return null;
     }
 
     private static void initializeUserInstance(Activity activity) {
@@ -146,9 +154,11 @@ public class User {
                 }
             }, 10000);
         }
-        //TODO: Aggiungere size segnalazioni
         else { //Si sincronizza solo al primo avvio dell'applicazione
-            totalNotificationNumber = UserHttpRequests.getInstance().getAllPendingFriendRequests(email).size();
+            totalNotificationNumber =
+                    UserHttpRequests.getInstance().getAllPendingFriendRequests(email).size()
+                    + ReportHttpRequests.getInstance().getAllMoviesReports(email).size()
+                    + ReportHttpRequests.getInstance().getAllUsersReports(email).size();
         }
     }
 
@@ -156,10 +166,12 @@ public class User {
         notificationTaskIsAlive = true;
         scheduleTaskExecutor = Executors.newScheduledThreadPool(1);
 
-        //TODO: Aggiungere size segnalazioni
         //Ricalcola il numero di notifiche totali ogni minuto
         scheduleTaskExecutor.scheduleAtFixedRate(() ->
-                totalNotificationNumber = UserHttpRequests.getInstance()
-                        .getAllPendingFriendRequests(email).size(), 0, 30, TimeUnit.SECONDS);
+                totalNotificationNumber =
+                        UserHttpRequests.getInstance().getAllPendingFriendRequests(email).size()
+                        + ReportHttpRequests.getInstance().getAllMoviesReports(email).size()
+                        + ReportHttpRequests.getInstance().getAllUsersReports(email).size(),
+                0, 30, TimeUnit.SECONDS);
     }
 }

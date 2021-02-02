@@ -29,7 +29,7 @@
     <string name="confermaCodiceRegistrazioneLabel">Inserisci il codice di \nverifica ricevuto via mail</string>
     <string name="pswDimenticataLabel">Password dimenticata?</string>
     <string name="nuovoAccountLabel">Crea un nuovo account</string>
-    <string name="loginSocialLabel">Oppure effettua login o registrazione con:</string>
+    <string name="loginSocialLabel">Oppure effettua login\no registrazione con:</string>
     <string name="googleLogoDescr">Logo di Google</string>
     <string name="facebookLogoDescr">Logo di Facebook</string>
     <string name="twitterLogoDescr">Logo di Twitter</string>

@@ -39,7 +39,7 @@
                     android:layout_marginTop="6dp"
                     android:layout_marginBottom="6dp"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/fake_profile_picture"
+                    android:src="@drawable/profile_picture"
                     app:riv_oval="true" />
 
                 <LinearLayout

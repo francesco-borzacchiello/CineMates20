@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -13,14 +14,16 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.navigation.NavigationView;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.MemoryPolicy;
+import com.squareup.picasso.NetworkPolicy;
+import com.squareup.picasso.Picasso;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -47,6 +50,8 @@ public class HomeActivity extends AppCompatActivity {
                          mostPopularHomeMoviesRecyclerView,
                          upcomingHomeMoviesRecyclerView,
                          topRatedHomeMoviesRecyclerView;
+    private LinearLayout homeLinearLayout;
+    private ImageView fotoProfilo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +90,7 @@ public class HomeActivity extends AppCompatActivity {
         progressBar.setVisibility(View.INVISIBLE);
 
         homeController.setHomeActivityMovies();
+        homeLinearLayout = findViewById(R.id.linearLayoutHome);
     }
 
     private void setHomeToolbar() {
@@ -105,12 +111,30 @@ public class HomeActivity extends AppCompatActivity {
 
         TextView nomeTextView = navigationView.getHeaderView(0).findViewById(R.id.nomeUtenteNavMenu);
         TextView cognomeTextView = navigationView.getHeaderView(0).findViewById(R.id.cognomeUtenteNavMenu);
+        fotoProfilo = navigationView.getHeaderView(0).findViewById(R.id.imageProfile);
 
         runOnUiThread(() -> {
             UserDB user = User.getLoggedUser(this);
             nomeTextView.setText(user.getNome());
             cognomeTextView.setText(user.getCognome());
+
+            String profilePictureUrl = User.getUserProfilePictureUrl();
+            if(profilePictureUrl != null)
+                refreshProfilePicture(profilePictureUrl);
         });
+    }
+
+    private void refreshProfilePicture(String imageUrl) {
+        Picasso.get().load(imageUrl).memoryPolicy(MemoryPolicy.NO_CACHE)
+            .networkPolicy(NetworkPolicy.NO_CACHE).resize(75, 75).noFade()
+            .into(fotoProfilo,
+                new Callback() {
+                    @Override
+                    public void onSuccess() {}
+
+                    @Override
+                    public void onError(Exception e) {}
+                });
     }
 
     @Override
@@ -190,6 +214,10 @@ public class HomeActivity extends AppCompatActivity {
 
         if(menu != null)
             setUpNotificationIcon(menu);
+
+        String profilePicUrl = User.getUserProfilePictureUrl();
+        if(profilePicUrl != null)
+            refreshProfilePicture(profilePicUrl);
     }
 
     public void setNowPlayingHomeMoviesRecyclerView(RecyclerView.Adapter<RecyclerView.ViewHolder> adapter) {
@@ -314,18 +342,11 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     public void setLayoutsForHome(boolean searchIsExpanded) {
-        LinearLayout ll = findViewById(R.id.linearLayoutHome);
-        ConstraintLayout cl = findViewById(R.id.constraintLayoutHome);
-
         runOnUiThread(()-> {
-            if(searchIsExpanded) {
-                ll.setVisibility(View.INVISIBLE);
-                cl.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.lightGray));
-            }
-            else {
-                ll.setVisibility(View.VISIBLE);
-                cl.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.white));
-            }
+            if(searchIsExpanded)
+                homeLinearLayout.setVisibility(View.INVISIBLE);
+            else
+                homeLinearLayout.setVisibility(View.VISIBLE);
         });
     }
 }

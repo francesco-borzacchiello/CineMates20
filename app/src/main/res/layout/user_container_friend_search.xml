@@ -14,18 +14,18 @@
         android:id="@+id/friend_profile_picture"
         android:layout_width="95dp"
         android:layout_height="95dp"
-        android:adjustViewBounds="true"
         android:contentDescription="@string/description_cover_actor"
+        android:adjustViewBounds="true"
         android:scaleType="fitXY"
         android:src="@drawable/profile_picture"
-        app:layout_constraintBottom_toTopOf="@id/friendsLinearLayout"
+        app:layout_constraintBottom_toTopOf="@id/containerFriendsLinearLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:riv_oval="true" />
 
     <LinearLayout
-        android:id="@+id/friendsLinearLayout"
+        android:id="@+id/containerFriendsLinearLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"

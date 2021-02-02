@@ -10,6 +10,7 @@ import android.widget.RadioGroup;
 import info.movito.themoviedbapi.model.MovieDb;
 import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.model.ReportHttpRequests;
+import it.unina.ingSw.cineMates20.model.S3Manager;
 import it.unina.ingSw.cineMates20.model.User;
 import it.unina.ingSw.cineMates20.model.UserDB;
 import it.unina.ingSw.cineMates20.view.activity.ReportActivity;
@@ -130,5 +131,11 @@ public class ReportController {
             else
                 Utilities.stampaToast(reportActivity, "Si è verificato un errore, riprova più tardi.");
         }
+    }
+
+    public String getUserToReportProfilePictureUrl() {
+        if(userToReport != null)
+            return S3Manager.getProfilePictureUrl(userToReport.getEmail());
+        return null;
     }
 }

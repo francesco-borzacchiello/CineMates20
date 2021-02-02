@@ -20,7 +20,7 @@
             android:layout_width="wrap_content"
             android:layout_height="200dp"
             android:layout_marginStart="20dp"
-            android:layout_marginEnd="20dp"
+            android:layout_marginEnd="50dp"
             android:src="@drawable/logo_federico_secondo"
             tools:ignore="ContentDescription" />
 
@@ -54,7 +54,7 @@
             android:layout_marginStart="20dp"
             android:text="@string/developerInfo1"
             android:textColor="@color/black"
-            android:textSize="18sp"
+            android:textSize="17sp"
             android:typeface="serif"
             android:textStyle="bold|italic" />
 
@@ -65,7 +65,7 @@
             android:text="@string/developerInfo2"
             android:layout_marginStart="20dp"
             android:textColor="@color/black"
-            android:textSize="18sp"
+            android:textSize="17sp"
             android:typeface="serif"
             android:textStyle="bold|italic" />
 
@@ -88,7 +88,7 @@
             android:text="@string/developerContact1"
             android:layout_marginStart="20dp"
             android:textColor="@color/black"
-            android:textSize="18sp"
+            android:textSize="16sp"
             android:typeface="serif"
             android:textStyle="bold|italic" />
 
@@ -99,7 +99,7 @@
             android:text="@string/developerContact2"
             android:layout_marginStart="20dp"
             android:textColor="@color/black"
-            android:textSize="18sp"
+            android:textSize="16sp"
             android:typeface="serif"
             android:textStyle="bold|italic" />
 

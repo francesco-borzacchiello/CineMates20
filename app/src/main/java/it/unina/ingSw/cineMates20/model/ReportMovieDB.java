@@ -1,5 +1,6 @@
 package it.unina.ingSw.cineMates20.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -7,10 +8,12 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
         "FK_FilmSegnalato",
         "FK_UtenteSegnalatore",
+        "EsitoSegnalazione",
         "MessaggioSegnalazione"
 })
 public class ReportMovieDB {
@@ -21,14 +24,18 @@ public class ReportMovieDB {
     private String fKUtenteSegnalatore;
     @JsonProperty("MessaggioSegnalazione")
     private String messaggioSegnalazione;
+    @JsonProperty("EsitoSegnalazione")
+    private String esitoSegnalazione;
 
     public ReportMovieDB() {}
 
-    public ReportMovieDB(Long fKFilmSegnalato, String fKUtenteSegnalatore, String messaggioSegnalazione) {
+    public ReportMovieDB(Long fKFilmSegnalato,  String fKUtenteSegnalatore,
+                         String messaggioSegnalazione, String esitoSegnalazione) {
         super();
         this.fKFilmSegnalato = fKFilmSegnalato;
         this.fKUtenteSegnalatore = fKUtenteSegnalatore;
         this.messaggioSegnalazione = messaggioSegnalazione;
+        this.esitoSegnalazione = esitoSegnalazione;
     }
 
     @JsonProperty("FK_FilmSegnalato")
@@ -61,9 +68,22 @@ public class ReportMovieDB {
         this.messaggioSegnalazione = messaggioSegnalazione;
     }
 
+    @JsonProperty("EsitoSegnalazione")
+    public String getEsitoSegnalazione() {
+        return esitoSegnalazione;
+    }
+
+    @JsonProperty("EsitoSegnalazione")
+    public void setEsitoSegnalazione(String esitoSegnalazione) {
+        this.esitoSegnalazione = esitoSegnalazione;
+    }
+
     @Override
     public int hashCode() {
-        return new HashCodeBuilder().append(fKFilmSegnalato).append(messaggioSegnalazione).append(fKUtenteSegnalatore).toHashCode();
+        return new HashCodeBuilder().append(fKFilmSegnalato)
+                .append(messaggioSegnalazione)
+                .append(fKUtenteSegnalatore)
+                .append(esitoSegnalazione).toHashCode();
     }
 
     @Override
@@ -75,7 +95,9 @@ public class ReportMovieDB {
             return false;
         }
         ReportMovieDB rhs = ((ReportMovieDB) other);
-        return new EqualsBuilder().append(fKFilmSegnalato, rhs.fKFilmSegnalato).append(messaggioSegnalazione, rhs.messaggioSegnalazione).append(fKUtenteSegnalatore, rhs.fKUtenteSegnalatore).isEquals();
+        return new EqualsBuilder().append(fKFilmSegnalato, rhs.fKFilmSegnalato)
+                .append(messaggioSegnalazione, rhs.messaggioSegnalazione)
+                .append(fKUtenteSegnalatore, rhs.fKUtenteSegnalatore)
+                .append(esitoSegnalazione, rhs.esitoSegnalazione).isEquals();
     }
-
 }

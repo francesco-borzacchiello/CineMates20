@@ -5,6 +5,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -21,6 +22,10 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.navigation.NavigationView;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.MemoryPolicy;
+import com.squareup.picasso.NetworkPolicy;
+import com.squareup.picasso.Picasso;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -48,6 +53,7 @@ public class SearchFriendsActivity extends AppCompatActivity {
     private LinkedList<String> searchHistory;
     private ProgressBar progressBar;
     private Menu menu;
+    private ImageView fotoProfilo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,12 +102,30 @@ public class SearchFriendsActivity extends AppCompatActivity {
 
         TextView nomeTextView = navigationView.getHeaderView(0).findViewById(R.id.nomeUtenteNavMenu);
         TextView cognomeTextView = navigationView.getHeaderView(0).findViewById(R.id.cognomeUtenteNavMenu);
+        fotoProfilo = navigationView.getHeaderView(0).findViewById(R.id.imageProfile);
 
         runOnUiThread(() -> {
             UserDB user = User.getLoggedUser(this);
             nomeTextView.setText(user.getNome());
             cognomeTextView.setText(user.getCognome());
+
+            String profilePictureUrl = User.getUserProfilePictureUrl();
+            if(profilePictureUrl != null)
+                refreshProfilePicture(profilePictureUrl);
         });
+    }
+
+    private void refreshProfilePicture(String imageUrl) {
+        Picasso.get().load(imageUrl).memoryPolicy(MemoryPolicy.NO_CACHE)
+                .networkPolicy(NetworkPolicy.NO_CACHE).resize(75, 75).noFade()
+                .into(fotoProfilo,
+                        new Callback() {
+                            @Override
+                            public void onSuccess() {}
+
+                            @Override
+                            public void onError(Exception e) {}
+                        });
     }
 
     @Override
@@ -235,8 +259,13 @@ public class SearchFriendsActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
+
         if(menu != null)
             setUpNotificationIcon(menu);
+
+        String profilePicUrl = User.getUserProfilePictureUrl();
+        if(profilePicUrl != null)
+            refreshProfilePicture(profilePicUrl);
     }
 
     @Override

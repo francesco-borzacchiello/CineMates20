@@ -1,12 +1,16 @@
 package it.unina.ingSw.cineMates20.controller;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+
+import androidx.core.app.ActivityCompat;
 
 import com.amplifyframework.auth.AuthUserAttribute;
 import com.amplifyframework.auth.AuthUserAttributeKey;
@@ -32,6 +36,7 @@ import org.json.JSONException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import it.unina.ingSw.cineMates20.model.S3Manager;
 import it.unina.ingSw.cineMates20.model.UserDB;
 import it.unina.ingSw.cineMates20.model.UserHttpRequests;
 import it.unina.ingSw.cineMates20.view.activity.RegistrationActivity;
@@ -43,6 +48,9 @@ public class RegistrationController {
     private static RegistrationController instance;
     private RegistrationActivity registrationActivity;
     private CallbackManager facebookCallbackManager;
+    private Uri socialImageUri;
+
+    private final int PICK_IMAGE = 1;
 
     private RegistrationController() {}
 
@@ -53,6 +61,26 @@ public class RegistrationController {
     }
 
     public void setRegistrationActivity(RegistrationActivity activity) { this.registrationActivity = activity; }
+
+    public View.OnClickListener getEventHandlerForOnClickSetProfileImage() {
+        return v -> ActivityCompat.requestPermissions
+                       (registrationActivity, new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE }, PICK_IMAGE);
+    }
+
+    public void launchGalleryIntentPicker() {
+        if(registrationActivity == null) return;
+
+        Intent gallery = new Intent();
+        gallery.setType("image/*");
+
+        gallery.setAction(Intent.ACTION_GET_CONTENT);
+        registrationActivity.startActivityForResult
+                (Intent.createChooser(gallery, "Seleziona l'immagine del profilo"), PICK_IMAGE);
+    }
+
+    public int getPickImageCode() {
+        return PICK_IMAGE;
+    }
 
     public Runnable getEventHandlerForOnClickRegistration() {
         if(registrationActivity == null)
@@ -69,7 +97,6 @@ public class RegistrationController {
             boolean inputIsValid = isInputValid(isSocialRegistration);
 
             if(!isSocialRegistration && inputIsValid) {
-                //TODO: Se non è stata modificata foto, passare url foto default a Cognito.
                 //Si procede con la registrazione interna
                 ArrayList<AuthUserAttribute> attributes = new ArrayList<>();
                 attributes.add(new AuthUserAttribute(AuthUserAttributeKey.email(), registrationActivity.getEmail()));
@@ -77,7 +104,7 @@ public class RegistrationController {
                 attributes.add(new AuthUserAttribute(AuthUserAttributeKey.familyName(), registrationActivity.getCognome()));
                 attributes.add(new AuthUserAttribute(AuthUserAttributeKey.givenName(), registrationActivity.getNome()));
                 attributes.add(new AuthUserAttribute(AuthUserAttributeKey.name(), ""));
-                attributes.add(new AuthUserAttribute(AuthUserAttributeKey.picture(), "null")); //TODO: da modificare successivamente
+                attributes.add(new AuthUserAttribute(AuthUserAttributeKey.picture(), "null"));
 
                 Amplify.Auth.signUp(
                         registrationActivity.getUsername(),
@@ -99,8 +126,11 @@ public class RegistrationController {
 
                 if(email != null) {
                     if (insertNewUser(new UserDB(registrationActivity.getUsername(), registrationActivity.getNome(), registrationActivity.getCognome(), email, "utente"))) {
+                        S3Manager.uploadImage(registrationActivity, registrationActivity.getProfileImageUri(), email);
+                        socialImageUri = null; //Reset uri foto profilo
+
+                        registrationActivity.runOnUiThread(() -> Utilities.stampaToast(registrationActivity, "Benvenuto " + registrationActivity.getNome()));
                         HomeController.getHomeControllerInstance().startFromLogin(registrationActivity);
-                        registrationActivity.runOnUiThread(() -> Utilities.stampaToast(registrationActivity, "Benvenuto " + email));
                     }
                 }
                 else
@@ -183,18 +213,20 @@ public class RegistrationController {
 
                                 String first_name = object.getString("first_name");
                                 String last_name = object.getString("last_name");
-                                //String id = object.getString("id");
-                                //String image_url = "http://graph.facebook.com/" + id + "/picture?type=large";
 
-                                registrationActivity.showHomeOrRegistrationPage(first_name, last_name);
+                                //Recupero uri foto profilo
+                                String id = object.getString("id");
+                                socialImageUri = Uri.parse("https://graph.facebook.com/" + id + "/picture?type=large");
+
+                                registrationActivity.showHomeOrRegistrationPage(first_name, last_name, socialImageUri);
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
                         });
                 Bundle parameters = new Bundle();
-                parameters.putString("fields", "id,first_name,last_name,email,picture.type(large)"); // id,first_name,last_name,email,gender,birthday,cover,picture.type(large)
+                parameters.putString("fields", "id,first_name,last_name,email,picture.type(large)");
                 request.setParameters(parameters);
-                request.executeAndWait();
+                request.executeAsync();
             }
 
             @Override
@@ -217,44 +249,37 @@ public class RegistrationController {
 
     public void startFacebookLogin() {
         facebookCallbackManager = CallbackManager.Factory.create();
-        //LoginManager.getInstance().setLoginBehavior(LoginBehavior.WEB_ONLY);
         LoginManager facebookLoginManager = LoginManager.getInstance();
         facebookLoginManager.registerCallback(facebookCallbackManager, getFacebookCallback());
         facebookLoginManager.logInWithReadPermissions(registrationActivity, Arrays.asList("public_profile", "email"));
     }
 
     public void startGoogleLogin() {
-        // Configure sign-in to request the user's ID, email address, and basic
-        // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestEmail()
-                .build();
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder
+                (GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
 
-        // Build a GoogleSignInClient with the options specified by gso.
         GoogleSignInClient googleSignInClient = GoogleSignIn.getClient(registrationActivity, gso);
 
         Intent signInIntent = googleSignInClient.getSignInIntent();
-        registrationActivity.startActivityForResult(signInIntent, 1111); //Va bene qualunque numero coerente in onActivityResult()
+        registrationActivity.startActivityForResult(signInIntent, 1111);
     }
 
     public void handleGoogleSignInResult(@NotNull Task<GoogleSignInAccount> completedTask) {
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
-            // Si può estrarre anche l'email dell'account con account.getEmail();
 
-            // Loggato con successo: nota esiste metodo getPhotoUrl()
-            if(account != null)
-                registrationActivity.showHomeOrRegistrationPage(account.getGivenName(), account.getFamilyName());
+            if(account != null) {
+                socialImageUri = account.getPhotoUrl();
+                registrationActivity.showHomeOrRegistrationPage(account.getGivenName(), account.getFamilyName(), socialImageUri);
+            }
             else
                 registrationActivity.runOnUiThread(() -> Utilities.stampaToast(registrationActivity, "Si è verificato un errore"));
         } catch (ApiException e) {
-            // The ApiException status code indicates the detailed failure reason.
-            // Please refer to the GoogleSignInStatusCodes class reference for more information.
-            Log.w("GoogleLogin", "signInResult:failed code=" + e.getStatusCode());
             if(e.getStatusCode() == SIGN_IN_CANCELLED)
                 registrationActivity.runOnUiThread(() -> Utilities.stampaToast(registrationActivity, "Login annullato"));
             else
                 registrationActivity.runOnUiThread(() -> Utilities.stampaToast(registrationActivity, "Si è verificato un errore"));
+
             registrationActivity.finish();
         }
     }
@@ -272,7 +297,6 @@ public class RegistrationController {
                 if(registrationActivity == null)
                     return;
 
-                //Se la editText ha lunghezza maggiore di 0, abilita il tasto INVIA
                 registrationActivity.setEnableSendButton(registrationActivity.getLengthEditTextInviaCodice() > 0);
             }
         };
@@ -296,8 +320,13 @@ public class RegistrationController {
             if(insertNewUser(new UserDB(registrationActivity.getUsername(), registrationActivity.getNome(),
                     registrationActivity.getCognome(), email, "utente"))) {
 
+                if(registrationActivity.getProfileImageUri() != null) //Allora l'utente ha modificato la foto di default
+                    S3Manager.uploadImage(registrationActivity, registrationActivity.getProfileImageUri(),
+                                          registrationActivity.getEmail());
+
                 registrationActivity.returnToLogin();
                 registrationActivity.runOnUiThread(() -> Utilities.stampaToast(registrationActivity, "Account creato con successo"));
+                socialImageUri = null; //Reset uri foto profilo in caso di tentativo social precedente
             }
             else
                 registrationActivity.runOnUiThread(() -> Utilities.stampaToast(registrationActivity, "Si è verificato un errore.\nRiprova tra qualche minuto."));

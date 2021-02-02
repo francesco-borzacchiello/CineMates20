@@ -1,5 +1,6 @@
 package it.unina.ingSw.cineMates20.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -7,11 +8,13 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
         "FK_UtenteSegnalato",
         "FK_UtenteSegnalatore",
-        "MessaggioSegnalazione"
+        "MessaggioSegnalazione",
+        "EsitoSegnalazione"
 })
 public class ReportUserDB {
 
@@ -21,14 +24,18 @@ public class ReportUserDB {
     private String fKUtenteSegnalatore;
     @JsonProperty("MessaggioSegnalazione")
     private String messaggioSegnalazione;
+    @JsonProperty("EsitoSegnalazione")
+    private String esitoSegnalazione;
 
-    public ReportUserDB() {}
+    public ReportUserDB() { }
 
-    public ReportUserDB(String fKUtenteSegnalato, String fKUtenteSegnalatore, String messaggioSegnalazione) {
+    public ReportUserDB(String fKUtenteSegnalato, String fKUtenteSegnalatore,
+                        String messaggioSegnalazione, String esitoSegnalazione) {
         super();
         this.fKUtenteSegnalato = fKUtenteSegnalato;
         this.fKUtenteSegnalatore = fKUtenteSegnalatore;
         this.messaggioSegnalazione = messaggioSegnalazione;
+        this.esitoSegnalazione = esitoSegnalazione;
     }
 
     @JsonProperty("FK_UtenteSegnalato")
@@ -61,21 +68,37 @@ public class ReportUserDB {
         this.messaggioSegnalazione = messaggioSegnalazione;
     }
 
+    @JsonProperty("EsitoSegnalazione")
+    public String getEsitoSegnalazione() {
+        return esitoSegnalazione;
+    }
+
+    @JsonProperty("EsitoSegnalazione")
+    public void setEsitoSegnalazione(String esitoSegnalazione) {
+        this.esitoSegnalazione = esitoSegnalazione;
+    }
+
     @Override
     public int hashCode() {
-        return new HashCodeBuilder().append(messaggioSegnalazione).append(fKUtenteSegnalatore).append(fKUtenteSegnalato).toHashCode();
+        return new HashCodeBuilder().append(esitoSegnalazione).
+                append(fKUtenteSegnalato).
+                append(messaggioSegnalazione).
+                append(fKUtenteSegnalatore).toHashCode();
     }
 
     @Override
     public boolean equals(Object other) {
-        if (other == this)
+        if (other == this) {
             return true;
-
-        if (!(other instanceof ReportUserDB))
+        }
+        if (!(other instanceof ReportUserDB)) {
             return false;
-
+        }
         ReportUserDB rhs = ((ReportUserDB) other);
-        return new EqualsBuilder().append(messaggioSegnalazione, rhs.messaggioSegnalazione).append(fKUtenteSegnalatore, rhs.fKUtenteSegnalatore).append(fKUtenteSegnalato, rhs.fKUtenteSegnalato).isEquals();
+        return new EqualsBuilder().append(esitoSegnalazione, rhs.esitoSegnalazione)
+                .append(fKUtenteSegnalato, rhs.fKUtenteSegnalato)
+                .append(messaggioSegnalazione, rhs.messaggioSegnalazione)
+                .append(fKUtenteSegnalatore, rhs.fKUtenteSegnalatore).isEquals();
     }
 
 }

@@ -1,6 +1,7 @@
 package it.unina.ingSw.cineMates20.view.fragment;
 
 import android.app.AlertDialog;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.text.TextWatcher;
 import android.text.method.HideReturnsTransformationMethod;
@@ -12,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.fragment.app.Fragment;
@@ -36,7 +38,11 @@ public class RegistrationFragment extends Fragment {
     private TextWatcher afterTextChangedListener;
     private CheckBox checkBoxMostraPassword;
     private Runnable registrationButtonRunnable;
-    private View.OnClickListener mostraPasswordListener;
+    private View.OnClickListener mostraPasswordListener,
+                                 loadImageListener;
+    private ImageView profileImage,
+                      pencilToLoadImage;
+    private Bitmap profileImageBitmap;
 
     public RegistrationFragment() {
         nome = null; cognome = null;
@@ -97,6 +103,16 @@ public class RegistrationFragment extends Fragment {
             checkBoxMostraPassword.setOnClickListener(mostraPasswordListener);
 
         addTextChangedListenerToEditTexts();
+        addListenerToLoadImage();
+    }
+
+    private void addListenerToLoadImage() {
+        pencilToLoadImage.setOnClickListener(loadImageListener);
+        profileImage.setOnClickListener(loadImageListener);
+    }
+
+    public void setListenerToLoadImage(View.OnClickListener listenerToLoadImage) {
+        loadImageListener = listenerToLoadImage;
     }
 
     //region Getter e Setter
@@ -116,6 +132,15 @@ public class RegistrationFragment extends Fragment {
         return registrationButtonRunnable;
     }
 
+    public void setProfileImageBitmap(Bitmap profileImageBitmap) {
+        this.profileImageBitmap = profileImageBitmap;
+    }
+
+    public void updateProfileImage(Bitmap bitmap) {
+        if(profileImage != null)
+            this.profileImage.setImageBitmap(bitmap);
+    }
+
     private void setGraphicsComponents(@NotNull View v) {
         checkBoxMostraPassword = v.findViewById(R.id.mostraPswRegistrazione);
         nomeEditText = v.findViewById(R.id.nomeRegistrazione);
@@ -125,6 +150,11 @@ public class RegistrationFragment extends Fragment {
         confermaPasswordEditText = v.findViewById(R.id.confermaPasswordRegistrazione);
         emailEditText = v.findViewById(R.id.emailRegistrazione);
         registrationButton = v.findViewById(R.id.registratiButton);
+        profileImage = v.findViewById(R.id.profileAvatarRegistration);
+        pencilToLoadImage = v.findViewById(R.id.editAvatarPencil);
+
+        if(profileImageBitmap != null)
+            this.profileImage.setImageBitmap(profileImageBitmap);
 
         if(nome != null || cognome != null) { //Si nascondono le EditText non necessarie
             passwordEditText.setVisibility(View.INVISIBLE);

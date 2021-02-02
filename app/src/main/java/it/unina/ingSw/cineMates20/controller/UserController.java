@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import org.jetbrains.annotations.NotNull;
 
+import it.unina.ingSw.cineMates20.model.S3Manager;
 import it.unina.ingSw.cineMates20.model.User;
 import it.unina.ingSw.cineMates20.model.UserDB;
 import it.unina.ingSw.cineMates20.model.UserHttpRequests;
@@ -151,5 +152,11 @@ public class UserController {
     public boolean isUserFriendshipPending() {
         return UserHttpRequests.getInstance().isUserFriendshipPending(
                 User.getLoggedUser(userActivity).getEmail(), actualUser.getEmail() );
+    }
+
+    public String getActualUserProfilePictureUrl() {
+        if(actualUser != null)
+            return S3Manager.getProfilePictureUrl(actualUser.getEmail());
+        return null;
     }
 }

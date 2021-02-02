@@ -149,8 +149,8 @@
             android:layout_marginStart="60dp"
             android:layout_marginEnd="60dp"
             android:ellipsize="none"
-            android:maxLines="2"
             android:gravity="center"
+            android:maxLines="2"
             android:paddingTop="60dp"
             android:text="@string/loginSocialLabel"
             android:textColor="@color/white"
@@ -214,53 +214,36 @@
         android:layout_marginBottom="15dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/loginTextViewLL" />
+        app:layout_constraintTop_toBottomOf="@id/loginTextViewLL">
 
-    <ImageView
-        android:id="@+id/googleLogo"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:contentDescription="@string/googleLogoDescr"
-        app:layout_constraintBottom_toBottomOf="@id/rettangoloSocial"
-        app:layout_constraintEnd_toStartOf="@id/facebookLogo"
-        app:layout_constraintStart_toStartOf="@id/rettangoloSocial"
-        app:layout_constraintTop_toTopOf="@id/rettangoloSocial"
-        app:srcCompat="@mipmap/google_logo_foreground" />
+        <ImageView
+            android:id="@+id/googleLogo"
+            android:layout_width="53dp"
+            android:layout_height="53dp"
+            android:layout_gravity="center"
+            android:layout_marginStart="18dp"
+            android:contentDescription="@string/googleLogoDescr"
+            app:srcCompat="@drawable/google_logo" />
 
-    <ImageView
-        android:id="@+id/facebookLogo"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:contentDescription="@string/facebookLogoDescr"
-        app:layout_constraintBottom_toBottomOf="@id/rettangoloSocial"
-        app:layout_constraintEnd_toStartOf="@id/twitterLogo"
-        app:layout_constraintStart_toEndOf="@id/googleLogo"
-        app:layout_constraintTop_toTopOf="@id/rettangoloSocial"
-        app:srcCompat="@mipmap/facebook_logo_foreground" />
+        <ImageView
+            android:id="@+id/facebookLogo"
+            android:layout_width="53dp"
+            android:layout_height="53dp"
+            android:layout_gravity="center"
+            android:layout_marginStart="18dp"
+            android:contentDescription="@string/facebookLogoDescr"
+            app:srcCompat="@drawable/facebook_logo" />
 
-    <ImageView
-        android:id="@+id/twitterLogo"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:contentDescription="@string/twitterLogoDescr"
-        app:layout_constraintBottom_toTopOf="@id/rettangoloSocial"
-        app:layout_constraintEnd_toEndOf="@id/rettangoloSocial"
-        app:layout_constraintStart_toEndOf="@id/facebookLogo"
-        app:layout_constraintTop_toBottomOf="@id/rettangoloSocial"
-        app:srcCompat="@mipmap/twitter_logo_foreground" />
-
-    <!--<com.facebook.login.widget.LoginButton
-        android:id="@+id/facebook_sign_in_button"
-        android:layout_width="398dp"
-        android:layout_height="42dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginStart="16dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/rettangoloSocial" />-->
+        <ImageView
+            android:id="@+id/twitterLogo"
+            android:layout_width="78dp"
+            android:layout_height="78dp"
+            android:layout_gravity="center"
+            android:layout_marginStart="8dp"
+            android:contentDescription="@string/twitterLogoDescr"
+            app:srcCompat="@drawable/twitter_logo" />
+    </LinearLayout>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

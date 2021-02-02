@@ -11,6 +11,11 @@ import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.MemoryPolicy;
+import com.squareup.picasso.NetworkPolicy;
+import com.squareup.picasso.Picasso;
+
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -18,6 +23,7 @@ import java.util.List;
 
 import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.controller.FriendsController;
+import it.unina.ingSw.cineMates20.model.S3Manager;
 import it.unina.ingSw.cineMates20.model.UserDB;
 
 public class FriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -50,20 +56,20 @@ public class FriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         userHolder.surnameTextView.setText(friends.get(position).getCognome());
         userHolder.usernameTextView.setText(friends.get(position).getUsername());
 
-        //TODO: adattare questa parte per il recupero dell'immagine da Amazon S3
-        /*String firstPath = context.getResources().getString(R.string.first_path_poster_image);
-        if(linkImage.get(position) != null)
-            Picasso.get().load(firstPath +
-                    linkImage.get(position)).resize(270, 360).noFade().into(movieHolder.coverImageView,
+        String profilePictureUrl = S3Manager.getProfilePictureUrl(friends.get(position).getEmail());
+        if(profilePictureUrl != null)
+            Picasso.get().load(profilePictureUrl).memoryPolicy(MemoryPolicy.NO_CACHE)
+                .networkPolicy(NetworkPolicy.NO_CACHE).resize(95, 95)
+                    .noFade().into(userHolder.profilePictureImageView,
                     new Callback() {
                         @Override
                         public void onSuccess() {
-                            movieHolder.coverImageView.setAlpha(0f);
-                            movieHolder.coverImageView.animate().setDuration(300).alpha(1f).start();
+                            userHolder.profilePictureImageView.setAlpha(0f);
+                            userHolder.profilePictureImageView.animate().setDuration(100).alpha(1f).start();
                         }
                         @Override
                         public void onError(Exception e) {}
-                    });*/
+                    });
 
         userHolder.userConstraintLayout.setOnClickListener(addListenerForUserLayout(position));
     }

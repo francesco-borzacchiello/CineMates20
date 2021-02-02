@@ -10,10 +10,16 @@ import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.MemoryPolicy;
+import com.squareup.picasso.NetworkPolicy;
+import com.squareup.picasso.Picasso;
+
 import java.util.List;
 
 import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.controller.NotificationController;
+import it.unina.ingSw.cineMates20.model.S3Manager;
 import it.unina.ingSw.cineMates20.model.UserDB;
 import it.unina.ingSw.cineMates20.view.activity.NotificationActivity;
 
@@ -50,20 +56,21 @@ public class PendingFriendsRequestsAdapter extends RecyclerView.Adapter<Recycler
         notificationHolder.surnameTextView.setText(users.get(position).getCognome());
         notificationHolder.usernameTextView.setText(users.get(position).getUsername());
 
-        //TODO: adattare questa parte per il recupero dell'immagine da Amazon S3
-        /*String firstPath = context.getResources().getString(R.string.first_path_poster_image);
-        if(linkImage.get(position) != null)
-            Picasso.get().load(firstPath +
-                    linkImage.get(position)).resize(270, 360).noFade().into(movieHolder.coverImageView,
+        String profilePictureUrl = S3Manager.getProfilePictureUrl(users.get(position).getEmail());
+        if(profilePictureUrl != null)
+            Picasso.get().load(profilePictureUrl).memoryPolicy(MemoryPolicy.NO_CACHE)
+                    .networkPolicy(NetworkPolicy.NO_CACHE).resize(60, 60)
+                    .noFade().into(notificationHolder.profilePictureImageView,
                     new Callback() {
                         @Override
                         public void onSuccess() {
-                            movieHolder.coverImageView.setAlpha(0f);
-                            movieHolder.coverImageView.animate().setDuration(300).alpha(1f).start();
+                            notificationHolder.profilePictureImageView.setAlpha(0f);
+                            notificationHolder.profilePictureImageView.animate().setDuration(300).alpha(1f).start();
                         }
                         @Override
                         public void onError(Exception e) {}
-                    });*/
+                    });
+
 
         //Set action listener
         notificationHolder.userCardView.setOnClickListener(addListenerForFriendDetails(position));

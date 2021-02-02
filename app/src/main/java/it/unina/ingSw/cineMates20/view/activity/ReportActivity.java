@@ -21,6 +21,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.squareup.picasso.Callback;
+import com.squareup.picasso.MemoryPolicy;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import info.movito.themoviedbapi.model.MovieDb;
@@ -92,10 +94,7 @@ public class ReportActivity extends AppCompatActivity {
                     noFade().into(poster,
                     new Callback() {
                         @Override
-                        public void onSuccess() {
-                            poster.setAlpha(0f);
-                            poster.animate().setDuration(300).alpha(1f).start();
-                        }
+                        public void onSuccess() {}
                         @Override
                         public void onError(Exception e) {}
                     });
@@ -104,16 +103,35 @@ public class ReportActivity extends AppCompatActivity {
 
     private void initializeReportedUser() {
         UserDB user = reportController.getReportedUser();
-        TextView name = findViewById(R.id.reportedName);
-        TextView email = findViewById(R.id.reportedEmail);
-        TextView username = findViewById(R.id.reportedUsername);
-        //ImageView profilePicture = findViewById(R.id.reportedUserProfilePicture);
+        TextView nameTextView = findViewById(R.id.reportedName);
+        nameTextView.setSelected(true);
+        TextView emailTextView = findViewById(R.id.reportedEmail);
+        emailTextView.setSelected(true);
+        TextView usernameTextView = findViewById(R.id.reportedUsername);
+        usernameTextView.setSelected(true);
+        ImageView profilePicture = findViewById(R.id.reportedUserProfilePicture);
 
         String fullName = user.getNome() + " " + user.getCognome();
-        name.setText(fullName);
-        email.setText(user.getEmail());
-        username.setText(user.getUsername());
-        //profilePicture set immagine tramite Picasso
+        nameTextView.setText(fullName);
+        emailTextView.setText(user.getEmail());
+        String username = "@" + user.getUsername();
+        usernameTextView.setText(username);
+
+        String profilePictureUrl = reportController.getUserToReportProfilePictureUrl();
+        if(profilePictureUrl != null)
+            Picasso.get().load(profilePictureUrl).memoryPolicy(MemoryPolicy.NO_CACHE)
+                .networkPolicy(NetworkPolicy.NO_CACHE).resize(95, 95).noFade()
+                .into(profilePicture,
+                        new Callback() {
+                            @Override
+                            public void onSuccess() {
+                                profilePicture.setAlpha(0f);
+                                profilePicture.animate().setDuration(100).alpha(1f).start();
+                            }
+
+                            @Override
+                            public void onError(Exception e) {}
+                        });
     }
 
     private void initializeRadioButtons() {

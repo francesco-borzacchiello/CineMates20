@@ -5,9 +5,18 @@ import android.content.Intent;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import info.movito.themoviedbapi.TmdbApi;
+import info.movito.themoviedbapi.TmdbMovies;
+import info.movito.themoviedbapi.model.MovieDb;
+import it.unina.ingSw.cineMates20.R;
+import it.unina.ingSw.cineMates20.model.ReportHttpRequests;
+import it.unina.ingSw.cineMates20.model.ReportMovieDB;
+import it.unina.ingSw.cineMates20.model.ReportUserDB;
 import it.unina.ingSw.cineMates20.model.User;
 import it.unina.ingSw.cineMates20.model.UserDB;
 import it.unina.ingSw.cineMates20.model.UserHttpRequests;
@@ -73,23 +82,97 @@ public class NotificationController {
         notificationActivity.setFriendsNotificationsRecyclerView(friendsRequestsAdapter);
     }
 
-    //TODO: da modificare con segnalazioni reali dopo aver completato applicativo server
     public void initializeReportNotificationAdapter() {
         ArrayList<String> reportSubjects = new ArrayList<>(),
                           reportOutcomes = new ArrayList<>();
         ArrayList<Runnable> removeNotificationListeners = new ArrayList<>();
 
-        //Popolamento temporaneo con dati fittizzi:
-        for(int i = 0; i<20; i++) {
-            reportSubjects.add("Segnalazione Film X:");
-            reportOutcomes.add("La tua segnalazione è stata accettata.");
-            removeNotificationListeners.add(getRemoveReportNotificationListener(0));
+        String userEmail = User.getLoggedUser(notificationActivity).getEmail();
+        List<ReportMovieDB> reportedMovies = ReportHttpRequests.getInstance().
+                getAllMoviesReports(userEmail);
+
+        List<ReportUserDB> reportedUsers = ReportHttpRequests.getInstance().
+                getAllUsersReports(userEmail);
+
+        String subject, outcome = "";
+
+        for(ReportMovieDB reportedMovie: reportedMovies) {
+            subject = "Segnalazione Film:\n" + getMovieTitleById(reportedMovie.getFKFilmSegnalato().intValue());
+            reportSubjects.add(subject);
+
+            switch(reportedMovie.getEsitoSegnalazione()) {
+                case "Approvata": {
+                    outcome = "La tua segnalazione è stata approvata.";
+                    break;
+                }
+                case "Rigettata": {
+                    outcome = "Abbiamo ritenuto che la tua segnalazione non violasse i nostri termini di servizio.";
+                    break;
+                }
+                case "Oscurata": {
+                    outcome = "Il contenuto della tua segnalazione è stato oscurato.";
+                    break;
+                }
+            }
+
+            reportOutcomes.add(outcome);
+            reportedMovie.setFKUtenteSegnalatore(userEmail);
+            removeNotificationListeners.add(getRemoveMovieReportNotificationListener(reportedMovie));
+        }
+
+        for(ReportUserDB reportedUser: reportedUsers) {
+            subject = "Segnalazione Utente:\n" + reportedUser.getFKUtenteSegnalato();
+            reportSubjects.add(subject);
+
+            switch(reportedUser.getEsitoSegnalazione()) {
+                case "Approvata": {
+                    outcome = "La tua segnalazione è stata approvata.";
+                    break;
+                }
+                case "Rigettata": {
+                    outcome = "Abbiamo ritenuto che la tua segnalazione non violasse i nostri termini di servizio.";
+                    break;
+                }
+                case "Oscurata": {
+                    outcome = "L'utente è stato oscurato.";
+                    break;
+                }
+            }
+
+            reportOutcomes.add(outcome);
+            reportedUser.setFKUtenteSegnalatore(userEmail);
+            removeNotificationListeners.add(getRemoveUserReportNotificationListener(reportedUser));
         }
 
         ReportNotificationAdapter reportNotificationAdapter = new ReportNotificationAdapter
                 (notificationActivity, reportSubjects, reportOutcomes, removeNotificationListeners);
         reportNotificationAdapter.setHasStableIds(true);
         notificationActivity.setReportNotificationsRecyclerView(reportNotificationAdapter);
+    }
+
+    @Nullable
+    private String getMovieTitleById(int id) {
+        String[] title = new String[1];
+
+        Thread t = new Thread(()-> {
+            TmdbMovies tmdbMovies = new TmdbMovies(new TmdbApi(notificationActivity.getResources().getString(R.string.themoviedb_api_key)));
+            MovieDb movie =  tmdbMovies.getMovie(id, "it");
+
+            if(movie.getTitle() != null)
+                title[0] = movie.getTitle();
+            else {
+                title[0] = tmdbMovies.getMovie(id, "en").getTitle();
+                if(title[0] == null)
+                    title[0] = movie.getOriginalTitle();
+            }
+        });
+        t.start();
+
+        try {
+            t.join();
+        }catch(InterruptedException ignore){}
+
+        return title[0];
     }
 
     @NotNull
@@ -137,13 +220,27 @@ public class NotificationController {
 
     @NotNull
     @Contract(pure = true)
-    private Runnable getRemoveReportNotificationListener(int reportId) {
+    private Runnable getRemoveMovieReportNotificationListener(ReportMovieDB movie) {
         return ()-> {
             if(Utilities.checkNullActivityOrNoConnection(notificationActivity)) return;
 
-            notificationActivity.decreaseReportNotificationsBadgeNumber();
+            if(!ReportHttpRequests.getInstance().updateUserDeleteMovieNotification(movie))
+                Utilities.stampaToast(notificationActivity, "Si è verificato un errore\nnell'eliminazione della notifica.");
 
-            //TODO: Rimuovi questa segnalazione dal database
+            notificationActivity.decreaseReportNotificationsBadgeNumber();
+        };
+    }
+
+    @NotNull
+    @Contract(pure = true)
+    private Runnable getRemoveUserReportNotificationListener(ReportUserDB user) {
+        return ()-> {
+            if(Utilities.checkNullActivityOrNoConnection(notificationActivity)) return;
+
+            if(!ReportHttpRequests.getInstance().updateUserDeleteUserNotification(user))
+                Utilities.stampaToast(notificationActivity, "Si è verificato un errore\nnell'eliminazione della notifica.");
+
+            notificationActivity.decreaseReportNotificationsBadgeNumber();
         };
     }
 

@@ -14,7 +14,7 @@
             android:id="@+id/registrazioneLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="60dp"
             android:text="@string/effettuaRegistrazioneLabel"
             android:textColor="@color/white"
             android:textSize="30sp"
@@ -23,16 +23,21 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageView
+        <com.makeramen.roundedimageview.RoundedImageView
             android:id="@+id/profileAvatarRegistration"
-            android:layout_width="140dp"
-            android:layout_height="140dp"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
             android:contentDescription="@string/avatarDescr"
-            android:src="@mipmap/avatar_foreground"
+            android:src="@drawable/avatar_foreground"
             app:layout_constraintBottom_toTopOf="@id/nomeRegistrazione"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/registrazioneLabel" />
+            app:layout_constraintTop_toBottomOf="@id/registrazioneLabel"
+            android:adjustViewBounds="true"
+            android:scaleType="fitXY"
+            app:riv_oval="true"
+            android:layout_marginBottom="15dp"
+            android:layout_marginTop="15dp"/>
 
         <ImageView
             android:id="@+id/editAvatarPencil"
@@ -41,11 +46,11 @@
             android:contentDescription="@string/pencilDescr"
             app:layout_constraintBottom_toBottomOf="@id/profileAvatarRegistration"
             app:layout_constraintEnd_toEndOf="@id/profileAvatarRegistration"
-            app:layout_constraintHorizontal_bias="0.850"
+            app:layout_constraintHorizontal_bias="1.05"
             app:layout_constraintStart_toStartOf="@id/profileAvatarRegistration"
             app:layout_constraintTop_toTopOf="@id/profileAvatarRegistration"
-            app:layout_constraintVertical_bias="0.806"
-            app:srcCompat="@android:drawable/ic_menu_edit" />
+            app:layout_constraintVertical_bias="1.05"
+            app:srcCompat="@android:drawable/ic_menu_edit"/>
 
         <EditText
             android:id="@+id/nomeRegistrazione"
@@ -191,8 +196,8 @@
             style="@style/MaterialButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="45dp"
-            android:layout_marginBottom="50dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="70dp"
             android:layout_gravity="center"
             android:enabled="false"
             android:text="@string/action_sign_up"
