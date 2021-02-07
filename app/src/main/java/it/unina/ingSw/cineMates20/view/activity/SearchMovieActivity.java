@@ -29,14 +29,16 @@ import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.LinkedList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import info.movito.themoviedbapi.model.MovieDb;
 import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.controller.HomeController;
 import it.unina.ingSw.cineMates20.controller.SearchMovieController;
+import it.unina.ingSw.cineMates20.controller.SettingsController;
 import it.unina.ingSw.cineMates20.model.User;
 import it.unina.ingSw.cineMates20.model.UserDB;
 import it.unina.ingSw.cineMates20.view.fragment.EmptySearchFragment;
@@ -56,8 +58,8 @@ public class SearchMovieActivity extends AppCompatActivity {
     private RecyclerView.Adapter<RecyclerView.ViewHolder> currentRecyclerViewAdapter;
     private LinkedList<String> searchHistory;
     private ProgressBar progressBar;
-    private Menu menu;
     private ImageView fotoProfilo;
+    private MenuItem notificationItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -143,9 +145,8 @@ public class SearchMovieActivity extends AppCompatActivity {
         if (searchMovieController.initializeMovieSearch(searchText)) {
             notEmptyMovieSearchFragment = new NotEmptyMovieSearchFragment(currentRecyclerViewAdapter);
             createFirstFragment(notEmptyMovieSearchFragment);
-        } else {
+        } else
             createFirstFragment(emptySearchFragment);
-        }
 
         //Espandi la searchView ed elimina il focus
         menu.findItem(R.id.searchItem).expandActionView();
@@ -160,16 +161,18 @@ public class SearchMovieActivity extends AppCompatActivity {
 
         setNavigationViewActionListener();
 
-        setUpNotificationIcon(menu);
+        notificationItem = menu.findItem(R.id.notificationItem);
 
-        this.menu = menu;
+        if(SettingsController.getSettingsControllerInstance().isNotificationSyncEnabled()) {
+            ScheduledExecutorService scheduleTaskExecutor = Executors.newScheduledThreadPool(1);
+            scheduleTaskExecutor.scheduleAtFixedRate(this::setUpNotificationIcon, 0, 15, TimeUnit.SECONDS);
+        }
 
         return true;
     }
 
-    private void setUpNotificationIcon(@NotNull Menu menu) {
+    private void setUpNotificationIcon() {
         new Thread(() -> runOnUiThread(() -> {
-            MenuItem notificationItem = menu.findItem(R.id.notificationItem);
             if (User.getTotalUserNotificationCount() > 0)
                 notificationItem.setIcon(R.drawable.ic_notifications_on);
             else
@@ -180,9 +183,6 @@ public class SearchMovieActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
-
-        if (menu != null)
-            setUpNotificationIcon(menu);
 
         String profilePicUrl = User.getUserProfilePictureUrl();
         if(profilePicUrl != null)

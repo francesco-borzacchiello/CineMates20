@@ -2,10 +2,8 @@ package it.unina.ingSw.cineMates20.view.activity;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,12 +27,15 @@ import com.squareup.picasso.Picasso;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import it.unina.ingSw.cineMates20.BuildConfig;
 import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.controller.HomeController;
 import it.unina.ingSw.cineMates20.controller.PersonalProfileController;
+import it.unina.ingSw.cineMates20.controller.SettingsController;
 import it.unina.ingSw.cineMates20.model.User;
 import it.unina.ingSw.cineMates20.model.UserDB;
 import it.unina.ingSw.cineMates20.view.util.Utilities;
@@ -43,30 +44,33 @@ public class PersonalProfileActivity extends AppCompatActivity {
     private PersonalProfileController personalProfileController;
     private NavigationView navigationView;
     private DrawerLayout drawerLayout;
-    private Menu menu;
     private Uri profileImageUri;
     private ImageView profilePictureImageView;
     private ImageView navMenuProfilePictureImageView;
-    private boolean profilePictureMightHaveChanged;
+    private MenuItem notificationItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        OnBackPressedCallback callback = new OnBackPressedCallback(true ) {
-            @Override
-            public void handleOnBackPressed() {
-                finish();
-                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-            }
-        };
-        getOnBackPressedDispatcher().addCallback(this, callback);
 
         personalProfileController = PersonalProfileController.getPersonalProfileControllerInstance();
         personalProfileController.setPersonalProfileActivity(this);
         HomeController.getHomeControllerInstance().setUserProfileActivity(this);
 
         initializeGraphicsComponents();
+
+        OnBackPressedCallback callback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if(drawerLayout.isOpen())
+                    closeDrawerLayout();
+                else {
+                    finish();
+                    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                }
+            }
+        };
+        getOnBackPressedDispatcher().addCallback(this, callback);
     }
 
     private void initializeGraphicsComponents() {
@@ -165,19 +169,14 @@ public class PersonalProfileActivity extends AppCompatActivity {
         menu.findItem(R.id.searchItem).setVisible(false);
         setNavigationViewActionListener();
 
-        setUpNotificationIcon(menu);
+        notificationItem = menu.findItem(R.id.notificationItem);
 
-        this.menu = menu;
+        if(SettingsController.getSettingsControllerInstance().isNotificationSyncEnabled()) {
+            ScheduledExecutorService scheduleTaskExecutor = Executors.newScheduledThreadPool(1);
+            scheduleTaskExecutor.scheduleAtFixedRate(this::setUpNotificationIcon, 0, 15, TimeUnit.SECONDS);
+        }
 
         return true;
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        if(menu != null)
-            setUpNotificationIcon(menu);
     }
 
     @Override
@@ -187,14 +186,9 @@ public class PersonalProfileActivity extends AppCompatActivity {
         if (requestCode == personalProfileController.getPickImageCode() && resultCode == RESULT_OK) {
             profileImageUri = data.getData();
 
-            try {
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), profileImageUri);
-                profilePictureImageView.setImageBitmap(bitmap);
-                navMenuProfilePictureImageView.setImageBitmap(bitmap);
-                personalProfileController.uploadNewProfilePicture();
-            } catch (IOException e) {
-                Utilities.stampaToast(this, "Si è verificato un errore,\nriprova più tardi.");
-            }
+            profilePictureImageView.setImageURI(profileImageUri);
+            navMenuProfilePictureImageView.setImageURI(profileImageUri);
+            personalProfileController.uploadNewProfilePicture();
         }
     }
 
@@ -211,7 +205,7 @@ public class PersonalProfileActivity extends AppCompatActivity {
                                 Uri.parse("package:" + BuildConfig.APPLICATION_ID))));
 
                 View snackbarView = snackbar.getView();
-                TextView textView = (TextView) snackbarView.findViewById(com.google.android.material.R.id.snackbar_text);
+                TextView textView = snackbarView.findViewById(com.google.android.material.R.id.snackbar_text);
                 textView.setMaxLines(6);
                 snackbar.setDuration(6000);
                 snackbar.show();
@@ -225,9 +219,8 @@ public class PersonalProfileActivity extends AppCompatActivity {
         return profileImageUri;
     }
 
-    private void setUpNotificationIcon(@NotNull Menu menu) {
+    private void setUpNotificationIcon() {
         new Thread(()-> runOnUiThread(()-> {
-            MenuItem notificationItem = menu.findItem(R.id.notificationItem);
             if(User.getTotalUserNotificationCount() > 0)
                 notificationItem.setIcon(R.drawable.ic_notifications_on);
             else

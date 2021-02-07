@@ -17,6 +17,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import it.unina.ingSw.cineMates20.BuildConfig;
 import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.model.User;
 import it.unina.ingSw.cineMates20.model.UserDB;
@@ -29,21 +30,18 @@ public class SearchFriendsController {
     private static SearchFriendsController instance;
     private SearchFriendsActivity searchFriendsActivity;
     private AmazonCognitoIdentityProviderClient identityProviderClient;
+    private static final String AWS_ACCESS_KEY = BuildConfig.AWS_ACCESS_KEY,
+                                AWS_SECRET_KEY = BuildConfig.AWS_SECRET_KEY;
 
     private SearchFriendsController() {
         AtomicBoolean done = new AtomicBoolean(false);
         Thread t = new Thread(()-> {
             identityProviderClient = new AmazonCognitoIdentityProviderClient(new AWSCredentials() {
-                //TODO: Spostare queste credenziali in un luogo sicuro
                 @Override
-                public String getAWSAccessKeyId() {
-                    return "AKIASIIR74FZGEJFLJGN";
-                }
+                public String getAWSAccessKeyId() { return AWS_ACCESS_KEY; }
 
                 @Override
-                public String getAWSSecretKey() {
-                    return "S4hzx3zzCLBEGb8OAbu7TkyC176wdoA+KI/8aRll";
-                }
+                public String getAWSSecretKey() { return AWS_SECRET_KEY; }
             });
             identityProviderClient.setRegion(Region.getRegion(Regions.EU_WEST_3));
 

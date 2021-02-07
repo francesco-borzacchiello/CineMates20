@@ -9,6 +9,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -25,10 +26,13 @@ import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
-import org.jetbrains.annotations.NotNull;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.controller.HomeController;
+import it.unina.ingSw.cineMates20.controller.SettingsController;
 import it.unina.ingSw.cineMates20.model.User;
 import it.unina.ingSw.cineMates20.model.UserDB;
 import it.unina.ingSw.cineMates20.view.util.Utilities;
@@ -51,7 +55,10 @@ public class HomeActivity extends AppCompatActivity {
                          upcomingHomeMoviesRecyclerView,
                          topRatedHomeMoviesRecyclerView;
     private LinearLayout homeLinearLayout;
-    private ImageView fotoProfilo;
+    private ImageView profilePicture;
+    private MenuItem notificationItem;
+    private ScheduledExecutorService scheduleTaskExecutor;
+    private boolean notificationTaskIsAlive = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +69,17 @@ public class HomeActivity extends AppCompatActivity {
 
         initializeGraphicsComponents();
         configureNavigationDrawer();
+
+        OnBackPressedCallback callback = new OnBackPressedCallback(true ) {
+            @Override
+            public void handleOnBackPressed() {
+                if(homeDrawerLayout.isOpen())
+                    closeDrawerLayout();
+                else
+                    finish();
+            }
+        };
+        getOnBackPressedDispatcher().addCallback(this, callback);
     }
 
     private void initializeGraphicsComponents() {
@@ -111,7 +129,7 @@ public class HomeActivity extends AppCompatActivity {
 
         TextView nomeTextView = navigationView.getHeaderView(0).findViewById(R.id.nomeUtenteNavMenu);
         TextView cognomeTextView = navigationView.getHeaderView(0).findViewById(R.id.cognomeUtenteNavMenu);
-        fotoProfilo = navigationView.getHeaderView(0).findViewById(R.id.imageProfile);
+        profilePicture = navigationView.getHeaderView(0).findViewById(R.id.imageProfile);
 
         runOnUiThread(() -> {
             UserDB user = User.getLoggedUser(this);
@@ -127,7 +145,7 @@ public class HomeActivity extends AppCompatActivity {
     private void refreshProfilePicture(String imageUrl) {
         Picasso.get().load(imageUrl).memoryPolicy(MemoryPolicy.NO_CACHE)
             .networkPolicy(NetworkPolicy.NO_CACHE).resize(75, 75).noFade()
-            .into(fotoProfilo,
+            .into(profilePicture,
                 new Callback() {
                     @Override
                     public void onSuccess() {}
@@ -144,21 +162,25 @@ public class HomeActivity extends AppCompatActivity {
         searchView = (SearchView) menu.findItem(R.id.searchItem).getActionView();
         searchView.setQueryHint("Cerca un film");
 
-        setUpNotificationIcon(menu);
-
         searchView.setOnQueryTextListener(homeController.getSearchViewOnQueryTextListener());
         searchView.setOnQueryTextFocusChangeListener(homeController.getSearchViewOnQueryTextFocusChangeListener());
         searchView.setOnSearchClickListener(homeController.getOnSearchClickListener());
+        notificationItem = menu.findItem(R.id.notificationItem);
 
         setNavigationViewActionListener();
         this.menu = menu;
 
+        if(SettingsController.getSettingsControllerInstance().isNotificationSyncEnabled()) {
+            notificationTaskIsAlive = true;
+            scheduleTaskExecutor = Executors.newScheduledThreadPool(1);
+            scheduleTaskExecutor.scheduleAtFixedRate(this::setUpNotificationIcon, 0, 15, TimeUnit.SECONDS);
+        }
+
         return true;
     }
 
-    private void setUpNotificationIcon(@NotNull Menu menu) {
+    private void setUpNotificationIcon() {
         new Thread(()-> runOnUiThread(()-> {
-            MenuItem notificationItem = menu.findItem(R.id.notificationItem);
             if(User.getTotalUserNotificationCount() > 0)
                 notificationItem.setIcon(R.drawable.ic_notifications_on);
             else
@@ -212,12 +234,19 @@ public class HomeActivity extends AppCompatActivity {
             searchView.clearFocus();
         }
 
-        if(menu != null)
-            setUpNotificationIcon(menu);
-
         String profilePicUrl = User.getUserProfilePictureUrl();
         if(profilePicUrl != null)
             refreshProfilePicture(profilePicUrl);
+
+        if(SettingsController.getSettingsControllerInstance().isNotificationSyncEnabled() && !notificationTaskIsAlive) {
+            notificationTaskIsAlive = true;
+            scheduleTaskExecutor = Executors.newScheduledThreadPool(1);
+            scheduleTaskExecutor.scheduleAtFixedRate(this::setUpNotificationIcon, 0, 15, TimeUnit.SECONDS);
+        }
+        else if(!SettingsController.getSettingsControllerInstance().isNotificationSyncEnabled() && notificationTaskIsAlive) {
+            notificationTaskIsAlive = false;
+            scheduleTaskExecutor.shutdownNow();
+        }
     }
 
     public void setNowPlayingHomeMoviesRecyclerView(RecyclerView.Adapter<RecyclerView.ViewHolder> adapter) {

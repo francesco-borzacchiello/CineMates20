@@ -41,16 +41,25 @@ public class MoviesListActivity extends AppCompatActivity {
     private TextView emptyListTextView;
     private Menu menu;
     private Spinner listTypeSpinner;
-    private ImageView fotoProfilo;
+    private ImageView profilePicture;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        moviesListsController = MoviesListsController.getMoviesListControllerInstance();
+        moviesListsController.setMoviesListActivity(this);
+        HomeController.getHomeControllerInstance().setMoviesListActivity(this);
+
+        initializeGraphicsComponents();
+        configureNavigationDrawer();
+
         OnBackPressedCallback callback = new OnBackPressedCallback(true ) {
             @Override
             public void handleOnBackPressed() {
-                if(moviesListsController.isDeleteEnabled()) {
+                if(moviesListDrawerLayout.isOpen())
+                    closeDrawerLayout();
+                else if(moviesListsController.isDeleteEnabled()) {
                     moviesListsController.resetAllMoviesCheckBoxes();
                     moviesListsController.updateAllMoviesCheckBoxesVisibility();
                 } else {
@@ -60,13 +69,6 @@ public class MoviesListActivity extends AppCompatActivity {
             }
         };
         getOnBackPressedDispatcher().addCallback(this, callback);
-
-        moviesListsController = MoviesListsController.getMoviesListControllerInstance();
-        moviesListsController.setMoviesListActivity(this);
-        HomeController.getHomeControllerInstance().setMoviesListActivity(this);
-
-        initializeGraphicsComponents();
-        configureNavigationDrawer();
     }
 
     private void initializeGraphicsComponents() {
@@ -115,7 +117,7 @@ public class MoviesListActivity extends AppCompatActivity {
 
         TextView nomeTextView = navigationView.getHeaderView(0).findViewById(R.id.nomeUtenteNavMenu);
         TextView cognomeTextView = navigationView.getHeaderView(0).findViewById(R.id.cognomeUtenteNavMenu);
-        fotoProfilo = navigationView.getHeaderView(0).findViewById(R.id.imageProfile);
+        profilePicture = navigationView.getHeaderView(0).findViewById(R.id.imageProfile);
 
         runOnUiThread(() -> {
             UserDB user = User.getLoggedUser(this);
@@ -131,7 +133,7 @@ public class MoviesListActivity extends AppCompatActivity {
     private void refreshProfilePicture(String imageUrl) {
         Picasso.get().load(imageUrl).memoryPolicy(MemoryPolicy.NO_CACHE)
             .networkPolicy(NetworkPolicy.NO_CACHE).resize(75, 75).noFade()
-            .into(fotoProfilo,
+            .into(profilePicture,
                   new Callback() {
                       @Override
                       public void onSuccess() {}

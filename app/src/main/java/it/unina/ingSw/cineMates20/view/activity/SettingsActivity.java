@@ -40,20 +40,24 @@ public class SettingsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        OnBackPressedCallback callback = new OnBackPressedCallback(true ) {
-            @Override
-            public void handleOnBackPressed() {
-                finish();
-                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-            }
-        };
-        getOnBackPressedDispatcher().addCallback(this, callback);
-
         settingsController = SettingsController.getSettingsControllerInstance();
         settingsController.setSettingsActivity(this);
         HomeController.getHomeControllerInstance().setSettingsActivity(this);
 
         initializeGraphicsComponents();
+
+        OnBackPressedCallback callback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if(drawerLayout.isOpen())
+                    closeDrawerLayout();
+                else {
+                    finish();
+                    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                }
+            }
+        };
+        getOnBackPressedDispatcher().addCallback(this, callback);
     }
 
     private void initializeGraphicsComponents() {

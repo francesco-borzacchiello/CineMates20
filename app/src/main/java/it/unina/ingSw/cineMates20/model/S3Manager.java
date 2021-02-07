@@ -19,19 +19,22 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import it.unina.ingSw.cineMates20.BuildConfig;
 import it.unina.ingSw.cineMates20.view.util.Utilities;
 
-//TODO: spostare le credenziali in un luogo sicuro
 public class S3Manager {
 
+    private static final String AWS_ACCESS_KEY = BuildConfig.AWS_ACCESS_KEY,
+                                AWS_SECRET_KEY = BuildConfig.AWS_SECRET_KEY,
+                                S3_BUCKET_NAME = BuildConfig.S3_BUCKET_NAME;
+
     public static void uploadImage(@NotNull Activity activity, @NotNull Uri uriImage, @NotNull String userEmail) {
-        AWSCredentials credentials = new BasicAWSCredentials
-                ("AKIASIIR74FZGEJFLJGN","S4hzx3zzCLBEGb8OAbu7TkyC176wdoA+KI/8aRll");
+        AWSCredentials credentials = new BasicAWSCredentials(AWS_ACCESS_KEY, AWS_SECRET_KEY);
 
         AmazonS3Client s3 = new AmazonS3Client(credentials, Region.getRegion(Regions.EU_WEST_3));
 
         TransferUtility transferUtility =
-                TransferUtility.builder().defaultBucket("amplify-cinemates20-dev-75004-deployment")
+                TransferUtility.builder().defaultBucket(S3_BUCKET_NAME)
                         .context(activity).s3Client(s3).build();
 
         try {
@@ -64,15 +67,14 @@ public class S3Manager {
 
     @Nullable
     public static String getProfilePictureUrl(@NotNull String userEmail) {
-        AWSCredentials credentials = new BasicAWSCredentials
-                ("AKIASIIR74FZGEJFLJGN","S4hzx3zzCLBEGb8OAbu7TkyC176wdoA+KI/8aRll");
+        AWSCredentials credentials = new BasicAWSCredentials(AWS_ACCESS_KEY, AWS_SECRET_KEY);
 
         AmazonS3Client s3 = new AmazonS3Client(credentials, Region.getRegion(Regions.EU_WEST_3));
 
         String[] ret = new String[1];
         Thread t = new Thread(()-> {
-            if(s3.doesObjectExist("amplify-cinemates20-dev-75004-deployment", "Img/" + userEmail + ".jpg"))
-                ret[0] = s3.getResourceUrl("amplify-cinemates20-dev-75004-deployment", "Img/" + userEmail + ".jpg");
+            if(s3.doesObjectExist(S3_BUCKET_NAME, "Img/" + userEmail + ".jpg"))
+                ret[0] = s3.getResourceUrl(S3_BUCKET_NAME, "Img/" + userEmail + ".jpg");
         });
         t.start();
         try {

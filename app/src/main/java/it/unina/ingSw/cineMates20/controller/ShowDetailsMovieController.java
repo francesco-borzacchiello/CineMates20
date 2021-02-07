@@ -36,6 +36,7 @@ import info.movito.themoviedbapi.model.ReleaseInfo;
 import info.movito.themoviedbapi.model.Video;
 import info.movito.themoviedbapi.model.people.PersonCast;
 import info.movito.themoviedbapi.model.people.PersonCrew;
+import it.unina.ingSw.cineMates20.BuildConfig;
 import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.model.ListaFilmDB;
 import it.unina.ingSw.cineMates20.model.User;
@@ -55,6 +56,8 @@ public class ShowDetailsMovieController {
     private String actualMovieKeyTrailer;
     private AppCompatActivity activityParent;
     private boolean isParentMoviesListActivity;
+    private static final String dbPath = BuildConfig.DB_PATH,
+                                TMDB_API_KEY = BuildConfig.TMDB_API_KEY;
 
     private ShowDetailsMovieController() {}
 
@@ -86,7 +89,7 @@ public class ShowDetailsMovieController {
 
         new Thread(()-> {
             if(tmdbMovies == null)
-                tmdbMovies = new TmdbMovies(new TmdbApi(activity.getResources().getString(R.string.themoviedb_api_key)));
+                tmdbMovies = new TmdbMovies(new TmdbApi(TMDB_API_KEY));
 
             List<Video> videos = tmdbMovies.getVideos(actualMovie.getId(), "it");
 
@@ -120,7 +123,7 @@ public class ShowDetailsMovieController {
             title = actualMovie.getTitle();
         else {
             if(tmdbMovies == null)
-                tmdbMovies = new TmdbMovies(new TmdbApi(showDetailsMovieActivity.getResources().getString(R.string.themoviedb_api_key)));
+                tmdbMovies = new TmdbMovies(new TmdbApi(TMDB_API_KEY));
             title = tmdbMovies.getMovie(actualMovie.getId(), "en").getTitle();
             if(title == null)
                 title = actualMovie.getOriginalTitle();
@@ -186,7 +189,7 @@ public class ShowDetailsMovieController {
 
         Thread t = new Thread(()-> {
             if(tmdbMovies == null)
-                tmdbMovies = new TmdbMovies(new TmdbApi(showDetailsMovieActivity.getResources().getString(R.string.themoviedb_api_key)));
+                tmdbMovies = new TmdbMovies(new TmdbApi(TMDB_API_KEY));
 
             MovieImages images = tmdbMovies.getImages(actualMovie.getId(), null);
             actualMovie.setImages(images);
@@ -375,13 +378,13 @@ public class ShowDetailsMovieController {
         Thread t = new Thread(()-> {
             String url;
             if(isFavouritesList)
-                url = showDetailsMovieActivity.getResources().getString(R.string.db_path) + "ListaFilm/getPreferitiByPossessore/{FK_Possessore}";
+                url = dbPath + "ListaFilm/getPreferitiByPossessore/{FK_Possessore}";
             else
-                url = showDetailsMovieActivity.getResources().getString(R.string.db_path) + "ListaFilm/getDaVedereByPossessore/{FK_Possessore}";
+                url = dbPath + "ListaFilm/getDaVedereByPossessore/{FK_Possessore}";
 
             ListaFilmDB listaFilm = restTemplate.getForObject(url, ListaFilmDB.class, email);
 
-            url = showDetailsMovieActivity.getResources().getString(R.string.db_path) + "ListaFilm/containsFilm/{id}/{FK_Film}";
+            url = dbPath + "ListaFilm/containsFilm/{id}/{FK_Film}";
 
             contains[0] = restTemplate.getForObject(url, boolean.class, listaFilm.getId(), actualMovie.getId());
         });
@@ -455,14 +458,14 @@ public class ShowDetailsMovieController {
             RestTemplate restTemplate = new RestTemplate();
             restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
 
-            String url = showDetailsMovieActivity.getResources().getString(R.string.db_path) + "ListaFilm/" + methodToRetrieveList + "/{FK_Possessore}";
+            String url = dbPath + "ListaFilm/" + methodToRetrieveList + "/{FK_Possessore}";
 
             String email = User.getLoggedUser(showDetailsMovieActivity).getEmail();
 
             ListaFilmDB listaFilmPreferiti = restTemplate.getForObject(url, ListaFilmDB.class, email);
             HttpEntity<ListaFilmDB> requestListaPreferitiEntity = new HttpEntity<>(listaFilmPreferiti, headers);
 
-            url = showDetailsMovieActivity.getResources().getString(R.string.db_path) + "ListaFilm/" + methodForEditingList + "/{FK_Film}";
+            url = dbPath + "ListaFilm/" + methodForEditingList + "/{FK_Film}";
             restTemplate.postForEntity(url, requestListaPreferitiEntity, ListaFilmDB.class, actualMovie.getId());
         });
 

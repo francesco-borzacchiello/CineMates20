@@ -20,11 +20,14 @@ import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
-import org.jetbrains.annotations.NotNull;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.controller.HomeController;
 import it.unina.ingSw.cineMates20.controller.NotificationController;
+import it.unina.ingSw.cineMates20.controller.SettingsController;
 import it.unina.ingSw.cineMates20.model.User;
 import it.unina.ingSw.cineMates20.model.UserDB;
 import it.unina.ingSw.cineMates20.view.util.Utilities;
@@ -32,25 +35,29 @@ import it.unina.ingSw.cineMates20.view.util.Utilities;
 public class InformationActivity extends AppCompatActivity {
     private NavigationView navigationView;
     private DrawerLayout drawerLayout;
-    private Menu menu;
-    private ImageView fotoProfilo;
+    private ImageView profilePicture;
+    private MenuItem notificationItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        OnBackPressedCallback callback = new OnBackPressedCallback(true ) {
-            @Override
-            public void handleOnBackPressed() {
-                finish();
-                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-            }
-        };
-        getOnBackPressedDispatcher().addCallback(this, callback);
-
         HomeController.getHomeControllerInstance().setInformationActivity(this);
 
         initializeGraphicsComponents();
+
+        OnBackPressedCallback callback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if(drawerLayout.isOpen())
+                    closeDrawerLayout();
+                else {
+                    finish();
+                    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                }
+            }
+        };
+        getOnBackPressedDispatcher().addCallback(this, callback);
     }
 
     private void initializeGraphicsComponents() {
@@ -67,7 +74,7 @@ public class InformationActivity extends AppCompatActivity {
 
         TextView nomeTextView = navigationView.getHeaderView(0).findViewById(R.id.nomeUtenteNavMenu);
         TextView cognomeTextView = navigationView.getHeaderView(0).findViewById(R.id.cognomeUtenteNavMenu);
-        fotoProfilo = navigationView.getHeaderView(0).findViewById(R.id.imageProfile);
+        profilePicture = navigationView.getHeaderView(0).findViewById(R.id.imageProfile);
 
         runOnUiThread(() -> {
             UserDB user = User.getLoggedUser(this);
@@ -83,7 +90,7 @@ public class InformationActivity extends AppCompatActivity {
     private void refreshProfilePicture(String imageUrl) {
         Picasso.get().load(imageUrl).memoryPolicy(MemoryPolicy.NO_CACHE)
             .networkPolicy(NetworkPolicy.NO_CACHE).resize(75, 75).noFade()
-            .into(fotoProfilo,
+            .into(profilePicture,
                   new Callback() {
                       @Override
                       public void onSuccess() {}
@@ -108,10 +115,15 @@ public class InformationActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.header_navigation_menu, menu);
         menu.findItem(R.id.searchItem).setVisible(false);
-        setUpNotificationIcon(menu);
+        setUpNotificationIcon();
         setNavigationViewActionListener();
 
-        this.menu = menu;
+        notificationItem = menu.findItem(R.id.notificationItem);
+
+        if(SettingsController.getSettingsControllerInstance().isNotificationSyncEnabled()) {
+            ScheduledExecutorService scheduleTaskExecutor = Executors.newScheduledThreadPool(1);
+            scheduleTaskExecutor.scheduleAtFixedRate(this::setUpNotificationIcon, 0, 15, TimeUnit.SECONDS);
+        }
 
         return true;
     }
@@ -131,9 +143,8 @@ public class InformationActivity extends AppCompatActivity {
         );
     }
 
-    private void setUpNotificationIcon(@NotNull Menu menu) {
+    private void setUpNotificationIcon() {
         new Thread(()-> runOnUiThread(()-> {
-            MenuItem notificationItem = menu.findItem(R.id.notificationItem);
             if(User.getTotalUserNotificationCount() > 0)
                 notificationItem.setIcon(R.drawable.ic_notifications_on);
             else
@@ -157,9 +168,6 @@ public class InformationActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
-
-        if(menu != null)
-            setUpNotificationIcon(menu);
 
         String profilePicUrl = User.getUserProfilePictureUrl();
         if(profilePicUrl != null)

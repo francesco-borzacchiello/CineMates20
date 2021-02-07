@@ -26,26 +26,16 @@ import org.springframework.web.client.RestTemplate;
 import java.util.HashSet;
 import java.util.Set;
 
-import it.unina.ingSw.cineMates20.controller.HomeController;
+import it.unina.ingSw.cineMates20.BuildConfig;
 
 public class UserHttpRequests {
 
     private static UserHttpRequests instance;
-    private String dbPath, favourites, toWatch;
+    private static final String dbPath = BuildConfig.DB_PATH,
+                                favourites = BuildConfig.FAVOURITES,
+                                toWatch = BuildConfig.TO_WATCH;
 
     private UserHttpRequests() {}
-
-    public void setDbPath(String dbPath) {
-        this.dbPath = dbPath;
-    }
-
-    public void setFavourites(String favourites) {
-        this.favourites = favourites;
-    }
-
-    public void setToWatch(String toWatch) {
-        this.toWatch = toWatch;
-    }
 
     public static UserHttpRequests getInstance() {
         if(instance == null)
@@ -53,14 +43,7 @@ public class UserHttpRequests {
         return instance;
     }
 
-    private void checkIfFieldsAreNull() {
-        if(dbPath == null || favourites == null || toWatch == null)
-            HomeController.getHomeControllerInstance().setHttpRequestsFields();
-    }
-
     public boolean createNewUser(@NotNull UserDB user) {
-        checkIfFieldsAreNull();
-
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
         String url = dbPath + "User/add";
@@ -121,7 +104,6 @@ public class UserHttpRequests {
 
     @NotNull
     public Set<UserDB> getUsersByQuery(String query) {
-        checkIfFieldsAreNull();
         Set<UserDB> users = new HashSet<>();
 
         Thread t = new Thread(()-> {
@@ -149,8 +131,6 @@ public class UserHttpRequests {
     }
 
     public boolean isUserAlreadyRegistered(String email) {
-        checkIfFieldsAreNull();
-
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
         String url = dbPath + "User/getById/{email}";
@@ -175,8 +155,6 @@ public class UserHttpRequests {
 
     @Nullable
     public UserDB getSocialLoggedUser(@NotNull Activity activity) {
-        checkIfFieldsAreNull();
-
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
         String url = dbPath + "User/getById/{email}";
@@ -264,8 +242,6 @@ public class UserHttpRequests {
     }
 
     public boolean addFriend(String emailUser, String emailFriend) {
-        checkIfFieldsAreNull();
-
         boolean[] ret = new boolean[1];
         Thread t = new Thread(()-> {
             try {
@@ -291,8 +267,6 @@ public class UserHttpRequests {
     }
 
     public boolean removeFriend(String userEmail, String friendEmail) {
-        checkIfFieldsAreNull();
-
         boolean[] ret = new boolean[1];
         Thread t = new Thread(()-> {
             try {
@@ -318,8 +292,6 @@ public class UserHttpRequests {
     }
 
     public boolean confirmFriendRequest(String emailUser, String emailFriend) {
-        checkIfFieldsAreNull();
-
         boolean[] ret = new boolean[1];
         Thread t = new Thread(()-> {
             try {
@@ -345,8 +317,6 @@ public class UserHttpRequests {
     }
 
     public boolean isUserFriendshipPending(String userEmail, String friendEmail) {
-        checkIfFieldsAreNull();
-
         boolean[] ret = new boolean[1];
 
         Thread t = new Thread(()-> {
@@ -375,8 +345,6 @@ public class UserHttpRequests {
 
     @NotNull
     public Set<UserDB> getAllFriends(String userEmail) {
-        checkIfFieldsAreNull();
-
         Set<UserDB> users = new HashSet<>();
 
         Thread t = new Thread(()-> {
@@ -405,8 +373,6 @@ public class UserHttpRequests {
 
     @NotNull
     public Set<UserDB> getAllPendingFriendRequests(String userEmail) {
-        checkIfFieldsAreNull();
-
         Set<UserDB> users = new HashSet<>();
 
         Thread t = new Thread(()-> {

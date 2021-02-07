@@ -21,6 +21,7 @@ import info.movito.themoviedbapi.model.MovieDb;
 import info.movito.themoviedbapi.model.core.MovieResultsPage;
 import info.movito.themoviedbapi.tools.ApiUrl;
 import info.movito.themoviedbapi.tools.RequestMethod;
+import it.unina.ingSw.cineMates20.BuildConfig;
 import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.model.ListaFilmDB;
 import it.unina.ingSw.cineMates20.model.User;
@@ -35,6 +36,8 @@ public class SearchMovieController {
     private final MoviesListsController movieListController;
     private SearchMovieActivity searchMovieActivity;
     private static TmdbApi tmdbApi;
+    private static final String dbPath = BuildConfig.DB_PATH;
+    private static final String TMDB_API_KEY = BuildConfig.TMDB_API_KEY;
 
     private SearchMovieController() {
         movieListController = MoviesListsController.getMoviesListControllerInstance();
@@ -48,7 +51,7 @@ public class SearchMovieController {
 
     public void start(Activity parent, String query) {
         Thread t = new Thread(()->
-                tmdbApi = new TmdbApi(parent.getResources().getString(R.string.themoviedb_api_key)));
+                tmdbApi = new TmdbApi(TMDB_API_KEY));
         t.start();
 
         try {
@@ -118,7 +121,7 @@ public class SearchMovieController {
 
         Thread t = new Thread(()-> {
             if(tmdbApi == null)
-                tmdbApi = new TmdbApi(searchMovieActivity.getResources().getString(R.string.themoviedb_api_key));
+                tmdbApi = new TmdbApi(TMDB_API_KEY);
 
             TmdbSearch search = tmdbApi.getSearch();
             MovieResultsPage movieResults = search.searchMovie(query, 0, "it",
@@ -144,9 +147,7 @@ public class SearchMovieController {
         ArrayList<Runnable> threeDotsListeners = new ArrayList<>(),
                             showDetailsMovieListeners = new ArrayList<>();
         if(tmdbApi == null)
-            tmdbApi = new TmdbApi(searchMovieActivity.getResources().getString(R.string.themoviedb_api_key));
-
-        ShowDetailsMovieController showDetailsMovieController = ShowDetailsMovieController.getShowDetailsMovieControllerInstance();
+            tmdbApi = new TmdbApi(TMDB_API_KEY);
 
         for (MovieDb movie : movieResults) {
             threeDotsListeners.add(getThreeDotsListener(movie));
@@ -182,7 +183,7 @@ public class SearchMovieController {
             if(movie.getOverview() == null || movie.getOverview().equals("")) {
                 Thread t2 = new Thread(()-> {
                     if(tmdbApi == null)
-                        tmdbApi = new TmdbApi(searchMovieActivity.getResources().getString(R.string.themoviedb_api_key));
+                        tmdbApi = new TmdbApi(TMDB_API_KEY);
                     String engOverview = new TmdbMovies(tmdbApi).getMovie(movie.getId(), "en").getOverview();
                     descriptions.add(engOverview);
                     movie.setOverview(engOverview);
@@ -259,13 +260,13 @@ public class SearchMovieController {
         Thread t = new Thread(()-> {
             String url;
             if(isFavouritesList)
-               url = searchMovieActivity.getResources().getString(R.string.db_path) + "ListaFilm/getPreferitiByPossessore/{FK_Possessore}";
+               url = dbPath + "ListaFilm/getPreferitiByPossessore/{FK_Possessore}";
             else
-               url = searchMovieActivity.getResources().getString(R.string.db_path) + "ListaFilm/getDaVedereByPossessore/{FK_Possessore}";
+               url = dbPath + "ListaFilm/getDaVedereByPossessore/{FK_Possessore}";
 
             ListaFilmDB listaFilm = restTemplate.getForObject(url, ListaFilmDB.class, email);
 
-            url = searchMovieActivity.getResources().getString(R.string.db_path) + "ListaFilm/containsFilm/{id}/{FK_Film}";
+            url = dbPath + "ListaFilm/containsFilm/{id}/{FK_Film}";
 
             contains[0] = restTemplate.getForObject(url, boolean.class, listaFilm.getId(), movie.getId());
         });

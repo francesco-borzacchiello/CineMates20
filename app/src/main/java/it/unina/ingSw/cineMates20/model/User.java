@@ -172,6 +172,6 @@ public class User {
                         UserHttpRequests.getInstance().getAllPendingFriendRequests(email).size()
                         + ReportHttpRequests.getInstance().getAllMoviesReports(email).size()
                         + ReportHttpRequests.getInstance().getAllUsersReports(email).size(),
-                0, 30, TimeUnit.SECONDS);
+                0, 15, TimeUnit.SECONDS);
     }
 }

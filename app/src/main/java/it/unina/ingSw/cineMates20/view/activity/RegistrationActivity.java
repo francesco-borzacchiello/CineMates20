@@ -6,7 +6,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
@@ -99,15 +98,7 @@ public class RegistrationActivity extends AppCompatActivity {
 
         if(requestCode == registrationController.getPickImageCode() && resultCode == RESULT_OK) {
             profileImageUri = data.getData();
-
-            try{
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), profileImageUri);
-                registrationFragment.updateProfileImage(bitmap);
-
-                //S3Manager.uploadImage(this, this.getProfileImageUri());
-            } catch(IOException e) {
-                Utilities.stampaToast(this, "Si è verificato un errore,\nriprova più tardi.");
-            }
+            registrationFragment.updateProfileImage(profileImageUri);
         } else if (requestCode == 1111) {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             registrationController.handleGoogleSignInResult(task);

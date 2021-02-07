@@ -25,6 +25,7 @@ import info.movito.themoviedbapi.TmdbMovies;
 import info.movito.themoviedbapi.model.MovieDb;
 import info.movito.themoviedbapi.tools.ApiUrl;
 import info.movito.themoviedbapi.tools.RequestMethod;
+import it.unina.ingSw.cineMates20.BuildConfig;
 import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.model.ListaFilmDB;
 import it.unina.ingSw.cineMates20.model.User;
@@ -41,6 +42,8 @@ public class JoinedMoviesController {
     private JoinedMoviesActivity joinedMoviesActivity;
     private HomeStyleMovieAdapter actualAdapter;
     private UserDB actualFriendUser;
+    private static final String dbPath = BuildConfig.DB_PATH,
+                                TMDB_API_KEY = BuildConfig.TMDB_API_KEY;
     //endregion
 
     //region Costruttore
@@ -89,7 +92,7 @@ public class JoinedMoviesController {
             restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
 
             String methodToRetrieveList = (isFavourites ? "getPreferitiByPossessore" : "getDaVedereByPossessore");
-            String url = joinedMoviesActivity.getResources().getString(R.string.db_path) + "ListaFilm/" + methodToRetrieveList + "/{FK_Possessore}";
+            String url = dbPath + "ListaFilm/" + methodToRetrieveList + "/{FK_Possessore}";
 
             String loggedUserEmail = User.getLoggedUser(joinedMoviesActivity).getEmail(),
                    friendUserEmail = actualFriendUser.getEmail();
@@ -106,7 +109,7 @@ public class JoinedMoviesController {
                 HttpEntity<ListaFilmDB> requestFriendListEntity = new HttpEntity<>(friendUserMoviesList, headers);
 
                 //Recupero dei film delle liste
-                url = joinedMoviesActivity.getResources().getString(R.string.db_path) + "ListaFilm/getAll";
+                url = dbPath + "ListaFilm/getAll";
                 ResponseEntity<List<Long>> userMoviesIdsResponse = restTemplate.exchange
                         (url, HttpMethod.POST, requestUserListEntity, new ParameterizedTypeReference<List<Long>>() {});
                 ResponseEntity<List<Long>> friendMoviesIdsResponse = restTemplate.exchange
@@ -115,8 +118,10 @@ public class JoinedMoviesController {
                 List<Long> userMoviesIds = userMoviesIdsResponse.getBody(),
                         friendMoviesIds = friendMoviesIdsResponse.getBody();
 
-                if(userMoviesIds == null || friendMoviesIds == null)
+                if(userMoviesIds == null || friendMoviesIds == null) {
                     Utilities.stampaToast(joinedMoviesActivity, "Si è verificato un errore, riprova più tardi.");
+                    return;
+                }
 
                 if(userMoviesIds.size() > 0 && friendMoviesIds.size() > 0) {
                     if(joinedMoviesActivity.areMoviesHidden()) {
@@ -130,7 +135,7 @@ public class JoinedMoviesController {
                                       imagesUrl = new ArrayList<>();
                     ArrayList<Runnable> moviesCardViewListeners = new ArrayList<>();
 
-                    TmdbApi tmdbApi  = new TmdbApi(joinedMoviesActivity.getResources().getString(R.string.themoviedb_api_key));
+                    TmdbApi tmdbApi  = new TmdbApi(TMDB_API_KEY);
 
                     initializeListsForJoinedMoviesAdapter(tmdbApi, userMoviesIds, titles,
                             imagesUrl, moviesCardViewListeners);
@@ -214,7 +219,7 @@ public class JoinedMoviesController {
 
             if(movie.getOverview() == null || movie.getOverview().equals("")) {
                 Thread t = new Thread(()-> {
-                    TmdbMovies tmdbMovies = new TmdbMovies(new TmdbApi(joinedMoviesActivity.getResources().getString(R.string.themoviedb_api_key)));
+                    TmdbMovies tmdbMovies = new TmdbMovies(new TmdbApi(TMDB_API_KEY));
                     movie.setOverview(tmdbMovies.getMovie(movie.getId(), "en").getOverview());
                 });
                 t.start();

@@ -15,17 +15,13 @@ import org.springframework.web.client.RestTemplate;
 import java.util.LinkedList;
 import java.util.List;
 
-import it.unina.ingSw.cineMates20.controller.HomeController;
+import it.unina.ingSw.cineMates20.BuildConfig;
 
 public class ReportHttpRequests {
     private static ReportHttpRequests instance;
-    private String dbPath;
+    private static final String dbPath = BuildConfig.DB_PATH;
 
     private ReportHttpRequests() {}
-
-    public void setDbPath(String dbPath) {
-        this.dbPath = dbPath;
-    }
 
     public static ReportHttpRequests getInstance() {
         if(instance == null)
@@ -35,8 +31,6 @@ public class ReportHttpRequests {
 
     public boolean reportUser(@NotNull String emailUtenteSegnalatore,
                               @NotNull String emailUtenteSegnalato, @NotNull String msg) {
-        if(dbPath == null) HomeController.getHomeControllerInstance().setReportHttpRequestsField();
-
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
         String url = dbPath + "Report/User/add";
@@ -68,7 +62,6 @@ public class ReportHttpRequests {
     public boolean reportMovie(long idFilmSegnalato,
                                @NotNull String emailUtenteSegnalatore,
                                @NotNull String msg) {
-        if(dbPath == null) HomeController.getHomeControllerInstance().setReportHttpRequestsField();
 
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
@@ -99,8 +92,6 @@ public class ReportHttpRequests {
     }
 
     public List<ReportMovieDB> getAllMoviesReports(String userEmail) {
-        if(dbPath == null) HomeController.getHomeControllerInstance().setReportHttpRequestsField();
-
         List<ReportMovieDB> reportedMovies = new LinkedList<>();
 
         Thread t = new Thread(()-> {
@@ -128,8 +119,6 @@ public class ReportHttpRequests {
     }
 
     public List<ReportUserDB> getAllUsersReports(String userEmail) {
-        if(dbPath == null) HomeController.getHomeControllerInstance().setReportHttpRequestsField();
-
         List<ReportUserDB> reportedMovies = new LinkedList<>();
 
         Thread t = new Thread(()-> {
@@ -157,8 +146,6 @@ public class ReportHttpRequests {
     }
 
     public boolean updateUserDeleteMovieNotification(ReportMovieDB movie) {
-        if(dbPath == null) HomeController.getHomeControllerInstance().setReportHttpRequestsField();
-
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
         String url = dbPath + "Report/userDeleteMovieNotification";
@@ -188,8 +175,6 @@ public class ReportHttpRequests {
     }
 
     public boolean updateUserDeleteUserNotification(ReportUserDB user) {
-        if(dbPath == null) HomeController.getHomeControllerInstance().setReportHttpRequestsField();
-
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
         String url = dbPath + "Report/userDeleteUserNotification";

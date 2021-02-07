@@ -2,6 +2,10 @@ plugins {
     id 'com.android.application'
 }
 
+def secretKeysPropertiesFile = rootProject.file("secretKeys.properties")
+def secretKeysProperties = new Properties()
+secretKeysProperties.load(new FileInputStream(secretKeysPropertiesFile))
+
 android {
     compileSdkVersion 30
     buildToolsVersion "30.0.2"
@@ -14,6 +18,14 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField "String", "AWS_ACCESS_KEY", secretKeysProperties['AWS_ACCESS_KEY']
+        buildConfigField "String", "AWS_SECRET_KEY", secretKeysProperties['AWS_SECRET_KEY']
+        buildConfigField "String", "S3_BUCKET_NAME", secretKeysProperties['S3_BUCKET_NAME']
+        buildConfigField "String", "DB_PATH", secretKeysProperties['DB_PATH']
+        buildConfigField "String", "FAVOURITES", secretKeysProperties['FAVOURITES']
+        buildConfigField "String", "TO_WATCH", secretKeysProperties['TO_WATCH']
+        buildConfigField "String", "TMDB_API_KEY", secretKeysProperties['TMDB_API_KEY']
     }
 
     /*preBuild {

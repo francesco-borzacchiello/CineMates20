@@ -2,6 +2,7 @@ package it.unina.ingSw.cineMates20.view.fragment;
 
 import android.app.AlertDialog;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextWatcher;
 import android.text.method.HideReturnsTransformationMethod;
@@ -136,9 +137,9 @@ public class RegistrationFragment extends Fragment {
         this.profileImageBitmap = profileImageBitmap;
     }
 
-    public void updateProfileImage(Bitmap bitmap) {
+    public void updateProfileImage(Uri uri) {
         if(profileImage != null)
-            this.profileImage.setImageBitmap(bitmap);
+            this.profileImage.setImageURI(uri);
     }
 
     private void setGraphicsComponents(@NotNull View v) {

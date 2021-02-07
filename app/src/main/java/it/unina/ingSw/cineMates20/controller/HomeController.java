@@ -33,11 +33,10 @@ import info.movito.themoviedbapi.model.MovieDb;
 import info.movito.themoviedbapi.model.core.MovieResultsPage;
 import info.movito.themoviedbapi.tools.ApiUrl;
 import info.movito.themoviedbapi.tools.RequestMethod;
+import it.unina.ingSw.cineMates20.BuildConfig;
 import it.unina.ingSw.cineMates20.EntryPoint;
 import it.unina.ingSw.cineMates20.R;
-import it.unina.ingSw.cineMates20.model.ReportHttpRequests;
 import it.unina.ingSw.cineMates20.model.User;
-import it.unina.ingSw.cineMates20.model.UserHttpRequests;
 import it.unina.ingSw.cineMates20.view.activity.FriendsActivity;
 import it.unina.ingSw.cineMates20.view.activity.HomeActivity;
 import it.unina.ingSw.cineMates20.view.activity.InformationActivity;
@@ -64,6 +63,7 @@ public class HomeController {
     private InformationActivity informationActivity;
     private SettingsActivity settingsActivity;
     private TmdbMovies tmdbMovies;
+    private static final String TMDB_API_KEY = BuildConfig.TMDB_API_KEY;
     //endregion
 
     //region Costruttore
@@ -77,7 +77,7 @@ public class HomeController {
         activity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
 
         Thread t = new Thread(()->
-                tmdbMovies = new TmdbMovies(new TmdbApi(activity.getResources().getString(R.string.themoviedb_api_key))));
+                tmdbMovies = new TmdbMovies(new TmdbApi(TMDB_API_KEY)));
         t.start();
 
         try {
@@ -92,7 +92,7 @@ public class HomeController {
         activity.startActivity(intent);
         activity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
 
-        Thread t = new Thread(()-> tmdbMovies = new TmdbMovies(new TmdbApi(activity.getResources().getString(R.string.themoviedb_api_key))));
+        Thread t = new Thread(()-> tmdbMovies = new TmdbMovies(new TmdbApi(TMDB_API_KEY)));
         t.start();
 
         try{
@@ -146,7 +146,7 @@ public class HomeController {
     public void setHomeActivityMovies() {
         Thread t = new Thread(()-> {
             if(tmdbMovies == null)
-                tmdbMovies = new TmdbMovies(new TmdbApi(homeActivity.getResources().getString(R.string.themoviedb_api_key)));
+                tmdbMovies = new TmdbMovies(new TmdbApi(TMDB_API_KEY));
 
             MovieResultsPage upcomingUsa = tmdbMovies.getUpcoming("it", 1, "US");           //Prossime uscite USA
             MovieResultsPage upcomingIt = tmdbMovies.getUpcoming("it", 1, "IT");           //Prossime uscite Italia
@@ -212,7 +212,7 @@ public class HomeController {
     public void initializeListsForHomeMovieAdapter(@NotNull MovieResultsPage movieResultsPage,
                                                    @NotNull ArrayList<String> titles, @NotNull ArrayList<String> moviesImagesUrl,
                                                    @NotNull ArrayList<Runnable> movieCardViewListeners) {
-        TmdbApi tmdbApi = new TmdbApi(homeActivity.getResources().getString(R.string.themoviedb_api_key));
+        TmdbApi tmdbApi = new TmdbApi(TMDB_API_KEY);
 
         for (MovieDb movie : movieResultsPage) {
             movieCardViewListeners.add(getMovieCardViewListener(movie));
@@ -509,18 +509,5 @@ public class HomeController {
             if(view.getId() == R.id.searchItem)
                 homeActivity.setLayoutsForHome(true);
         };
-    }
-
-    public void setHttpRequestsFields() {
-        if(homeActivity != null) {
-            UserHttpRequests.getInstance().setDbPath(homeActivity.getResources().getString(R.string.db_path));
-            UserHttpRequests.getInstance().setFavourites(homeActivity.getResources().getString(R.string.favourites));
-            UserHttpRequests.getInstance().setToWatch(homeActivity.getResources().getString(R.string.toWatch));
-        }
-    }
-
-    public void setReportHttpRequestsField() {
-        if(homeActivity != null)
-            ReportHttpRequests.getInstance().setDbPath(homeActivity.getResources().getString(R.string.db_path));
     }
 }

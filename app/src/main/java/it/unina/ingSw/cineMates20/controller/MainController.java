@@ -7,8 +7,6 @@ import com.facebook.AccessToken;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 
 import it.unina.ingSw.cineMates20.EntryPoint;
-import it.unina.ingSw.cineMates20.R;
-import it.unina.ingSw.cineMates20.model.ReportHttpRequests;
 import it.unina.ingSw.cineMates20.model.User;
 import it.unina.ingSw.cineMates20.model.UserHttpRequests;
 
@@ -40,14 +38,6 @@ public class MainController {
         //Inizializzazione SettingsController
         SettingsController.setSettingsControllerContextActivity(activity);
         SettingsController.getSettingsControllerInstance();
-
-        //Initializzazione UserHttpRequests
-        UserHttpRequests.getInstance().setDbPath(activity.getResources().getString(R.string.db_path));
-        UserHttpRequests.getInstance().setFavourites(activity.getResources().getString(R.string.favourites));
-        UserHttpRequests.getInstance().setToWatch(activity.getResources().getString(R.string.toWatch));
-
-        //Initializzazione ReportHttpRequests
-        ReportHttpRequests.getInstance().setDbPath(activity.getResources().getString(R.string.db_path));
 
         if(isLoggedIn()) openHomeActivity();
         else openLoginActivity();

@@ -30,6 +30,7 @@ import info.movito.themoviedbapi.TmdbMovies;
 import info.movito.themoviedbapi.model.MovieDb;
 import info.movito.themoviedbapi.tools.ApiUrl;
 import info.movito.themoviedbapi.tools.RequestMethod;
+import it.unina.ingSw.cineMates20.BuildConfig;
 import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.model.ListaFilmDB;
 import it.unina.ingSw.cineMates20.model.User;
@@ -44,6 +45,8 @@ public class MoviesListsController {
     private static MoviesListsController instance;
     private MoviesListActivity moviesListActivity;
     private HomeStyleMovieAdapter actualAdapter;
+    private static final String dbPath = BuildConfig.DB_PATH,
+                                TMDB_API_KEY = BuildConfig.TMDB_API_KEY;
     //endregion
 
     //region Costruttore
@@ -83,7 +86,7 @@ public class MoviesListsController {
                     restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
 
                     String methodToRetrieveList = (parent.getItemAtPosition(position).toString().equals(spinnerArray[0]) ? "getPreferitiByPossessore" : "getDaVedereByPossessore");
-                    String url = moviesListActivity.getResources().getString(R.string.db_path) + "ListaFilm/" + methodToRetrieveList + "/{FK_Possessore}";
+                    String url = dbPath + "ListaFilm/" + methodToRetrieveList + "/{FK_Possessore}";
 
                     String email = User.getLoggedUser(moviesListActivity).getEmail();
 
@@ -112,7 +115,7 @@ public class MoviesListsController {
 
             HttpEntity<ListaFilmDB> requestListEntity = new HttpEntity<>(list, headers);
 
-            String url = moviesListActivity.getResources().getString(R.string.db_path) + "ListaFilm/getAll";
+            String url = dbPath + "ListaFilm/getAll";
             ResponseEntity<List<Long>> moviesIds = restTemplate.exchange
                     (url, HttpMethod.POST, requestListEntity, new ParameterizedTypeReference<List<Long>>() {});
 
@@ -167,14 +170,14 @@ public class MoviesListsController {
             RestTemplate restTemplate = new RestTemplate();
             restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
 
-            String url = activity.getResources().getString(R.string.db_path) + "ListaFilm/" + methodToRetrieveList + "/{FK_Possessore}";
+            String url = dbPath + "ListaFilm/" + methodToRetrieveList + "/{FK_Possessore}";
 
             String email = User.getLoggedUser(activity).getEmail();
 
             ListaFilmDB listaFilmPreferiti = restTemplate.getForObject(url, ListaFilmDB.class, email);
             HttpEntity<ListaFilmDB> requestListaPreferitiEntity = new HttpEntity<>(listaFilmPreferiti, headers);
 
-            url = activity.getResources().getString(R.string.db_path) + "ListaFilm/" + methodForEditingList + "/{FK_Film}";
+            url = dbPath + "ListaFilm/" + methodForEditingList + "/{FK_Film}";
             restTemplate.postForEntity(url, requestListaPreferitiEntity, ListaFilmDB.class, idFilm);
         });
 
@@ -190,8 +193,8 @@ public class MoviesListsController {
     }
 
     private void initializeListsForMoviesListAdapter(@NotNull List<Long> moviesIds) {
-        TmdbMovies tmdbMovies = new TmdbMovies(new TmdbApi(moviesListActivity.getResources().getString(R.string.themoviedb_api_key)));
-        TmdbApi tmdbApi = new TmdbApi(moviesListActivity.getResources().getString(R.string.themoviedb_api_key));
+        TmdbApi tmdbApi = new TmdbApi(TMDB_API_KEY);
+        TmdbMovies tmdbMovies = tmdbApi.getMovies();
 
         ArrayList<String> titles = new ArrayList<>(),
                           imagesUrl = new ArrayList<>();
@@ -312,7 +315,7 @@ public class MoviesListsController {
 
     private void deleteMovieFromDatabase(@NotNull SortedSet<Long> deleteList) {
         new Thread(() -> {
-            TmdbMovies tmdbMovies = new TmdbMovies(new TmdbApi(moviesListActivity.getResources().getString(R.string.themoviedb_api_key)));
+            TmdbMovies tmdbMovies = new TmdbMovies(new TmdbApi(TMDB_API_KEY));
             String[] spinnerArray = moviesListActivity.getResources().getStringArray(R.array.movies_list_tag);
 
             for(Long id : deleteList)

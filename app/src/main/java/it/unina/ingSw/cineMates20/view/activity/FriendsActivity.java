@@ -26,11 +26,14 @@ import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
-import org.jetbrains.annotations.NotNull;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.controller.FriendsController;
 import it.unina.ingSw.cineMates20.controller.HomeController;
+import it.unina.ingSw.cineMates20.controller.SettingsController;
 import it.unina.ingSw.cineMates20.model.User;
 import it.unina.ingSw.cineMates20.model.UserDB;
 import it.unina.ingSw.cineMates20.view.util.Utilities;
@@ -45,20 +48,12 @@ public class FriendsActivity extends AppCompatActivity {
     private RecyclerView friendsRecyclerView;
     private TextView emptyFriendsListTextView;
     private LinearLayout friendsLinearLayout;
-    private ImageView fotoProfilo;
+    private ImageView profilePicture;
+    private MenuItem notificationItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        OnBackPressedCallback callback = new OnBackPressedCallback(true ) {
-            @Override
-            public void handleOnBackPressed() {
-                finish();
-                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-            }
-        };
-        getOnBackPressedDispatcher().addCallback(this, callback);
 
         friendsController = FriendsController.getFriendsControllerInstance();
         friendsController.setFriendsActivity(this);
@@ -66,6 +61,19 @@ public class FriendsActivity extends AppCompatActivity {
 
         initializeGraphicsComponents();
         configureNavigationDrawer();
+
+        OnBackPressedCallback callback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if(friendsDrawerLayout.isOpen())
+                    closeDrawerLayout();
+                else {
+                    finish();
+                    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                }
+            }
+        };
+        getOnBackPressedDispatcher().addCallback(this, callback);
     }
 
     private void initializeGraphicsComponents() {
@@ -98,7 +106,7 @@ public class FriendsActivity extends AppCompatActivity {
 
         TextView nomeTextView = navigationView.getHeaderView(0).findViewById(R.id.nomeUtenteNavMenu);
         TextView cognomeTextView = navigationView.getHeaderView(0).findViewById(R.id.cognomeUtenteNavMenu);
-        fotoProfilo = navigationView.getHeaderView(0).findViewById(R.id.imageProfile);
+        profilePicture = navigationView.getHeaderView(0).findViewById(R.id.imageProfile);
 
         runOnUiThread(() -> {
             UserDB user = User.getLoggedUser(this);
@@ -114,7 +122,7 @@ public class FriendsActivity extends AppCompatActivity {
     private void refreshProfilePicture(String imageUrl) {
         Picasso.get().load(imageUrl).memoryPolicy(MemoryPolicy.NO_CACHE)
                 .networkPolicy(NetworkPolicy.NO_CACHE).resize(75, 75).noFade()
-                .into(fotoProfilo,
+                .into(profilePicture,
                         new Callback() {
                             @Override
                             public void onSuccess() {}
@@ -131,21 +139,24 @@ public class FriendsActivity extends AppCompatActivity {
         searchView = (SearchView) menu.findItem(R.id.searchItem).getActionView();
         searchView.setQueryHint("Cerca un utente");
 
-        setUpNotificationIcon(menu);
-
         searchView.setOnQueryTextListener(friendsController.getSearchViewOnQueryTextListener());
         searchView.setOnQueryTextFocusChangeListener(friendsController.getSearchViewOnQueryTextFocusChangeListener());
         searchView.setOnSearchClickListener(friendsController.getOnSearchClickListener());
+        notificationItem = menu.findItem(R.id.notificationItem);
 
         setNavigationViewActionListener();
         this.menu = menu;
 
+        if(SettingsController.getSettingsControllerInstance().isNotificationSyncEnabled()) {
+            ScheduledExecutorService scheduleTaskExecutor = Executors.newScheduledThreadPool(1);
+            scheduleTaskExecutor.scheduleAtFixedRate(this::setUpNotificationIcon, 0, 15, TimeUnit.SECONDS);
+        }
+
         return true;
     }
 
-    private void setUpNotificationIcon(@NotNull Menu menu) {
+    private void setUpNotificationIcon() {
         new Thread(()-> runOnUiThread(()-> {
-            MenuItem notificationItem = menu.findItem(R.id.notificationItem);
             if(User.getTotalUserNotificationCount() > 0)
                 notificationItem.setIcon(R.drawable.ic_notifications_on);
             else
@@ -222,8 +233,6 @@ public class FriendsActivity extends AppCompatActivity {
             //La struttura potrebbe essere stata invalidata, per cui si reinizializza il RecyclerView degli amici
             friendsController.initializeActivityFriendsAdapter();
         }
-        if(menu != null)
-            setUpNotificationIcon(menu);
 
         String profilePicUrl = User.getUserProfilePictureUrl();
         if(profilePicUrl != null)

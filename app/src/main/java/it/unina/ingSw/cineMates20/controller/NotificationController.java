@@ -13,7 +13,7 @@ import java.util.List;
 import info.movito.themoviedbapi.TmdbApi;
 import info.movito.themoviedbapi.TmdbMovies;
 import info.movito.themoviedbapi.model.MovieDb;
-import it.unina.ingSw.cineMates20.R;
+import it.unina.ingSw.cineMates20.BuildConfig;
 import it.unina.ingSw.cineMates20.model.ReportHttpRequests;
 import it.unina.ingSw.cineMates20.model.ReportMovieDB;
 import it.unina.ingSw.cineMates20.model.ReportUserDB;
@@ -30,6 +30,7 @@ public class NotificationController {
     private static NotificationController instance;
     private NotificationActivity notificationActivity;
     private PendingFriendsRequestsAdapter friendsRequestsAdapter;
+    private static final String TMDB_API_KEY = BuildConfig.TMDB_API_KEY;
 
     //region Costruttore
     private NotificationController() {}
@@ -155,7 +156,7 @@ public class NotificationController {
         String[] title = new String[1];
 
         Thread t = new Thread(()-> {
-            TmdbMovies tmdbMovies = new TmdbMovies(new TmdbApi(notificationActivity.getResources().getString(R.string.themoviedb_api_key)));
+            TmdbMovies tmdbMovies = new TmdbMovies(new TmdbApi(TMDB_API_KEY));
             MovieDb movie =  tmdbMovies.getMovie(id, "it");
 
             if(movie.getTitle() != null)
