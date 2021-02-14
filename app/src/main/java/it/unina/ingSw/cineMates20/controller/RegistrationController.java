@@ -208,9 +208,6 @@ public class RegistrationController {
                         AccessToken.getCurrentAccessToken(),
                         (object, response) -> {
                             try {
-                                /*Log.d("TESTLOGFB", "fb json object: " + object);
-                                  Log.d("TESTLOGFB", "fb graph response: " + response);*/
-
                                 String first_name = object.getString("first_name");
                                 String last_name = object.getString("last_name");
 

@@ -58,7 +58,7 @@ public class HomeActivity extends AppCompatActivity {
     private ImageView profilePicture;
     private MenuItem notificationItem;
     private ScheduledExecutorService scheduleTaskExecutor;
-    private boolean notificationTaskIsAlive = true;
+    private boolean notificationTaskIsAlive;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -237,6 +237,8 @@ public class HomeActivity extends AppCompatActivity {
         String profilePicUrl = User.getUserProfilePictureUrl();
         if(profilePicUrl != null)
             refreshProfilePicture(profilePicUrl);
+
+        if(notificationItem == null) return;
 
         if(SettingsController.getSettingsControllerInstance().isNotificationSyncEnabled() && !notificationTaskIsAlive) {
             notificationTaskIsAlive = true;

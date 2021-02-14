@@ -119,7 +119,7 @@ public class ReportHttpRequests {
     }
 
     public List<ReportUserDB> getAllUsersReports(String userEmail) {
-        List<ReportUserDB> reportedMovies = new LinkedList<>();
+        List<ReportUserDB> reportedUsers = new LinkedList<>();
 
         Thread t = new Thread(()-> {
             try {
@@ -132,7 +132,7 @@ public class ReportHttpRequests {
                         null, new ParameterizedTypeReference<List<ReportUserDB>>() {}, userEmail);
 
                 if(!responseReports.getBody().isEmpty())
-                    reportedMovies.addAll(responseReports.getBody());
+                    reportedUsers.addAll(responseReports.getBody());
 
             }catch(HttpClientErrorException ignore){}
         });
@@ -142,7 +142,7 @@ public class ReportHttpRequests {
             t.join();
         }catch(InterruptedException ignore){}
 
-        return reportedMovies;
+        return reportedUsers;
     }
 
     public boolean updateUserDeleteMovieNotification(ReportMovieDB movie) {

@@ -81,7 +81,7 @@ public class UserController {
     public View.OnClickListener getRemoveFriendOnClickListener() {
         return v -> {
             AlertDialog alertDialog = new AlertDialog.Builder(userActivity)
-                    .setMessage("Rimuovere " + "Username" + " dalla lista di amici?")
+                    .setMessage("Rimuovere " + actualUser.getUsername() + " dalla lista di amici?")
                     .setCancelable(false)
                     .setPositiveButton("Si", (dialog, id) -> {
                         if (Utilities.checkNullActivityOrNoConnection(userActivity)) return;
@@ -111,7 +111,7 @@ public class UserController {
     public View.OnClickListener getAddFriendOnClickListener() {
         return v -> {
             AlertDialog alertDialog = new AlertDialog.Builder(userActivity)
-                    .setMessage("Inviare richiesta di amicizia a " + "Username" + "?")
+                    .setMessage("Inviare richiesta di amicizia a " + actualUser.getUsername() + "?")
                     .setCancelable(false)
                     .setPositiveButton("Si", (dialog, id) -> {
                         if (Utilities.checkNullActivityOrNoConnection(userActivity)) return;

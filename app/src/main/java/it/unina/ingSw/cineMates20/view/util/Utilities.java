@@ -20,51 +20,59 @@ import it.unina.ingSw.cineMates20.R;
 
 public class Utilities {
 
+    /*
+        Vincoli da rispettare:
+            - Minimo 3 caratteri
+            - @ non deve essere presente
+            - La stringa non deve essere vuota
+            - La stringa non deve contenere spazi bianchi nel mezzo
+     */
     public static boolean isUserNameValid(String username) {
         if(username != null) {
             if(username.trim().isEmpty() || username.trim().length() < 3 || username.contains("@"))
                 return false;
 
-            Pattern whiteSpacePattern = Pattern.compile("\\s+");
-            return !whiteSpacePattern.matcher(username.trim()).find();
-        }
-        return true;
-    }
-
-    public static boolean isPasswordValid(String password) {
-        if(password != null) {
-        /*  Vincoli di Cognito richiesti:
-            Richiedi numeri
-            Richiedi carattere speciale
-            Richiedi lettere maiuscole
-            Richiedi lettere minuscole
-
-            Vincolo aggiuntivo: niente spazi bianchi nel mezzo
-        */
-            Pattern specialCharPattern = Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE);
-            Pattern upperCasePattern = Pattern.compile("[A-Z ]");
-            Pattern lowerCasePattern = Pattern.compile("[a-z ]");
-            Pattern digitCasePattern = Pattern.compile("[0-9 ]");
-            Pattern whiteSpacePattern = Pattern.compile("\\s+");
-
-            if (password.trim().length() < 8)
-                return false;
-
-            if(whiteSpacePattern.matcher(password.trim()).find())
-                return false;
-
-            if (!specialCharPattern.matcher(password).find())
-                return false;
-
-            if (!upperCasePattern.matcher(password).find())
-                return false;
-
-            if (!lowerCasePattern.matcher(password).find())
-                return false;
-
-            return digitCasePattern.matcher(password).find();
+            return !Pattern.compile("\\s+").matcher(username.trim()).find();
         }
         return false;
+    }
+
+    /**
+        Vincoli di Cognito richiesti:
+         Richiedi numeri
+         Richiedi carattere speciale
+         Richiedi lettere maiuscole
+         Richiedi lettere minuscole
+         Lunghezza minima 8 caratteri
+         Vincolo aggiuntivo: niente spazi bianchi nel mezzo
+     */
+
+    public static boolean isPasswordValid(String password) {
+        if(password == null)
+            return false;
+
+        Pattern specialCharPattern = Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE);
+        Pattern upperCasePattern = Pattern.compile("[A-Z ]");
+        Pattern lowerCasePattern = Pattern.compile("[a-z ]");
+        Pattern digitCasePattern = Pattern.compile("[0-9 ]");
+        Pattern whiteSpacePattern = Pattern.compile("\\s+");
+
+        if (password.trim().length() < 8)
+            return false;
+
+        if(whiteSpacePattern.matcher(password.trim()).find())
+            return false;
+
+        if (!specialCharPattern.matcher(password).find())
+            return false;
+
+        if (!upperCasePattern.matcher(password).find())
+            return false;
+
+        if (!lowerCasePattern.matcher(password).find())
+            return false;
+
+        return digitCasePattern.matcher(password).find();
     }
 
     public static boolean isConfirmPasswordValid(@NotNull String password, String confirmPassword) {

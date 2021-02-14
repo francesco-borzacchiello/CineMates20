@@ -146,27 +146,30 @@ public class RegistrationActivity extends AppCompatActivity {
             registrationFragment.setListenerToLoadImage(registrationController.
                     getEventHandlerForOnClickSetProfileImage());
 
-            Thread t = new Thread(()-> {
-                try {
-                    URL url = new URL(socialImageUri.toString());
-                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            if(socialImageUri != null) {
+                Thread t = new Thread(() -> {
+                    try {
+                        URL url = new URL(socialImageUri.toString());
+                        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
-                    if(connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                        connection.setDoInput(true);
-                        connection.connect();
+                        if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                            connection.setDoInput(true);
+                            connection.connect();
+                        }
+
+                        InputStream input = connection.getInputStream();
+                        Bitmap bitmap = BitmapFactory.decodeStream(input);
+
+                        registrationFragment.setProfileImageBitmap(bitmap);
+                    } catch (IOException ignore) {
                     }
-
-                    InputStream input = connection.getInputStream();
-                    Bitmap bitmap = BitmapFactory.decodeStream(input);
-
-                    registrationFragment.setProfileImageBitmap(bitmap);
-                } catch (IOException ignore) {}
-            });
-            t.start();
-            try {
-                t.join();
-            }catch(InterruptedException ignore){}
-
+                });
+                t.start();
+                try {
+                    t.join();
+                } catch (InterruptedException ignore) {
+                }
+            }
             createAndShowNewFragment(registrationFragment);
         } else { //Si deallocano le activity e si mostra la home
             Utilities.stampaToast(this, "Login effettuato con successo");
