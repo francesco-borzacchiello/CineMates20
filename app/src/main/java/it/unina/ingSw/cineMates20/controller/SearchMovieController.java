@@ -3,9 +3,8 @@ package it.unina.ingSw.cineMates20.controller;
 import android.app.Activity;
 import android.content.Intent;
 import android.view.MenuItem;
-import android.view.View;
-
-import androidx.appcompat.widget.SearchView;
+import android.view.MenuItem.OnActionExpandListener;
+import android.view.View.OnClickListener;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -29,6 +28,7 @@ import it.unina.ingSw.cineMates20.view.activity.SearchMovieActivity;
 import it.unina.ingSw.cineMates20.view.adapter.SearchMovieAdapter;
 import it.unina.ingSw.cineMates20.view.util.Utilities;
 
+import static androidx.appcompat.widget.SearchView.OnQueryTextListener;
 import static info.movito.themoviedbapi.TmdbMovies.TMDB_METHOD_MOVIE;
 
 public class SearchMovieController {
@@ -77,8 +77,8 @@ public class SearchMovieController {
         };
     }
 
-    public SearchView.OnQueryTextListener getSearchViewOnQueryTextListener() {
-        return new SearchView.OnQueryTextListener() {
+    public OnQueryTextListener getSearchViewOnQueryTextListener() {
+        return new OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 if(Utilities.checkNullActivityOrNoConnection(searchMovieActivity)) {
@@ -97,8 +97,8 @@ public class SearchMovieController {
         };
     }
 
-    public MenuItem.OnActionExpandListener getSearchViewOnActionExpandListener() {
-        return new MenuItem.OnActionExpandListener() {
+    public OnActionExpandListener getSearchViewOnActionExpandListener() {
+        return new OnActionExpandListener() {
             @Override
             public boolean onMenuItemActionExpand(MenuItem item) {
                 return false;
@@ -243,7 +243,7 @@ public class SearchMovieController {
         HomeController.getHomeControllerInstance().resetHomeRecyclerViewPosition();
     }
 
-    public View.OnClickListener getReportOnClickListener(MovieDb movie) {
+    public OnClickListener getReportOnClickListener(MovieDb movie) {
         return (view) -> {
             searchMovieActivity.closeBottomMenu();
             ReportController.getReportControllerInstance().startMovieReport(searchMovieActivity, movie);
@@ -283,28 +283,28 @@ public class SearchMovieController {
         searchMovieActivity.closeBottomMenu();
     }
 
-    public View.OnClickListener getAggiungiPreferitiOnClickListener(MovieDb movie) {
+    public OnClickListener getAggiungiPreferitiOnClickListener(MovieDb movie) {
         return v -> {
             movieListController.aggiungiFilmAPreferiti(movie, searchMovieActivity);
             closeBottonMenu();
         };
     }
 
-    public View.OnClickListener getRimuoviPreferitiOnClickListener(MovieDb movie) {
+    public OnClickListener getRimuoviPreferitiOnClickListener(MovieDb movie) {
         return v -> {
             movieListController.rimuoviFilmDaPreferiti(movie, searchMovieActivity);
             closeBottonMenu();
         };
     }
 
-    public View.OnClickListener getAggiungiDaVedereOnClickListener(MovieDb movie) {
+    public OnClickListener getAggiungiDaVedereOnClickListener(MovieDb movie) {
         return v -> {
              movieListController.aggiungiFilmInDaVedere(movie, searchMovieActivity);
             closeBottonMenu();
         };
     }
 
-    public View.OnClickListener getRimuoviDaVedereOnClickListener(MovieDb movie) {
+    public OnClickListener getRimuoviDaVedereOnClickListener(MovieDb movie) {
         return v -> {
             movieListController.rimuoviFilmDaVedere(movie, searchMovieActivity);
             closeBottonMenu();

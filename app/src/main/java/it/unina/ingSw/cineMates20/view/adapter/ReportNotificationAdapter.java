@@ -3,19 +3,21 @@ package it.unina.ingSw.cineMates20.view.adapter;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView.Adapter;
+import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 
 import java.util.List;
 
 import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.controller.NotificationController;
 
-public class ReportNotificationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class ReportNotificationAdapter extends Adapter<ViewHolder> {
 
     private final Context context;
     private final List<String> reportsSubjects,
@@ -32,14 +34,14 @@ public class ReportNotificationAdapter extends RecyclerView.Adapter<RecyclerView
 
     @NonNull
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(R.layout.report_notification_container, parent, false);
         return new ReportNotificationAdapter.ReportNotificationHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         if(holder.getClass() != ReportNotificationAdapter.ReportNotificationHolder.class)
             throw new IllegalArgumentException("Holder non valido!");
 
@@ -51,7 +53,7 @@ public class ReportNotificationAdapter extends RecyclerView.Adapter<RecyclerView
     }
 
     @NonNull
-    private View.OnClickListener addListenerToDeleteNotification(int position) {
+    private OnClickListener addListenerToDeleteNotification(int position) {
         return v -> {
             try{
                 Runnable r = deleteNotificationEvents.get(position);
@@ -84,7 +86,7 @@ public class ReportNotificationAdapter extends RecyclerView.Adapter<RecyclerView
         return reportsSubjects.size();
     }
 
-    private static class ReportNotificationHolder extends RecyclerView.ViewHolder{
+    private static class ReportNotificationHolder extends ViewHolder{
 
         TextView subjectTextView,
                 outcomeTextView;

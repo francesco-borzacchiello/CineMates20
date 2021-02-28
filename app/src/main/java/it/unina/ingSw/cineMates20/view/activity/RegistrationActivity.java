@@ -48,7 +48,7 @@ public class RegistrationActivity extends AppCompatActivity {
     private Uri profileImageUri;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registration);
 
@@ -122,7 +122,7 @@ public class RegistrationActivity extends AppCompatActivity {
                                         Uri.parse("package:" + BuildConfig.APPLICATION_ID))));
 
                 View snackbarView = snackbar.getView();
-                TextView textView = (TextView) snackbarView.findViewById(com.google.android.material.R.id.snackbar_text);
+                TextView textView = snackbarView.findViewById(com.google.android.material.R.id.snackbar_text);
                 textView.setMaxLines(6);
                 snackbar.setDuration(6000);
                 snackbar.show();
@@ -177,6 +177,9 @@ public class RegistrationActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     @return true se il tipo di login/registrazione è social, false altrimenti.
+     */
     public boolean getLoginOrRegistrationType() {
         return isSocialRegistration;
     }

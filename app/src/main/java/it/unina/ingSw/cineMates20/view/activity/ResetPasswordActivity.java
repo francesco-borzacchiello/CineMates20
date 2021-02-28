@@ -4,7 +4,7 @@ import android.os.Bundle;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
 import android.view.MotionEvent;
-import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -74,7 +74,7 @@ public class ResetPasswordActivity extends AppCompatActivity {
 
     @NotNull
     @Contract(pure = true)
-    private View.OnClickListener sendConfirmCodeOnClickListener() {
+    private OnClickListener sendConfirmCodeOnClickListener() {
         return v -> {
             Runnable eventForSendConfirmCode = resetPasswordController.getEventHandlerForOnClickSendConfirmCode();
             try {
@@ -86,7 +86,7 @@ public class ResetPasswordActivity extends AppCompatActivity {
         };
     }
 
-    private View.OnClickListener sendNewPasswordOnClickListener() {
+    private OnClickListener sendNewPasswordOnClickListener() {
         return v -> {
             Runnable eventForSendNewPassword = resetPasswordController.getEventHandlerForOnClickSendNewPassword();
             try {
@@ -120,8 +120,8 @@ public class ResetPasswordActivity extends AppCompatActivity {
     //endregion
 
     //region Abilita / Disabilita il tasto
-    public void enableSendInformationButton(boolean enabled){
-        runOnUiThread(()-> sendInformationButton.setEnabled(enabled));
+    public void enableSendInformationButton(boolean enable){
+        runOnUiThread(()-> sendInformationButton.setEnabled(enable));
     }
     //endregion
 

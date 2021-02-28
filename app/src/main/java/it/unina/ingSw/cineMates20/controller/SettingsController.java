@@ -64,9 +64,9 @@ public class SettingsController {
         enableSearchMovieFilter = enabled;
     }
 
-    public void setNotificationPreference(boolean enabled) {
-        User.enableNotificationFilter(enabled);
-        enableNotificationSync = enabled;
+    public void setNotificationPreference(boolean enable) {
+        User.enableNotificationFilter(enable);
+        enableNotificationSync = enable;
     }
 
     public boolean isSearchMovieFilterEnabled() {

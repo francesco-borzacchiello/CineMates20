@@ -241,7 +241,7 @@ public class UserHttpRequests {
         return null;
     }
 
-    public boolean addFriend(String emailUser, String emailFriend) {
+    public boolean addFriend(String emailUser, String friendEmail) {
         boolean[] ret = new boolean[1];
         Thread t = new Thread(()-> {
             try {
@@ -250,7 +250,7 @@ public class UserHttpRequests {
 
                 String url = dbPath + "User/addFriend/{Email_Utente}/{Email_Amico}";
 
-                ResponseEntity<String> responseEntity = restTemplate.postForEntity(url, null, String.class, emailUser, emailFriend);
+                ResponseEntity<String> responseEntity = restTemplate.postForEntity(url, null, String.class, emailUser, friendEmail);
 
                 if(responseEntity.getStatusCode() == HttpStatus.OK)
                     ret[0] = true;

@@ -40,7 +40,7 @@ public class JoinedMoviesController {
     //region Attributi
     private static JoinedMoviesController instance;
     private JoinedMoviesActivity joinedMoviesActivity;
-    private HomeStyleMovieAdapter actualAdapter;
+    //private HomeStyleMovieAdapter actualAdapter;
     private UserDB actualFriendUser;
     private static final String dbPath = BuildConfig.DB_PATH,
                                 TMDB_API_KEY = BuildConfig.TMDB_API_KEY;
@@ -140,7 +140,7 @@ public class JoinedMoviesController {
                     initializeListsForJoinedMoviesAdapter(tmdbApi, userMoviesIds, titles,
                             imagesUrl, moviesCardViewListeners);
 
-                    actualAdapter = getJoinedMoviesRecyclerViewAdapter
+                    HomeStyleMovieAdapter actualAdapter = getJoinedMoviesRecyclerViewAdapter
                             (userMoviesIds, titles, imagesUrl, moviesCardViewListeners);
 
                     if(actualAdapter != null && actualAdapter.getItemCount() > 0) {

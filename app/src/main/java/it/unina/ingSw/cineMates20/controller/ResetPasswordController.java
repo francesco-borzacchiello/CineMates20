@@ -3,7 +3,7 @@ package it.unina.ingSw.cineMates20.controller;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.View;
+import android.view.View.OnClickListener;
 
 import com.amplifyframework.core.Amplify;
 
@@ -176,7 +176,7 @@ public class ResetPasswordController {
     //endregion
 
     //region Mostrare / Nascondere la password, al selezionare / deselezionare di una checkbox
-    public View.OnClickListener getMostraPasswordCheckBoxListener() {
+    public OnClickListener getMostraPasswordCheckBoxListener() {
         return listener -> {
             //Se la CheckBox è selezionata mostra la password, altrimenti la nasconde
             resetPasswordActivity.showOrHidePassword(resetPasswordActivity.isCheckBoxMostraPasswordEnabled());

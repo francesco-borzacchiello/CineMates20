@@ -28,13 +28,6 @@ android {
         buildConfigField "String", "TMDB_API_KEY", secretKeysProperties['TMDB_API_KEY']
     }
 
-    /*preBuild {
-        doFirst {
-            JavaCompile jc = android.applicationVariants.find { it.name == 'debug' }.javaCompile
-            jc.options.compilerArgs = ["-Xlint:deprecation"]
-        }
-    }*/
-
     buildTypes {
         release {
             minifyEnabled false
@@ -66,15 +59,12 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.2.0'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0'
 
-    //implementation group: 'org.slf4j', name: 'slf4j-jdk14', version: '1.7.30'
-
     implementation 'com.amplifyframework:core:1.6.8'
     implementation 'com.amplifyframework:aws-auth-cognito:1.6.8'
     implementation 'com.amplifyframework:aws-storage-s3:1.6.11'
     implementation 'com.amazonaws:aws-android-sdk-cognitoidentityprovider:2.20.1'
     implementation 'com.amazonaws:aws-android-sdk-cognito:2.16.7'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    //coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.1'
 
     implementation 'com.facebook.android:facebook-android-sdk:8.2.0'
     implementation 'com.facebook.android:facebook-login:8.2.0'
@@ -84,6 +74,7 @@ dependencies {
     implementation 'androidx.navigation:navigation-ui:2.3.2'
     implementation 'com.getbase:floatingactionbutton:1.10.1'
     implementation 'androidx.preference:preference:1.1.1'
+    implementation fileTree(dir: 'C:\\Users\\fborz\\OneDriveUnina\\OneDrive - Università di Napoli Federico II\\CineMates20\\Implementazione', include: ['*.aar', '*.jar'], exclude: [])
 
     testImplementation 'junit:junit:4.13.1'
     testImplementation 'org.junit.jupiter:junit-jupiter'
@@ -109,8 +100,6 @@ dependencies {
 
     //Dipendenza per "Mostra altro" nella pagina dei film
     implementation 'com.github.AhmMhd:SeeMoreTextView-Android:1.0.0'
-
-    //implementation 'org.jfrog.artifactory.client:artifactory-java-client-services:2.3.4'
 
     implementation 'org.springframework.android:spring-android-rest-template:2.0.0.M2'
     implementation 'org.apache.httpcomponents:httpclient-android:4.3.5'

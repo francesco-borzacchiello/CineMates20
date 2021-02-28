@@ -3,6 +3,7 @@ package it.unina.ingSw.cineMates20.view.adapter;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.ImageView;
@@ -11,6 +12,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView.Adapter;
+import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
@@ -25,19 +28,19 @@ import java.util.TreeSet;
 import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.controller.MoviesListsController;
 
-public class HomeStyleMovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class HomeStyleMovieAdapter extends Adapter<ViewHolder> {
     private final Context context;
-    private final List<String> title, linkImage;
+    private final List<String> titles, linkImage;
     private final List<Long> moviesIds;
     private final List<Runnable> movieCardListeners;
     private final SortedSet<Integer> deleteList;
 
     private int visibilityCheckBox = View.GONE;
 
-    public HomeStyleMovieAdapter(Context context, List<String> title,
+    public HomeStyleMovieAdapter(Context context, List<String> titles,
                                  List<String> linkImage, List<Runnable> movieCardListeners, List<Long> moviesIds) {
         this.context = context;
-        this.title = title;
+        this.titles = titles;
         this.linkImage = linkImage;
         this.movieCardListeners = movieCardListeners;
         this.moviesIds = moviesIds;
@@ -56,14 +59,14 @@ public class HomeStyleMovieAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     @NonNull
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(R.layout.movie_container_home, parent, false);
         return new HomeStyleMovieAdapter.MovieHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         if(holder.getClass() != MovieHolder.class)
             throw new IllegalArgumentException("Holder non valido!");
 
@@ -73,7 +76,7 @@ public class HomeStyleMovieAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         if(movieHolder.isInitialized) return;
 
         movieHolder.isInitialized = true;
-        movieHolder.titleTextView.setText(title.get(position));
+        movieHolder.titleTextView.setText(titles.get(position));
 
         String firstPath = context.getResources().getString(R.string.first_path_image);
         if(linkImage.get(position) != null && !linkImage.get(position).equals("")) {
@@ -115,7 +118,7 @@ public class HomeStyleMovieAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     @NotNull
     @Contract(pure = true)
-    private View.OnClickListener addListenerForMovieCard(MovieHolder movieHolder) {
+    private OnClickListener addListenerForMovieCard(MovieHolder movieHolder) {
         return v -> {
             if (!isDeleteEnabled()) {
                 try {
@@ -154,7 +157,7 @@ public class HomeStyleMovieAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         if(deleteList.size() > 0) {
             int deletedElements = 0;
             for(int position : deleteList) {
-                title.remove(position - deletedElements);
+                titles.remove(position - deletedElements);
                 linkImage.remove(position - deletedElements);
                 movieCardListeners.remove(position - deletedElements++);
             }
@@ -162,11 +165,11 @@ public class HomeStyleMovieAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             deleteList.clear();
         }
 
-        if(title.size() == 0)
+        if(titles.size() == 0)
             MoviesListsController.getMoviesListControllerInstance().showEmptyMovieList();
     }
 
-    private class MovieHolder extends RecyclerView.ViewHolder {
+    private class MovieHolder extends ViewHolder {
 
         TextView titleTextView;
         ImageView movieImageView;

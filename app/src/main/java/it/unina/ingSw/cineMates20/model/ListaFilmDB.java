@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
         "nome",
         "Email_Possessore"
 })
-public class ListaFilmDB {
+    public class ListaFilmDB {
 
     @JsonProperty("id")
     private Long id;

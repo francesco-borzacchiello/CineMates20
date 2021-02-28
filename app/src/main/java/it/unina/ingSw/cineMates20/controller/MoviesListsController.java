@@ -2,9 +2,10 @@ package it.unina.ingSw.cineMates20.controller;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.view.MenuItem;
+import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -76,8 +77,8 @@ public class MoviesListsController {
     }
     //endregion
 
-    public AdapterView.OnItemSelectedListener getMoviesListActivitySpinnerListener() {
-        return new AdapterView.OnItemSelectedListener() {
+    public OnItemSelectedListener getMoviesListActivitySpinnerListener() {
+        return new OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String[] spinnerArray = moviesListActivity.getResources().getStringArray(R.array.movies_list_tag);
@@ -174,8 +175,8 @@ public class MoviesListsController {
 
             String email = User.getLoggedUser(activity).getEmail();
 
-            ListaFilmDB listaFilmPreferiti = restTemplate.getForObject(url, ListaFilmDB.class, email);
-            HttpEntity<ListaFilmDB> requestListaPreferitiEntity = new HttpEntity<>(listaFilmPreferiti, headers);
+            ListaFilmDB listaFilm = restTemplate.getForObject(url, ListaFilmDB.class, email);
+            HttpEntity<ListaFilmDB> requestListaPreferitiEntity = new HttpEntity<>(listaFilm, headers);
 
             url = dbPath + "ListaFilm/" + methodForEditingList + "/{FK_Film}";
             restTemplate.postForEntity(url, requestListaPreferitiEntity, ListaFilmDB.class, idFilm);
@@ -293,12 +294,12 @@ public class MoviesListsController {
         actualAdapter.notifyDataSetChanged();
     }
 
-    public boolean isDeleteEnabled() {
+        public boolean isDeleteEnabled() {
         if(actualAdapter == null) return false;
         return actualAdapter.isDeleteEnabled();
     }
 
-    public MenuItem.OnMenuItemClickListener getOnMenuItemClickListener() {
+    public OnMenuItemClickListener getOnMenuItemClickListener() {
         return item -> {
             if(Utilities.checkNullActivityOrNoConnection(moviesListActivity)) return true;
 

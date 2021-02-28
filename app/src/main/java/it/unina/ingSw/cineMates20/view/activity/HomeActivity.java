@@ -34,7 +34,6 @@ import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.controller.HomeController;
 import it.unina.ingSw.cineMates20.controller.SettingsController;
 import it.unina.ingSw.cineMates20.model.User;
-import it.unina.ingSw.cineMates20.model.UserDB;
 import it.unina.ingSw.cineMates20.view.util.Utilities;
 
 public class HomeActivity extends AppCompatActivity {
@@ -132,9 +131,8 @@ public class HomeActivity extends AppCompatActivity {
         profilePicture = navigationView.getHeaderView(0).findViewById(R.id.imageProfile);
 
         runOnUiThread(() -> {
-            UserDB user = User.getLoggedUser(this);
-            nomeTextView.setText(user.getNome());
-            cognomeTextView.setText(user.getCognome());
+            nomeTextView.setText(User.getLoggedUser(this).getNome());
+            cognomeTextView.setText(User.getLoggedUser(this).getCognome());
 
             String profilePictureUrl = User.getUserProfilePictureUrl();
             if(profilePictureUrl != null)
@@ -306,10 +304,8 @@ public class HomeActivity extends AppCompatActivity {
 
                 nowPlayingLabelHomeMoviesTextView.setVisibility(View.VISIBLE);
 
-                //if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
-                    nowPlayingLabelHomeMoviesTextView.setAlpha(0.0f);
-                    nowPlayingLabelHomeMoviesTextView.animate().alpha(1.0f);
-                //}
+                nowPlayingLabelHomeMoviesTextView.setAlpha(0.0f);
+                nowPlayingLabelHomeMoviesTextView.animate().alpha(1.0f);
             }
 
             if(mostPopularHomeMoviesRecyclerView.getAdapter() != null &&
@@ -317,10 +313,8 @@ public class HomeActivity extends AppCompatActivity {
 
                 mostPopularMoviesTextView.setVisibility(View.VISIBLE);
 
-                //if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
-                    mostPopularMoviesTextView.setAlpha(0.0f);
-                    mostPopularMoviesTextView.animate().alpha(1.0f);
-                //}
+                mostPopularMoviesTextView.setAlpha(0.0f);
+                mostPopularMoviesTextView.animate().alpha(1.0f);
             }
 
             if(upcomingHomeMoviesRecyclerView.getAdapter() != null &&
@@ -328,10 +322,8 @@ public class HomeActivity extends AppCompatActivity {
 
                 upcomingMoviesTextView.setVisibility(View.VISIBLE);
 
-                //if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
-                    upcomingMoviesTextView.setAlpha(0.0f);
-                    upcomingMoviesTextView.animate().alpha(1.0f);
-                //}
+                upcomingMoviesTextView.setAlpha(0.0f);
+                upcomingMoviesTextView.animate().alpha(1.0f);
             }
 
             if(topRatedHomeMoviesRecyclerView.getAdapter() != null &&
@@ -339,10 +331,8 @@ public class HomeActivity extends AppCompatActivity {
 
                 topRatedMoviesTextView.setVisibility(View.VISIBLE);
 
-                //if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
-                    topRatedMoviesTextView.setAlpha(0.0f);
-                    topRatedMoviesTextView.animate().alpha(1.0f);
-                //}
+                topRatedMoviesTextView.setAlpha(0.0f);
+                topRatedMoviesTextView.animate().alpha(1.0f);
             }
         });
     }

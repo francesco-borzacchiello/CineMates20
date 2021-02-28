@@ -2,13 +2,14 @@ package it.unina.ingSw.cineMates20.view.adapter;
 
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView.Adapter;
 
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.MemoryPolicy;
@@ -23,7 +24,9 @@ import it.unina.ingSw.cineMates20.model.S3Manager;
 import it.unina.ingSw.cineMates20.model.UserDB;
 import it.unina.ingSw.cineMates20.view.activity.NotificationActivity;
 
-public class PendingFriendsRequestsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+import static androidx.recyclerview.widget.RecyclerView.ViewHolder;
+
+public class PendingFriendsRequestsAdapter extends Adapter<ViewHolder> {
 
     private final NotificationActivity notificationActivity;
     private final List<UserDB> users;
@@ -40,14 +43,14 @@ public class PendingFriendsRequestsAdapter extends RecyclerView.Adapter<Recycler
 
     @NonNull
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(notificationActivity);
         View view = inflater.inflate(R.layout.friend_notification_container, parent, false);
         return new PendingFriendsRequestsAdapter.FriendNotificationHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         if(holder.getClass() != PendingFriendsRequestsAdapter.FriendNotificationHolder.class)
             throw new IllegalArgumentException("Holder non valido!");
 
@@ -80,7 +83,7 @@ public class PendingFriendsRequestsAdapter extends RecyclerView.Adapter<Recycler
     }
 
     @NonNull
-    private View.OnClickListener addListenerForFriendDetails(int position) {
+    private OnClickListener addListenerForFriendDetails(int position) {
         return v -> {
             try{
                 clickOnUserEvent.get(position).run();
@@ -89,7 +92,7 @@ public class PendingFriendsRequestsAdapter extends RecyclerView.Adapter<Recycler
     }
 
     @NonNull
-    private View.OnClickListener addListenerToAcceptFriendRequest(int position) {
+    private OnClickListener addListenerToAcceptFriendRequest(int position) {
         return v -> {
             try{
                 Runnable r = acceptRequestEvent.get(position);
@@ -99,7 +102,7 @@ public class PendingFriendsRequestsAdapter extends RecyclerView.Adapter<Recycler
     }
 
     @NonNull
-    private View.OnClickListener addListenerToRejectFriendRequest(int position) {
+    private OnClickListener addListenerToRejectFriendRequest(int position) {
         return v -> {
             try{
                 Runnable r = rejectRequestEvent.get(position);
@@ -141,7 +144,7 @@ public class PendingFriendsRequestsAdapter extends RecyclerView.Adapter<Recycler
         return users.size();
     }
 
-    private static class FriendNotificationHolder extends RecyclerView.ViewHolder{
+    private static class FriendNotificationHolder extends ViewHolder{
 
         TextView nameTextView,
                  surnameTextView,

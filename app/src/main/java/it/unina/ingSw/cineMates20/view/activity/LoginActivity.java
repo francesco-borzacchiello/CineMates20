@@ -5,7 +5,7 @@ import android.text.TextWatcher;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
 import android.view.MotionEvent;
-import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -39,7 +39,7 @@ public class LoginActivity extends AppCompatActivity {
 
     //region onCreate
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         loginController = LoginController.getLoginControllerInstance();
@@ -60,12 +60,12 @@ public class LoginActivity extends AppCompatActivity {
         loginButton.setOnClickListener(loginOnClickListener());
         mostraPassword.setOnClickListener(loginController.getMostraPasswordCheckBoxListener());
 
-        creaNuovoAccount.setOnClickListener(registrationOnClickListener(false, null));
-        googleLogo.setOnClickListener(registrationOnClickListener(true, "google"));
-        facebookLogo.setOnClickListener(registrationOnClickListener(true, "facebook"));
-        twitterLogo.setOnClickListener(registrationOnClickListener(true, "twitter"));
+        creaNuovoAccount.setOnClickListener(getSignUpOnClickListener(false, null));
+        googleLogo.setOnClickListener(getSignUpOnClickListener(true, "google"));
+        facebookLogo.setOnClickListener(getSignUpOnClickListener(true, "facebook"));
+        twitterLogo.setOnClickListener(getSignUpOnClickListener(true, "twitter"));
 
-        passwordDimenticata.setOnClickListener(passwordDimenticataOnClickListener());
+        passwordDimenticata.setOnClickListener(getPasswordDimenticataOnClickListener());
     }
 
     //region Getter
@@ -84,7 +84,7 @@ public class LoginActivity extends AppCompatActivity {
 
     @NotNull
     @Contract(pure = true)
-    private View.OnClickListener loginOnClickListener() {
+    private OnClickListener loginOnClickListener() {
         return v -> {
             Runnable eventForLoginClick = loginController.getEventHandlerForOnClickLogin();
             try {
@@ -97,7 +97,7 @@ public class LoginActivity extends AppCompatActivity {
 
     @NotNull
     @Contract(pure = true)
-    private View.OnClickListener registrationOnClickListener(boolean isSocialLogin, String socialProvider) {
+    private OnClickListener getSignUpOnClickListener(boolean isSocialLogin, String socialProvider) {
         return v -> {
             Runnable eventForCreateNewUser = loginController.getEventHandlerForOnClickRegistration(isSocialLogin, socialProvider);
 
@@ -105,14 +105,13 @@ public class LoginActivity extends AppCompatActivity {
                 eventForCreateNewUser.run();
             } catch(NullPointerException e) {
                 Utilities.stampaToast(this, "Al momento non è possibile creare un nuovo account.\nRiprova tra qualche minuto");
-                //return;
             }
         };
     }
 
     @NotNull
     @Contract(pure = true)
-    private View.OnClickListener passwordDimenticataOnClickListener() {
+    private OnClickListener getPasswordDimenticataOnClickListener() {
         return v -> {
             Runnable eventForResetPassword = loginController.getEventHandlerForOnClickResetPassword();
 
@@ -181,63 +180,3 @@ public class LoginActivity extends AppCompatActivity {
             passwordEditText.setSelection(passwordEditText.length());
     }
 }
-
-                /*CognitoCachingCredentialsProvider credentialsProvider = new CognitoCachingCredentialsProvider(
-                        getApplicationContext(),
-                        "eu-west-3:9dfb8e38-d56c-47a4-a10d-2b412bdad408", // ID pool di identità
-                        Regions.EU_WEST_3 // Regione
-                );*/
-
-                /*//Codice per fare logout
-                Amplify.Auth.signOut(
-                        () -> Log.i("AuthQuickstart", "Signed out successfully"),
-                        error -> Log.e("AuthQuickstart", error.toString())
-                );*/
-
-
-                /* //Codice per registrarsi, NOTA: gli attributi sottostanti sono tutti obbligatori
-                ArrayList<AuthUserAttribute> attributes = new ArrayList<>();
-                attributes.add(new AuthUserAttribute(AuthUserAttributeKey.email(), "carmineegr@gmail.com"));
-                attributes.add(new AuthUserAttribute(AuthUserAttributeKey.preferredUsername(), "carmineG"));
-                attributes.add(new AuthUserAttribute(AuthUserAttributeKey.familyName(), "Carmine Grimaldi"));
-                attributes.add(new AuthUserAttribute(AuthUserAttributeKey.name(), "Carmine"));
-                attributes.add(new AuthUserAttribute(AuthUserAttributeKey.picture(), "null"));
-
-                Amplify.Auth.signUp(
-                        "carmineG",
-                        "Carmine_97",
-                        AuthSignUpOptions.builder().userAttributes(attributes).build(),
-                        result -> Log.i("AuthQuickStart", "Result: " + result.toString()),
-                        error -> Log.e("AuthQuickStart", "Sign up failed", error)
-                );
-                 */
-
-                /* //Codice per confermare l'email
-                Amplify.Auth.confirmSignUp(
-                        "carmineG",
-                        "706626",
-                        result -> Log.i("AuthQuickstart", result.toString()),
-                        error -> Log.e("AuthQuickstart", error.toString())
-                );
-                */
-
-                /*Amplify.Auth.fetchAuthSession(
-                        result -> Log.i("AmplifyQuickstart", "login: " + result.toString()),
-                        error -> Log.e("AmplifyQuickstart", "login: " + error.toString())
-                );*/
-
-                //Codice per fare login con username e password:
-                /*Amplify.Auth.signIn(
-                        "carmineG",
-                        "Carmine_97",
-                        result -> Log.i("AuthQuickstart", result.isSignInComplete() ? "Sign in succeeded" : "Sign in not complete"),
-                        error -> Log.e("AuthQuickstart", error.toString())
-                );*/
-
-                /* //Codice per fare login con email e password:
-                Amplify.Auth.signIn(
-                        "carmineegr@gmail.com", //L'email può essere inserita al posto di "username"
-                        "Carmine_97",
-                        result -> Log.i("AuthQuickstart", result.isSignInComplete() ? "Sign in succeeded" : "Sign in not complete"),
-                        error -> Log.e("AuthQuickstart", error.toString())
-                );*/

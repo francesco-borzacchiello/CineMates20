@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
@@ -19,8 +20,8 @@ public class ConfirmRegistrationCodeFragment extends Fragment {
     private Button inviaCodice;
     private Button reinviaCodice;
     private TextWatcher confermaCodiceTextChangedListener;
-    private View.OnClickListener inviaCodiceOnClickListener;
-    private View.OnClickListener reinviaCodiceOnClickListener;
+    private OnClickListener inviaCodiceOnClickListener;
+    private OnClickListener reinviaCodiceOnClickListener;
 
     public ConfirmRegistrationCodeFragment() {}
 
@@ -45,11 +46,11 @@ public class ConfirmRegistrationCodeFragment extends Fragment {
         confermaCodiceTextChangedListener = txtw;
     }
 
-    public void setInviaCodiceOnClickListener(View.OnClickListener listener) {
+    public void setInviaCodiceOnClickListener(OnClickListener listener) {
         inviaCodiceOnClickListener = listener;
     }
 
-    public void setReinviaCodiceOnClickListener(View.OnClickListener listener) {
+    public void setReinviaCodiceOnClickListener(OnClickListener listener) {
         reinviaCodiceOnClickListener = listener;
     }
 

@@ -40,7 +40,6 @@ import it.unina.ingSw.cineMates20.controller.HomeController;
 import it.unina.ingSw.cineMates20.controller.SearchMovieController;
 import it.unina.ingSw.cineMates20.controller.SettingsController;
 import it.unina.ingSw.cineMates20.model.User;
-import it.unina.ingSw.cineMates20.model.UserDB;
 import it.unina.ingSw.cineMates20.view.fragment.EmptySearchFragment;
 import it.unina.ingSw.cineMates20.view.fragment.NotEmptyMovieSearchFragment;
 import it.unina.ingSw.cineMates20.view.util.Utilities;
@@ -110,9 +109,8 @@ public class SearchMovieActivity extends AppCompatActivity {
         fotoProfilo = navigationView.getHeaderView(0).findViewById(R.id.imageProfile);
 
         runOnUiThread(() -> {
-            UserDB user = User.getLoggedUser(this);
-            nomeTextView.setText(user.getNome());
-            cognomeTextView.setText(user.getCognome());
+            nomeTextView.setText(User.getLoggedUser(this).getNome());
+            cognomeTextView.setText(User.getLoggedUser(this).getCognome());
 
             String profilePictureUrl = User.getUserProfilePictureUrl();
             if(profilePictureUrl != null)
@@ -187,6 +185,25 @@ public class SearchMovieActivity extends AppCompatActivity {
         String profilePicUrl = User.getUserProfilePictureUrl();
         if(profilePicUrl != null)
             refreshProfilePicture(profilePicUrl);
+    }
+
+    @Override
+    public void finish() {
+        if (manager.getBackStackEntryCount() == 0) {
+            super.finish();
+            searchMovieController.resetHomeRecyclerViewPosition();
+            overridePendingTransition(0, 0);
+        } else {
+            if (searchHistory.size() == 1) {
+                String head = searchHistory.pollLast();
+                manager.popBackStack();
+                searchView.setQuery(head, false);
+            } else {
+                searchHistory.removeLast();
+                manager.popBackStack();
+                searchView.setQuery(searchHistory.getLast(), false);
+            }
+        }
     }
 
     private void setNavigationViewActionListener() {
@@ -311,25 +328,6 @@ public class SearchMovieActivity extends AppCompatActivity {
             searchView.setIconified(false);
             searchView.clearFocus();
         });
-    }
-
-    @Override
-    public void finish() {
-        if (manager.getBackStackEntryCount() == 0) {
-            super.finish();
-            searchMovieController.resetHomeRecyclerViewPosition();
-            overridePendingTransition(0, 0);
-        } else {
-            if (searchHistory.size() == 1) {
-                String head = searchHistory.pollLast();
-                manager.popBackStack();
-                searchView.setQuery(head, false);
-            } else {
-                searchHistory.removeLast();
-                manager.popBackStack();
-                searchView.setQuery(searchHistory.getLast(), false);
-            }
-        }
     }
 
     public void setSearchText(String query) {

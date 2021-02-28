@@ -18,11 +18,8 @@ import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
-import org.jetbrains.annotations.NotNull;
-
 import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.controller.UserController;
-import it.unina.ingSw.cineMates20.model.UserDB;
 import it.unina.ingSw.cineMates20.view.util.Utilities;
 
 public class UserActivity extends AppCompatActivity {
@@ -55,19 +52,19 @@ public class UserActivity extends AppCompatActivity {
             setContentView(R.layout.activity_user_friend_profile);
 
         profilePicture = findViewById(R.id.userProfilePicture);
-        initializeUser(userController.getActualUser());
+        initializeUser();
         setUserToolbar();
         setButtonListeners();
     }
 
-    private void initializeUser(@NotNull UserDB user) {
+    private void initializeUser() {
         TextView nomeTextView = findViewById(R.id.user_name);
         nomeTextView.setSelected(true);
         TextView usernameTextView = findViewById(R.id.user_username);
         usernameTextView.setSelected(true);
 
-        String fullName = user.getNome() + " " + user.getCognome();
-        String username = "@" + user.getUsername();
+        String fullName = userController.getActualUser().getNome() + " " + userController.getActualUser().getCognome();
+        String username = "@" + userController.getActualUser().getUsername();
 
         runOnUiThread(() -> {
             nomeTextView.setText(fullName);

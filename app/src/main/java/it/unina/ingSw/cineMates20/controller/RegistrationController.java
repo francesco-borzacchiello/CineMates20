@@ -8,7 +8,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.View;
+import android.view.View.OnClickListener;
 
 import androidx.core.app.ActivityCompat;
 
@@ -62,7 +62,7 @@ public class RegistrationController {
 
     public void setRegistrationActivity(RegistrationActivity activity) { this.registrationActivity = activity; }
 
-    public View.OnClickListener getEventHandlerForOnClickSetProfileImage() {
+    public OnClickListener getEventHandlerForOnClickSetProfileImage() {
         return v -> ActivityCompat.requestPermissions
                        (registrationActivity, new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE }, PICK_IMAGE);
     }
@@ -94,9 +94,9 @@ public class RegistrationController {
                 return;
             }
 
-            boolean inputIsValid = isInputValid(isSocialRegistration);
+            if(!isInputValid(isSocialRegistration)) return;
 
-            if(!isSocialRegistration && inputIsValid) {
+            if(!isSocialRegistration) {
                 //Si procede con la registrazione interna
                 ArrayList<AuthUserAttribute> attributes = new ArrayList<>();
                 attributes.add(new AuthUserAttribute(AuthUserAttributeKey.email(), registrationActivity.getEmail()));
@@ -119,9 +119,9 @@ public class RegistrationController {
                                 )
                 );
 
-                registrationActivity.mostraFragmentConfermaCodice(); //TODO: questo va fatto solo se result è corretto, gestire caso dati già esistenti ma non confermati
+                registrationActivity.mostraFragmentConfermaCodice();
             }
-            else if(inputIsValid) { //Si procede con la registrazione social
+            else { //Si procede con la registrazione social
                 String email = UserHttpRequests.getInstance().getSocialUserEmail(registrationActivity);
 
                 if(email != null) {
@@ -193,7 +193,7 @@ public class RegistrationController {
         };
     }
 
-    public View.OnClickListener getMostraPasswordCheckBoxListener() {
+    public OnClickListener getMostraPasswordCheckBoxListener() {
         return listener -> {
             registrationActivity.showOrHidePassword(registrationActivity.isMostraPasswordChecked());
             registrationActivity.updatePasswordFocus();
@@ -299,7 +299,7 @@ public class RegistrationController {
         };
     }
 
-    public View.OnClickListener getInviaCodiceOnClickListener() {
+    public OnClickListener getInviaCodiceOnClickListener() {
         return listener -> {
             //Codice per confermare l'email
             Amplify.Auth.confirmSignUp(
@@ -332,7 +332,7 @@ public class RegistrationController {
             registrationActivity.runOnUiThread(() -> Utilities.stampaToast(registrationActivity, "Codice errato"));
     }
 
-    public View.OnClickListener getReinviaCodiceOnClickListener() {
+    public OnClickListener getReinviaCodiceOnClickListener() {
         return listener -> Amplify.Auth.resendSignUpCode(
                 registrationActivity.getUsername(),
                 result -> registrationActivity.runOnUiThread(() -> Utilities.stampaToast(registrationActivity, "Codice reinviato")),

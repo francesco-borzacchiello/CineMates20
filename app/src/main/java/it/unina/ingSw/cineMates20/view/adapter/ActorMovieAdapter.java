@@ -8,7 +8,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
@@ -17,7 +16,10 @@ import java.util.List;
 
 import it.unina.ingSw.cineMates20.R;
 
-public class ActorMovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+import static androidx.recyclerview.widget.RecyclerView.Adapter;
+import static androidx.recyclerview.widget.RecyclerView.ViewHolder;
+
+public class ActorMovieAdapter extends Adapter<ViewHolder> {
     private final Context context;
     private final List<String> nameAndSurname,
                                movieNameAndSurname,
@@ -32,16 +34,16 @@ public class ActorMovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     @NonNull
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(R.layout.movie_actor_container, parent, false);
-        ActorMovieAdapter.ActorHolder holder = new ActorMovieAdapter.ActorHolder(view);
+        ActorHolder holder = new ActorHolder(view);
         holder.setIsRecyclable(false);
         return holder;
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         if(holder.getClass() != ActorMovieAdapter.ActorHolder.class)
             throw new IllegalArgumentException("Holder non valido!");
 
@@ -80,7 +82,7 @@ public class ActorMovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         return nameAndSurname.size();
     }
 
-    private static class ActorHolder extends RecyclerView.ViewHolder {
+    private static class ActorHolder extends ViewHolder {
 
         TextView nomeCognomeTextView,
                  nomeCognomeFilmTextView;

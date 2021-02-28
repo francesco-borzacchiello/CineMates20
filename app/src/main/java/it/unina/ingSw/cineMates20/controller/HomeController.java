@@ -6,9 +6,7 @@ import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.KeyEvent;
-import android.view.View;
-
-import androidx.appcompat.widget.SearchView;
+import android.view.View.OnClickListener;
 
 import com.amplifyframework.core.Amplify;
 import com.facebook.AccessToken;
@@ -48,6 +46,8 @@ import it.unina.ingSw.cineMates20.view.activity.SettingsActivity;
 import it.unina.ingSw.cineMates20.view.adapter.HomeStyleMovieAdapter;
 import it.unina.ingSw.cineMates20.view.util.Utilities;
 
+import static android.view.View.OnFocusChangeListener;
+import static androidx.appcompat.widget.SearchView.OnQueryTextListener;
 import static info.movito.themoviedbapi.TmdbMovies.TMDB_METHOD_MOVIE;
 
 public class HomeController {
@@ -293,8 +293,8 @@ public class HomeController {
         };
     }
 
-    public SearchView.OnQueryTextListener getSearchViewOnQueryTextListener() {
-        return new SearchView.OnQueryTextListener() {
+    public OnQueryTextListener getSearchViewOnQueryTextListener() {
+        return new OnQueryTextListener() {
             //Questo metodo non viene invocato se la query è vuota
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -316,7 +316,7 @@ public class HomeController {
         SearchMovieController.getSearchMovieControllerInstance().start(homeActivity, query);
     }
 
-    //Restituisce un listener per una delle icone del NavigationView
+    //Restituisce un listener le icone del NavigationView
     public Runnable getNavigationViewOnOptionsItemSelected(Activity activity, int itemId) {
         return () -> {
             if(Utilities.checkNullActivityOrNoConnection(activity)) return;
@@ -425,9 +425,8 @@ public class HomeController {
                     .setNegativeButton("No", null).show();
 
             alertDialog.setOnKeyListener((arg0, keyCode, event) -> {
-                if (keyCode == KeyEvent.KEYCODE_BACK) {
+                if (keyCode == KeyEvent.KEYCODE_BACK)
                     alertDialog.dismiss();
-                }
                 return true;
             });
         }
@@ -495,7 +494,7 @@ public class HomeController {
     }
 
     //Collassa la searchview in caso di annullamento ricerca
-    public View.OnFocusChangeListener getSearchViewOnQueryTextFocusChangeListener() {
+    public OnFocusChangeListener getSearchViewOnQueryTextFocusChangeListener() {
         return (view, queryTextFocused) -> {
             if (!queryTextFocused) {
                 homeActivity.onResume();
@@ -504,7 +503,7 @@ public class HomeController {
         };
     }
 
-    public View.OnClickListener getOnSearchClickListener() {
+    public OnClickListener getOnSearchClickListener() {
         return (view) -> {
             if(view.getId() == R.id.searchItem)
                 homeActivity.setLayoutsForHome(true);

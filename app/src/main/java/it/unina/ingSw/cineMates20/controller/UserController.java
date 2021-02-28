@@ -3,8 +3,8 @@ package it.unina.ingSw.cineMates20.controller;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.view.KeyEvent;
-import android.view.MenuItem;
-import android.view.View;
+import android.view.MenuItem.OnMenuItemClickListener;
+import android.view.View.OnClickListener;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -78,7 +78,7 @@ public class UserController {
                 (User.getLoggedUser(userActivity).getEmail()).contains(actualUser);
     }
 
-    public View.OnClickListener getRemoveFriendOnClickListener() {
+    public OnClickListener getRemoveFriendOnClickListener() {
         return v -> {
             AlertDialog alertDialog = new AlertDialog.Builder(userActivity)
                     .setMessage("Rimuovere " + actualUser.getUsername() + " dalla lista di amici?")
@@ -108,7 +108,7 @@ public class UserController {
         };
     }
 
-    public View.OnClickListener getAddFriendOnClickListener() {
+    public OnClickListener getAddFriendOnClickListener() {
         return v -> {
             AlertDialog alertDialog = new AlertDialog.Builder(userActivity)
                     .setMessage("Inviare richiesta di amicizia a " + actualUser.getUsername() + "?")
@@ -133,11 +133,11 @@ public class UserController {
         };
     }
 
-    public View.OnClickListener getJoinedMoviesOnClickListener() {
+    public OnClickListener getJoinedMoviesOnClickListener() {
         return v -> JoinedMoviesController.getJoinedMoviesControllerInstance().start(userActivity, actualUser);
     }
 
-    public MenuItem.OnMenuItemClickListener getReportItemOnClickListener() {
+    public OnMenuItemClickListener getReportItemOnClickListener() {
         return menuItem -> {
             ReportController.getReportControllerInstance().startUserReport(userActivity, actualUser);
 

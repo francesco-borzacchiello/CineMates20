@@ -3,7 +3,7 @@ package it.unina.ingSw.cineMates20.controller;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
-import android.view.View;
+import android.view.View.OnClickListener;
 
 import androidx.core.app.ActivityCompat;
 
@@ -62,7 +62,7 @@ public class PersonalProfileController {
         return PICK_IMAGE;
     }
 
-    public View.OnClickListener getEditProfilePictureOnClickListener() {
+    public OnClickListener getEditProfilePictureOnClickListener() {
         return v -> ActivityCompat.requestPermissions
                 (personalProfileActivity, new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE }, PICK_IMAGE);
     }

@@ -27,7 +27,7 @@ public class ReportUserDB {
     @JsonProperty("EsitoSegnalazione")
     private String esitoSegnalazione;
 
-    public ReportUserDB() { }
+    public ReportUserDB() {}
 
     public ReportUserDB(String fKUtenteSegnalato, String fKUtenteSegnalatore,
                         String messaggioSegnalazione, String esitoSegnalazione) {

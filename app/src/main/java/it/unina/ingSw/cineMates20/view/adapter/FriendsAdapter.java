@@ -3,13 +3,14 @@ package it.unina.ingSw.cineMates20.view.adapter;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView.Adapter;
 
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.MemoryPolicy;
@@ -26,7 +27,9 @@ import it.unina.ingSw.cineMates20.controller.FriendsController;
 import it.unina.ingSw.cineMates20.model.S3Manager;
 import it.unina.ingSw.cineMates20.model.UserDB;
 
-public class FriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+import static androidx.recyclerview.widget.RecyclerView.ViewHolder;
+
+public class FriendsAdapter extends Adapter<ViewHolder> {
     private final Context context;
     private final List<UserDB> friends;
     private final List<Runnable> showUserListeners;
@@ -40,14 +43,14 @@ public class FriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     @NonNull
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(R.layout.user_container_friend_search, parent, false);
         return new FriendsAdapter.UserHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         if(holder.getClass() != FriendsAdapter.UserHolder.class)
             throw new IllegalArgumentException("Holder non valido!");
 
@@ -76,7 +79,7 @@ public class FriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     @NotNull
     @Contract(pure = true)
-    private View.OnClickListener addListenerForUserLayout(int position) {
+    private OnClickListener addListenerForUserLayout(int position) {
         return v -> {
             try{
                 lastClickedItemPosition = position;
@@ -111,7 +114,7 @@ public class FriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         lastClickedItemPosition = -1; //Reset
     }
 
-    private static class UserHolder extends RecyclerView.ViewHolder{
+    private static class UserHolder extends ViewHolder{
 
         TextView nameTextView,
                  surnameTextView,

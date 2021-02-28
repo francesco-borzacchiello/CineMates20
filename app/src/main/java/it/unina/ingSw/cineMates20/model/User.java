@@ -63,10 +63,10 @@ public class User {
         return totalNotificationNumber;
     }
 
-    public static void enableNotificationFilter(boolean enabled) {
-        if(enabled && !notificationTaskIsAlive)
+    public static void enableNotificationFilter(boolean enable) {
+        if(enable && !notificationTaskIsAlive)
             enableNotificationTask();
-        else if(!enabled && notificationTaskIsAlive) {
+        else if(!enable && notificationTaskIsAlive) {
             scheduleTaskExecutor.shutdownNow();
             notificationTaskIsAlive = false;
         }

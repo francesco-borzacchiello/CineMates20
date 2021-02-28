@@ -37,7 +37,6 @@ import it.unina.ingSw.cineMates20.controller.HomeController;
 import it.unina.ingSw.cineMates20.controller.PersonalProfileController;
 import it.unina.ingSw.cineMates20.controller.SettingsController;
 import it.unina.ingSw.cineMates20.model.User;
-import it.unina.ingSw.cineMates20.model.UserDB;
 import it.unina.ingSw.cineMates20.view.util.Utilities;
 
 public class PersonalProfileActivity extends AppCompatActivity {
@@ -84,13 +83,12 @@ public class PersonalProfileActivity extends AppCompatActivity {
         TextView emailTextView = findViewById(R.id.email_personal_profile);
         emailTextView.setSelected(true);
 
-        UserDB user = User.getLoggedUser(this);
         runOnUiThread(() -> {
-            String fullName = user.getNome() + " " + user.getCognome();
+            String fullName = User.getLoggedUser(this).getNome() + " " + User.getLoggedUser(this).getCognome();
             nomeTextView.setText(fullName);
-            String username = "@" + user.getUsername();
+            String username = "@" + User.getLoggedUser(this).getUsername();
             usernameTextView.setText(username);
-            emailTextView.setText(user.getEmail());
+            emailTextView.setText(User.getLoggedUser(this).getEmail());
         });
 
         profilePictureImageView = findViewById(R.id.profileAvatarMenu);
@@ -100,24 +98,22 @@ public class PersonalProfileActivity extends AppCompatActivity {
         pencilImageView.setOnClickListener(personalProfileController.getEditProfilePictureOnClickListener());
 
         String profilePictureUrl = User.getUserProfilePictureUrl();
-        configureNavigationDrawer(user, profilePictureUrl);
+        configureNavigationDrawer(profilePictureUrl);
         refreshProfilePicture(profilePictureUrl);
     }
 
-    private void configureNavigationDrawer(UserDB user, String profilePictureUrl) {
+    private void configureNavigationDrawer(String profilePictureUrl) {
         drawerLayout = findViewById(R.id.userProfileDrawerLayout);
         navigationView = findViewById(R.id.userProfileNavigationView);
         navigationView.setItemIconTintList(null);
-
-        if(user == null) return;
 
         TextView nomeTextView = navigationView.getHeaderView(0).findViewById(R.id.nomeUtenteNavMenu);
         TextView cognomeTextView = navigationView.getHeaderView(0).findViewById(R.id.cognomeUtenteNavMenu);
         navMenuProfilePictureImageView = navigationView.getHeaderView(0).findViewById(R.id.imageProfile);
 
         runOnUiThread(() -> {
-            nomeTextView.setText(user.getNome());
-            cognomeTextView.setText(user.getCognome());
+            nomeTextView.setText(User.getLoggedUser(this).getNome());
+            cognomeTextView.setText(User.getLoggedUser(this).getCognome());
 
             refreshProfilePicture(profilePictureUrl);
         });

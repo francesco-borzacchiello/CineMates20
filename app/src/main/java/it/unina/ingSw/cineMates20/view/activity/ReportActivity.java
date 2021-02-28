@@ -28,7 +28,6 @@ import com.squareup.picasso.Picasso;
 import info.movito.themoviedbapi.model.MovieDb;
 import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.controller.ReportController;
-import it.unina.ingSw.cineMates20.model.UserDB;
 import it.unina.ingSw.cineMates20.view.util.Utilities;
 
 public class ReportActivity extends AppCompatActivity {
@@ -102,7 +101,6 @@ public class ReportActivity extends AppCompatActivity {
     }
 
     private void initializeReportedUser() {
-        UserDB user = reportController.getReportedUser();
         TextView nameTextView = findViewById(R.id.reportedName);
         nameTextView.setSelected(true);
         TextView emailTextView = findViewById(R.id.reportedEmail);
@@ -111,10 +109,10 @@ public class ReportActivity extends AppCompatActivity {
         usernameTextView.setSelected(true);
         ImageView profilePicture = findViewById(R.id.reportedUserProfilePicture);
 
-        String fullName = user.getNome() + " " + user.getCognome();
+        String fullName = reportController.getReportedUser().getNome() + " " + reportController.getReportedUser().getCognome();
         nameTextView.setText(fullName);
-        emailTextView.setText(user.getEmail());
-        String username = "@" + user.getUsername();
+        emailTextView.setText(reportController.getReportedUser().getEmail());
+        String username = "@" + reportController.getReportedUser().getUsername();
         usernameTextView.setText(username);
 
         String profilePictureUrl = reportController.getUserToReportProfilePictureUrl();

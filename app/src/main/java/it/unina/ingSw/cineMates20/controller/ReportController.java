@@ -4,8 +4,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.View;
-import android.widget.RadioGroup;
+import android.view.View.OnClickListener;
+import android.widget.RadioGroup.OnCheckedChangeListener;
 
 import info.movito.themoviedbapi.model.MovieDb;
 import it.unina.ingSw.cineMates20.R;
@@ -67,7 +67,6 @@ public class ReportController {
     }
 
     public MovieDb getReportedMovie() {
-
         return movieToReport;
     }
 
@@ -92,7 +91,7 @@ public class ReportController {
         };
     }
 
-    public View.OnClickListener getReportButtonOnClickListener() {
+    public OnClickListener getReportButtonOnClickListener() {
         return v -> {
             //Alla pressione di "Segnala" viene inviata la segnalazione e disabilitato il pulsante
             report();
@@ -102,7 +101,7 @@ public class ReportController {
         };
     }
 
-    public RadioGroup.OnCheckedChangeListener getRadioGroupOnCheckedChangeListener() {
+    public OnCheckedChangeListener getRadioGroupOnCheckedChangeListener() {
         return (group, checkedId) -> {
             if(checkedId == R.id.otherReasonReportRadioButton) {
                 reportActivity.showOtherReasonEditText(true);

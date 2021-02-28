@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.View;
+import android.view.View.OnClickListener;
 
 import com.amplifyframework.core.Amplify;
 
@@ -151,7 +151,7 @@ public class LoginController {
         };
     }
 
-    public View.OnClickListener getMostraPasswordCheckBoxListener() {
+    public OnClickListener getMostraPasswordCheckBoxListener() {
         return listener -> {
             loginActivity.showOrHidePassword(loginActivity.isCheckBoxMostraPasswordEnabled());
             loginActivity.updatePasswordFocus();

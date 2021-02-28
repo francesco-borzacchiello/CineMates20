@@ -3,8 +3,9 @@ package it.unina.ingSw.cineMates20.controller;
 import android.app.Activity;
 import android.content.Intent;
 import android.view.View;
+import android.view.View.OnClickListener;
 
-import androidx.appcompat.widget.SearchView;
+import androidx.appcompat.widget.SearchView.OnQueryTextListener;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -54,18 +55,18 @@ public class FriendsController {
 
     public void initializeActivityFriendsAdapter() {
         ArrayList<Runnable> usersLayoutListeners = new ArrayList<>();
-        ArrayList<UserDB> users = new ArrayList<>(UserHttpRequests.getInstance().
+        ArrayList<UserDB> friends = new ArrayList<>(UserHttpRequests.getInstance().
                 getAllFriends(User.getLoggedUser(friendsActivity).getEmail()));
 
-        for(UserDB user: users)
+        for(UserDB user: friends)
             usersLayoutListeners.add(getUserLayoutListener(user));
 
-        if(users.size() == 0)
+        if(friends.size() == 0)
             showEmptyFriendsLayout(true);
         else {
             showEmptyFriendsLayout(false);
 
-            friendsAdapter = new FriendsAdapter(friendsActivity, users, usersLayoutListeners);
+            friendsAdapter = new FriendsAdapter(friendsActivity, friends, usersLayoutListeners);
             friendsAdapter.setHasStableIds(true);
             friendsActivity.setFriendsRecyclerView(friendsAdapter);
         }
@@ -109,15 +110,15 @@ public class FriendsController {
         };
     }
 
-    public View.OnClickListener getOnSearchClickListener() {
+    public OnClickListener getOnSearchClickListener() {
         return (view) -> {
             if(view.getId() == R.id.searchItem)
                 friendsActivity.setLayoutsForFriends(true);
         };
     }
 
-    public SearchView.OnQueryTextListener getSearchViewOnQueryTextListener() {
-        return new SearchView.OnQueryTextListener() {
+    public OnQueryTextListener getSearchViewOnQueryTextListener() {
+        return new OnQueryTextListener() {
             //Questo metodo non viene invocato se la query è vuota
             @Override
             public boolean onQueryTextSubmit(String query) {

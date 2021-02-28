@@ -3,13 +3,15 @@ package it.unina.ingSw.cineMates20.view.adapter;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView.Adapter;
+import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
@@ -22,17 +24,17 @@ import java.util.List;
 import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.controller.SearchMovieController;
 
-public class SearchMovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class SearchMovieAdapter extends Adapter<ViewHolder> {
 
     private final Context context;
-    private final List<String> title, description, linkImage;
+    private final List<String> titles, description, linkImage;
     private final List<Runnable> threeDotsListeners, showDetailsMovieListeners;
 
-    public SearchMovieAdapter(Context context, List<String> title, List<String> description,
+    public SearchMovieAdapter(Context context, List<String> titles, List<String> description,
                               List<String> linkImage, List<Runnable> threeDotsListeners,
                               List<Runnable> showDetailsMovieListeners) {
         this.context = context;
-        this.title = title;
+        this.titles = titles;
         this.description = description;
         this.linkImage = linkImage;
         this.threeDotsListeners = threeDotsListeners;
@@ -41,19 +43,19 @@ public class SearchMovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     @NonNull
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(R.layout.movie_container_result_search, parent, false);
         return new MovieHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         if(holder.getClass() != MovieHolder.class)
             throw new IllegalArgumentException("Holder non valido!");
 
         MovieHolder movieHolder = (MovieHolder)holder;
-        movieHolder.titleTextView.setText(title.get(position));
+        movieHolder.titleTextView.setText(titles.get(position));
         movieHolder.descriptionTextView.setText(description.get(position));
 
         String firstPath = context.getResources().getString(R.string.first_path_image);
@@ -70,18 +72,18 @@ public class SearchMovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                         public void onError(Exception e) {}
                     });
 
-        initializeAllListener(movieHolder, position);
+        initializeAllListeners(movieHolder, position);
         SearchMovieController.getSearchMovieControllerInstance().hideSearchMovieProgressBar();
     }
 
-    private void initializeAllListener(@NotNull MovieHolder movieHolder, int position) {
+    private void initializeAllListeners(@NotNull MovieHolder movieHolder, int position) {
         movieHolder.threeDotsImageView.setOnClickListener(addListenerForThreeDots(position));
         movieHolder.movieCardView.setOnClickListener(addListenerForViewDetailsMovie(position));
     }
 
     @NotNull
     @Contract(pure = true)
-    private View.OnClickListener addListenerForThreeDots(int position) {
+    private OnClickListener addListenerForThreeDots(int position) {
         return v -> {
             try{
                 threeDotsListeners.get(position).run();
@@ -91,7 +93,7 @@ public class SearchMovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     @NotNull
     @Contract(pure = true)
-    private View.OnClickListener addListenerForViewDetailsMovie(int position) {
+    private OnClickListener addListenerForViewDetailsMovie(int position) {
         return listener -> {
             try{
                 showDetailsMovieListeners.get(position).run();
@@ -110,7 +112,7 @@ public class SearchMovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     }
 
 
-    private static class MovieHolder extends RecyclerView.ViewHolder{
+    private static class MovieHolder extends ViewHolder{
 
         TextView titleTextView,
                  descriptionTextView;

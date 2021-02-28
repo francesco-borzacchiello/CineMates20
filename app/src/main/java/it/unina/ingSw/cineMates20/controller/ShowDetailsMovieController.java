@@ -3,7 +3,7 @@ package it.unina.ingSw.cineMates20.controller;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
-import android.view.View;
+import android.view.View.OnClickListener;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -399,7 +399,7 @@ public class ShowDetailsMovieController {
 
 
     //region Listener pulsanti per l'aggiunta/rimozione da una lista
-    public View.OnClickListener getAggiungiPreferitiOnClickListener() {
+    public OnClickListener getAggiungiPreferitiOnClickListener() {
         return v -> {
             if(actualMovie != null && showDetailsMovieActivity != null) {
                 showDetailsMovieActivity.collapseFloatingActionMenu();
@@ -410,7 +410,7 @@ public class ShowDetailsMovieController {
         };
     }
 
-    public View.OnClickListener getRimuoviPreferitiOnClickListener() {
+    public OnClickListener getRimuoviPreferitiOnClickListener() {
         return v -> {
             if(actualMovie != null && showDetailsMovieActivity != null) {
                 showDetailsMovieActivity.temporarilyDisableFavouritesButton();
@@ -421,7 +421,7 @@ public class ShowDetailsMovieController {
         };
     }
 
-    public View.OnClickListener getAggiungiDaVedereOnClickListener() {
+    public OnClickListener getAggiungiDaVedereOnClickListener() {
         return v -> {
             if(actualMovie != null && showDetailsMovieActivity != null) {
                 showDetailsMovieActivity.temporarilyDisableToWatchButton();
@@ -432,7 +432,7 @@ public class ShowDetailsMovieController {
         };
     }
 
-    public View.OnClickListener getRimuoviDaVedereOnClickListener() {
+    public OnClickListener getRimuoviDaVedereOnClickListener() {
         return v -> {
             if(actualMovie != null && showDetailsMovieActivity != null) {
                 showDetailsMovieActivity.temporarilyDisableToWatchButton();
@@ -475,7 +475,7 @@ public class ShowDetailsMovieController {
         }catch (InterruptedException ignore) {}
     }
 
-    public View.OnClickListener getYoutubeImageViewOnClickListener() {
+    public OnClickListener getYoutubeImageViewOnClickListener() {
         return v -> {
             if(actualMovieKeyTrailer != null) {
                 Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + actualMovieKeyTrailer));
@@ -516,7 +516,7 @@ public class ShowDetailsMovieController {
         return true;
     }
 
-    public View.OnClickListener getHomePageOnClickListener() {
+    public OnClickListener getHomePageOnClickListener() {
         return v -> {
             if(actualMovie.getHomepage() != null && !actualMovie.getHomepage().equals("")) {
                 showDetailsMovieActivity.collapseFloatingActionMenu();

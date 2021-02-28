@@ -10,6 +10,7 @@ import android.text.method.PasswordTransformationMethod;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -39,7 +40,7 @@ public class RegistrationFragment extends Fragment {
     private TextWatcher afterTextChangedListener;
     private CheckBox checkBoxMostraPassword;
     private Runnable registrationButtonRunnable;
-    private View.OnClickListener mostraPasswordListener,
+    private OnClickListener mostraPasswordListener,
                                  loadImageListener;
     private ImageView profileImage,
                       pencilToLoadImage;
@@ -112,7 +113,7 @@ public class RegistrationFragment extends Fragment {
         profileImage.setOnClickListener(loadImageListener);
     }
 
-    public void setListenerToLoadImage(View.OnClickListener listenerToLoadImage) {
+    public void setListenerToLoadImage(OnClickListener listenerToLoadImage) {
         loadImageListener = listenerToLoadImage;
     }
 
@@ -121,7 +122,7 @@ public class RegistrationFragment extends Fragment {
         this.afterTextChangedListener = txtw;
     }
 
-    public void setMostraPasswordCheckBoxListener(View.OnClickListener listener) {
+    public void setMostraPasswordCheckBoxListener(OnClickListener listener) {
         mostraPasswordListener = listener;
     }
 
@@ -142,17 +143,17 @@ public class RegistrationFragment extends Fragment {
             this.profileImage.setImageURI(uri);
     }
 
-    private void setGraphicsComponents(@NotNull View v) {
-        checkBoxMostraPassword = v.findViewById(R.id.mostraPswRegistrazione);
-        nomeEditText = v.findViewById(R.id.nomeRegistrazione);
-        cognomeEditText = v.findViewById(R.id.cognomeRegistrazione);
-        usernameEditText = v.findViewById(R.id.usernameRegistrazione);
-        passwordEditText = v.findViewById(R.id.passwordRegistrazione);
-        confermaPasswordEditText = v.findViewById(R.id.confermaPasswordRegistrazione);
-        emailEditText = v.findViewById(R.id.emailRegistrazione);
-        registrationButton = v.findViewById(R.id.registratiButton);
-        profileImage = v.findViewById(R.id.profileAvatarRegistration);
-        pencilToLoadImage = v.findViewById(R.id.editAvatarPencil);
+    private void setGraphicsComponents(@NotNull View view) {
+        checkBoxMostraPassword = view.findViewById(R.id.mostraPswRegistrazione);
+        nomeEditText = view.findViewById(R.id.nomeRegistrazione);
+        cognomeEditText = view.findViewById(R.id.cognomeRegistrazione);
+        usernameEditText = view.findViewById(R.id.usernameRegistrazione);
+        passwordEditText = view.findViewById(R.id.passwordRegistrazione);
+        confermaPasswordEditText = view.findViewById(R.id.confermaPasswordRegistrazione);
+        emailEditText = view.findViewById(R.id.emailRegistrazione);
+        registrationButton = view.findViewById(R.id.registratiButton);
+        profileImage = view.findViewById(R.id.profileAvatarRegistration);
+        pencilToLoadImage = view.findViewById(R.id.editAvatarPencil);
 
         if(profileImageBitmap != null)
             this.profileImage.setImageBitmap(profileImageBitmap);

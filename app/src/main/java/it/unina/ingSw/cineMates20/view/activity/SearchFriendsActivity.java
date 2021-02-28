@@ -37,7 +37,6 @@ import it.unina.ingSw.cineMates20.controller.HomeController;
 import it.unina.ingSw.cineMates20.controller.SearchFriendsController;
 import it.unina.ingSw.cineMates20.controller.SettingsController;
 import it.unina.ingSw.cineMates20.model.User;
-import it.unina.ingSw.cineMates20.model.UserDB;
 import it.unina.ingSw.cineMates20.view.fragment.EmptySearchFragment;
 import it.unina.ingSw.cineMates20.view.fragment.NotEmptyFriendsSearchFragment;
 import it.unina.ingSw.cineMates20.view.util.Utilities;
@@ -107,9 +106,8 @@ public class SearchFriendsActivity extends AppCompatActivity {
         fotoProfilo = navigationView.getHeaderView(0).findViewById(R.id.imageProfile);
 
         runOnUiThread(() -> {
-            UserDB user = User.getLoggedUser(this);
-            nomeTextView.setText(user.getNome());
-            cognomeTextView.setText(user.getCognome());
+            nomeTextView.setText(User.getLoggedUser(this).getNome());
+            cognomeTextView.setText(User.getLoggedUser(this).getCognome());
 
             String profilePictureUrl = User.getUserProfilePictureUrl();
             if(profilePictureUrl != null)

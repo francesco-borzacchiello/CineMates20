@@ -16,7 +16,6 @@ import org.jetbrains.annotations.NotNull;
 
 import it.unina.ingSw.cineMates20.R;
 import it.unina.ingSw.cineMates20.controller.NotificationController;
-import it.unina.ingSw.cineMates20.view.adapter.ReportNotificationAdapter;
 import it.unina.ingSw.cineMates20.view.fragment.PendingFriendsNotificationFragment;
 import it.unina.ingSw.cineMates20.view.fragment.ReportNotificationFragment;
 
@@ -124,7 +123,7 @@ public class NotificationActivity extends AppCompatActivity {
             });
     }
 
-    public void setReportNotificationsRecyclerView(@NotNull ReportNotificationAdapter adapter) {
+    public void setReportNotificationsRecyclerView(@NotNull RecyclerView.Adapter<RecyclerView.ViewHolder> adapter) {
         if(adapter.getItemCount() == 0)
             showEmptyReportsNotificationPage(true);
         else

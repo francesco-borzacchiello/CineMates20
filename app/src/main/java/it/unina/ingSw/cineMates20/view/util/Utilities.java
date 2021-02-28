@@ -46,7 +46,6 @@ public class Utilities {
          Lunghezza minima 8 caratteri
          Vincolo aggiuntivo: niente spazi bianchi nel mezzo
      */
-
     public static boolean isPasswordValid(String password) {
         if(password == null)
             return false;
